@@ -5,8 +5,8 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 ## Stack
 
 - Turborepo + pnpm workspaces (pnpm 9, Node 22 LTS)
-- Web: Vite + React 18 + TypeScript strict
-- Mobile: Expo SDK 52 + React Native (new architecture on)
+- Web: Vite + React 19 + TypeScript strict
+- Mobile: Expo SDK 54 + React 19 + React Native 0.81 (new architecture on)
 - Shared core: `@glaon/core` (platform-agnostic, no DOM / no RN imports)
 - UI: `@glaon/ui` wraps the licensed Untitled UI React kit (not committed)
 - Backend: Home Assistant, consumed via OAuth2 Authorization Code + PKCE and the WebSocket API
