@@ -18,6 +18,15 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - **User-facing docs under `docs/` and `README.md`: Turkish.**
 - Conversation with the user in this repo: Turkish.
 
+## Issue-First Rule (MANDATORY)
+
+**No work starts without a GitHub issue.** Every code change, doc edit, config tweak, refactor, or upgrade must have a tracking issue created *before* work begins.
+
+- Check for an existing issue first (`gh issue list` or GitHub MCP).
+- If none exists, open one, communicate the number to the user, *then* touch code.
+- Commits and PRs must reference the issue: `Refs #N` in the body, `Closes #N` for the final PR.
+- Applies to tiny fixes too. The only exception is repository bootstrap work.
+
 ## Security-First Rules
 
 - No `localStorage` for tokens on web. In-memory + httpOnly cookie, or SecureStore on mobile.
