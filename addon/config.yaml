@@ -1,0 +1,21 @@
+name: Glaon
+version: "0.0.0"
+slug: glaon
+description: Secure custom frontend for Home Assistant (web + wall tablet).
+url: https://github.com/toss-cengiz/glaon
+arch:
+  - amd64
+  - aarch64
+init: false
+ingress: true
+ingress_port: 8099
+ingress_stream: false
+panel_icon: mdi:home-lightbulb
+panel_title: Glaon
+homeassistant_api: false
+hassio_api: false
+auth_api: true
+host_network: false
+apparmor: true
+options: {}
+schema: {}

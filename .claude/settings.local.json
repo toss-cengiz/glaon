@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(python3)",
+      "Bash(python3 -c \"import json; json.load\\(open\\('/Users/toss/.claude.json'\\)\\)\")",
+      "WebSearch",
+      "Bash(git config *)",
+      "Bash(git --version)",
+      "Bash(git -C /Users/toss/Documents/Project/Glaon init -b main)",
+      "Bash(git -C /Users/toss/Documents/Project/Glaon remote add origin https://github.com/toss-cengiz/glaon.git)",
+      "Bash(git -C /Users/toss/Documents/Project/Glaon status --short)"
+    ]
+  }
+}

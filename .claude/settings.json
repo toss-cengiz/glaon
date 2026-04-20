@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm run *)",
+      "Bash(pnpm --filter *)",
+      "Bash(pnpm type-check)",
+      "Bash(pnpm lint)",
+      "Bash(pnpm test)",
+      "Bash(pnpm build)",
+      "Bash(pnpm dev)",
+      "Bash(pnpm format)",
+      "Bash(pnpm format:check)",
+      "Bash(turbo run *)",
+      "Bash(git status)",
+      "Bash(git diff)",
+      "Bash(git diff:*)",
+      "Bash(git log)",
+      "Bash(git log:*)",
+      "Bash(git show *)",
+      "Bash(git branch)",
+      "Bash(git branch:*)",
+      "Bash(git remote)",
+      "Bash(git remote -v)"
+    ]
+  }
+}

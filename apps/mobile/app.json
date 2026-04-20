@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Glaon",
+    "slug": "glaon",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "scheme": "glaon",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.glaon.app"
+    },
+    "android": {
+      "package": "com.glaon.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
+      }
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

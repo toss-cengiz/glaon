@@ -1,0 +1,19 @@
+#include <tunables/global>
+
+profile glaon flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  capability net_bind_service,
+  capability setuid,
+  capability setgid,
+
+  network inet tcp,
+  network inet6 tcp,
+
+  /run.sh rix,
+  /usr/sbin/nginx rix,
+  /var/www/glaon/** r,
+  /var/log/nginx/** w,
+  /var/lib/nginx/** rw,
+  /run/nginx.pid rw,
+}
