@@ -5,7 +5,6 @@ import type { HaConnectionConfig, HaEntityState } from '../types';
 // Protocol: https://developers.home-assistant.io/docs/api/websocket
 export class HaClient {
   private socket: WebSocket | null = null;
-  private messageId = 1;
 
   constructor(
     private readonly config: HaConnectionConfig,
@@ -19,21 +18,20 @@ export class HaClient {
     this.socket = socket;
 
     await new Promise<void>((resolve, reject) => {
-      socket.addEventListener('open', () => resolve(), { once: true });
-      socket.addEventListener('error', () => reject(new Error('HA socket error')), { once: true });
+      socket.addEventListener('open', () => { resolve(); }, { once: true });
+      socket.addEventListener('error', () => { reject(new Error('HA socket error')); }, { once: true });
     });
 
     const token = await this.getAccessToken();
     socket.send(JSON.stringify({ type: 'auth', access_token: token }));
   }
 
-  async getStates(): Promise<readonly HaEntityState[]> {
-    throw new Error('not implemented — Phase 1');
+  getStates(): Promise<readonly HaEntityState[]> {
+    return Promise.reject(new Error('not implemented — Phase 1'));
   }
 
   close(): void {
     this.socket?.close();
     this.socket = null;
-    this.messageId = 1;
   }
 }

@@ -6,12 +6,26 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 
 export default tseslint.config(
-  { ignores: ['dist', 'build', '.expo', '.turbo', 'node_modules'] },
+  {
+    ignores: [
+      '**/dist/**',
+      '**/build/**',
+      '**/.expo/**',
+      '**/.turbo/**',
+      '**/node_modules/**',
+      '**/*.config.{js,mjs,cjs,ts}',
+      '**/metro.config.js',
+      '**/babel.config.js',
+      '**/vite.config.ts',
+    ],
+  },
   js.configs.recommended,
-  ...tseslint.configs.strictTypeChecked,
-  ...tseslint.configs.stylisticTypeChecked,
   {
     files: ['**/*.{ts,tsx}'],
+    extends: [
+      ...tseslint.configs.strictTypeChecked,
+      ...tseslint.configs.stylisticTypeChecked,
+    ],
     languageOptions: {
       ecmaVersion: 2022,
       globals: { ...globals.browser, ...globals.node },

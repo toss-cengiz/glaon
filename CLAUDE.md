@@ -41,6 +41,13 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
   git switch -c <issue>-<slug>
   ```
 
+## CI-Green-Before-Done Rule (MANDATORY)
+
+- After `gh pr create` or any `git push` to a PR branch, watch CI with `gh pr checks <N> --watch`.
+- If a check fails, read logs (`gh run view <id> --log-failed`), fix the root cause on the same branch, commit, push, and keep watching.
+- Do not declare the work ready for review while checks are red or pending.
+- For flaky CI, try `gh run rerun` once, but resolve persistent failures with code changes — never by disabling the check.
+
 ## Security-First Rules
 
 - No `localStorage` for tokens on web. In-memory + httpOnly cookie, or SecureStore on mobile.
