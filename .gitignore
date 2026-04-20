@@ -29,6 +29,9 @@ android/
 .env.*
 !.env.example
 
+# Claude Code local overrides (per-developer)
+.claude/settings.local.json
+
 # Editor / OS
 .DS_Store
 .vscode/
