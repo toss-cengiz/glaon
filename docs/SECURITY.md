@@ -4,13 +4,13 @@ Glaon'da güvenlik ertelenebilir bir özellik değildir; her fazda paralel olara
 
 ## Tehdit Modeli (özet)
 
-| Tehdit | Saldırı vektörü | Azaltma |
-| --- | --- | --- |
-| Token sızdırma | XSS, `localStorage` sıyrılması | Token'ı `localStorage`'ta tutma; web'de in-memory + `httpOnly` çerez; mobilde SecureStore |
-| CSRF | HA oturum çerezine karşı cross-site post | `frame-ancestors 'none'`, `SameSite=Strict` çerez, OAuth2 `state` |
-| Ortadaki adam | TLS kesme | HSTS, Expo'da certificate pinning, HA'nın kendi sertifikasını doğrulama |
-| Tedarik zinciri | Kötü amaçlı paket | Pinned versiyonlar, Renovate + onay gereksinimi, `pnpm audit` CI'da |
-| Add-on privilege escalation | Container escape | `host_network: false`, AppArmor profili, `homeassistant_api: false` |
+| Tehdit                      | Saldırı vektörü                          | Azaltma                                                                                   |
+| --------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Token sızdırma              | XSS, `localStorage` sıyrılması           | Token'ı `localStorage`'ta tutma; web'de in-memory + `httpOnly` çerez; mobilde SecureStore |
+| CSRF                        | HA oturum çerezine karşı cross-site post | `frame-ancestors 'none'`, `SameSite=Strict` çerez, OAuth2 `state`                         |
+| Ortadaki adam               | TLS kesme                                | HSTS, Expo'da certificate pinning, HA'nın kendi sertifikasını doğrulama                   |
+| Tedarik zinciri             | Kötü amaçlı paket                        | Pinned versiyonlar, Renovate + onay gereksinimi, `pnpm audit` CI'da                       |
+| Add-on privilege escalation | Container escape                         | `host_network: false`, AppArmor profili, `homeassistant_api: false`                       |
 
 ## Kimlik Doğrulama
 

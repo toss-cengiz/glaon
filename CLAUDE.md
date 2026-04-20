@@ -20,10 +20,10 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 
 ## Issue-First Rule (MANDATORY)
 
-**No work starts without a GitHub issue.** Every code change, doc edit, config tweak, refactor, or upgrade must have a tracking issue created *before* work begins.
+**No work starts without a GitHub issue.** Every code change, doc edit, config tweak, refactor, or upgrade must have a tracking issue created _before_ work begins.
 
 - Check for an existing issue first (`gh issue list` or GitHub MCP).
-- If none exists, open one, communicate the number to the user, *then* touch code.
+- If none exists, open one, communicate the number to the user, _then_ touch code.
 - Commits and PRs must reference the issue: `Refs #N` in the body, `Closes #N` for the final PR.
 - Applies to tiny fixes too. The only exception is repository bootstrap work.
 
@@ -67,7 +67,7 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 
 - Conventional Commits style (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`).
 - English subject, imperative mood, ≤72 chars.
-- Body explains the *why* when non-obvious.
+- Body explains the _why_ when non-obvious.
 
 ## Tooling
 
