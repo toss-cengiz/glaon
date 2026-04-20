@@ -18,8 +18,20 @@ export class HaClient {
     this.socket = socket;
 
     await new Promise<void>((resolve, reject) => {
-      socket.addEventListener('open', () => { resolve(); }, { once: true });
-      socket.addEventListener('error', () => { reject(new Error('HA socket error')); }, { once: true });
+      socket.addEventListener(
+        'open',
+        () => {
+          resolve();
+        },
+        { once: true },
+      );
+      socket.addEventListener(
+        'error',
+        () => {
+          reject(new Error('HA socket error'));
+        },
+        { once: true },
+      );
     });
 
     const token = await this.getAccessToken();

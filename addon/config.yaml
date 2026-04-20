@@ -1,5 +1,5 @@
 name: Glaon
-version: "0.0.0"
+version: '0.0.0'
 slug: glaon
 description: Secure custom frontend for Home Assistant (web + wall tablet).
 url: https://github.com/toss-cengiz/glaon
