@@ -56,6 +56,15 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - Keep the tracking issue in sync too: if the In/Out split changed, amend the issue body or drop a comment so the issue remains the single source of truth.
 - Practical trigger: right before `git push`, re-read the PR body and ask "does this still describe what I'm pushing?" — if not, `gh pr edit --body-file` first.
 
+## PR Merge Hygiene (MANDATORY)
+
+- Every PR body must contain a `Closes #N` (or `Fixes #N` / `Resolves #N`) reference to the tracking issue. This is the contract that drives all post-merge automation and makes the link show up in the PR's **Development** sidebar.
+- `development` is the repo default branch (pre-v1.0 convention). GitHub's built-in closing-keyword behaviour therefore fires on every feature PR merge: the referenced issue is auto-closed with a back-reference to the PR. No custom workflow is needed.
+- When the issue closes, the "Glaon Roadmap" project moves it to **Done** via the built-in Project v2 workflow ("Item closed → Status: Done"). If this workflow is ever disabled, re-enable it in the project UI — do not bypass by editing statuses manually.
+- Feature branches are auto-deleted on merge (repo setting `delete_branch_on_merge: true`). Do not recreate branches with the same name after merge; open a fresh issue + fresh branch.
+- A PR that omits `Closes #N` is a workflow bug, not a minor oversight — amend the body before merging.
+- Release PRs (`development → main`) target the non-default branch; they do not auto-close issues via keyword. Release-please manages the release itself.
+
 ## Security-First Rules
 
 - No `localStorage` for tokens on web. In-memory + httpOnly cookie, or SecureStore on mobile.
@@ -82,9 +91,11 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 
 ## Commits
 
-- Conventional Commits style (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`).
+- Conventional Commits style (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `perf:`, `ci:`, `build:`, `style:`).
 - English subject, imperative mood, ≤72 chars.
 - Body explains the _why_ when non-obvious.
+- Release automation reads commit messages. `feat:` bumps MINOR, `fix:`/`perf:`/`refactor:` bump PATCH, `feat!:` or a `BREAKING CHANGE:` footer bumps MAJOR. See `docs/release.md`.
+- `commitlint` runs in CI on every PR (`@commitlint/config-conventional`). Non-conforming commits fail the check — rewrite history on the feature branch before re-pushing.
 
 ## Tooling
 
