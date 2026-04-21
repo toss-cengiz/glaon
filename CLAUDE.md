@@ -50,11 +50,12 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 
 ## PR Merge Hygiene (MANDATORY)
 
-- Every PR body must contain a `Closes #N` (or `Fixes #N` / `Resolves #N`) reference to the tracking issue. This is the contract for post-merge automation.
-- GitHub's built-in auto-close only fires on merges to the default branch (`main`). Since we merge to `development`, a custom workflow (`.github/workflows/close-issue-on-development-merge.yml`) parses the PR body on merge and closes referenced issues automatically.
+- Every PR body must contain a `Closes #N` (or `Fixes #N` / `Resolves #N`) reference to the tracking issue. This is the contract that drives all post-merge automation and makes the link show up in the PR's **Development** sidebar.
+- `development` is the repo default branch (pre-v1.0 convention). GitHub's built-in closing-keyword behaviour therefore fires on every feature PR merge: the referenced issue is auto-closed with a back-reference to the PR. No custom workflow is needed.
 - When the issue closes, the "Glaon Roadmap" project moves it to **Done** via the built-in Project v2 workflow ("Item closed → Status: Done"). If this workflow is ever disabled, re-enable it in the project UI — do not bypass by editing statuses manually.
 - Feature branches are auto-deleted on merge (repo setting `delete_branch_on_merge: true`). Do not recreate branches with the same name after merge; open a fresh issue + fresh branch.
 - A PR that omits `Closes #N` is a workflow bug, not a minor oversight — amend the body before merging.
+- Release PRs (`development → main`) target the non-default branch; they do not auto-close issues via keyword. Release-please manages the release itself.
 
 ## Security-First Rules
 
