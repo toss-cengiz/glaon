@@ -65,9 +65,11 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 
 ## Commits
 
-- Conventional Commits style (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`).
+- Conventional Commits style (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `perf:`, `ci:`, `build:`, `style:`).
 - English subject, imperative mood, ≤72 chars.
 - Body explains the _why_ when non-obvious.
+- Release automation reads commit messages. `feat:` bumps MINOR, `fix:`/`perf:`/`refactor:` bump PATCH, `feat!:` or a `BREAKING CHANGE:` footer bumps MAJOR. See `docs/release.md`.
+- `commitlint` runs in CI on every PR (`@commitlint/config-conventional`). Non-conforming commits fail the check — rewrite history on the feature branch before re-pushing.
 
 ## Tooling
 
