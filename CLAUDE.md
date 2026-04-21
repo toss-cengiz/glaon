@@ -59,6 +59,14 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - `CHROMATIC_PROJECT_TOKEN` secret and branch protection rules are user-managed; see [docs/chromatic.md](docs/chromatic.md).
 - Chromatic MCP: after the first successful publish, the remote endpoint exposes only `docs` tools. Dev/test tools stay on the local Storybook server — don't try to replicate them remotely.
 
+## PR Scope & Test Plan Sync (MANDATORY)
+
+- The PR body is a live document, not a one-shot write. Whenever scope shifts during development — new dependency added, feature added or removed, deferred item pulled in, something moved to a follow-up issue — update the PR body in the same push.
+- The **Scope** (In / Out) lists and the **Test plan** checklist must match the current diff at all times. A reviewer reading only the PR body should be able to reproduce the verification without surprises.
+- New work gets new test plan items. Removed work gets deleted from the plan — don't leave stale unchecked boxes.
+- Keep the tracking issue in sync too: if the In/Out split changed, amend the issue body or drop a comment so the issue remains the single source of truth.
+- Practical trigger: right before `git push`, re-read the PR body and ask "does this still describe what I'm pushing?" — if not, `gh pr edit --body-file` first.
+
 ## PR Merge Hygiene (MANDATORY)
 
 - Every PR body must contain a `Closes #N` (or `Fixes #N` / `Resolves #N`) reference to the tracking issue. This is the contract that drives all post-merge automation and makes the link show up in the PR's **Development** sidebar.
@@ -82,6 +90,15 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - `@glaon/core` must be importable from both web and React Native. No `window`, no `document`, no `react-native`. Use Web Crypto + fetch + WebSocket (all available in both runtimes).
 - Platform-specific code (SecureStore, WebBrowser, expo-auth-session, DOM APIs) lives in `apps/*`.
 - `@glaon/ui` is the only place that imports Untitled UI source.
+
+## Storybook Rule (MANDATORY)
+
+- Every new UI component (web or mobile) ships in the same PR with at least one Storybook story. No story, no merge.
+- Stories live next to the component as `<Component>.stories.tsx` using CSF 3.0.
+- Minimum per component: default state + at least one edge case (disabled / loading / error / empty, whichever applies).
+- Accessibility: `@storybook/addon-a11y` is enabled with `a11y.test: 'error'`. Don't silently disable; document any intentional exception inline.
+- Prop or variant additions to an existing component must update the corresponding stories in the same PR.
+- Details and conventions: [docs/storybook.md](docs/storybook.md).
 
 ## Commits
 

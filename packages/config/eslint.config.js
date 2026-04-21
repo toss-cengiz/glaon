@@ -17,6 +17,8 @@ export default tseslint.config(
       '**/metro.config.js',
       '**/babel.config.js',
       '**/vite.config.ts',
+      '**/.storybook/**',
+      '**/storybook-static/**',
     ],
   },
   js.configs.recommended,
