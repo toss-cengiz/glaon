@@ -1,0 +1,4 @@
+title = "Glaon gitleaks configuration"
+
+[extend]
+useDefault = true
