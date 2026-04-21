@@ -35,7 +35,28 @@ Glaon'da güvenlik ertelenebilir bir özellik değildir; her fazda paralel olara
 
 - `.env` dosyaları commit edilmez; yalnızca `.env.example` paylaşılır.
 - CI sırrı: yalnızca GitHub OIDC veya environment secret.
-- Pre-commit `gitleaks` taraması — Faz 0'da CI'a, Faz 3'te lokal hook'a eklenecek.
+- `gitleaks` iki katmanda çalışır: CI job'u (`gitleaks-action`) her PR'ı tarar; lokal pre-commit hook (`.husky/pre-commit`) staged diff'i commit olmadan önce tarar. Kurulum ve hata giderme aşağıda.
+
+### Lokal gitleaks kurulumu
+
+Pre-commit hook'un çalışması için `gitleaks` binary'si lokalde kurulu olmalı. Kurulu değilse `git commit` hata verir ve hook devreye girmez.
+
+Kurulum:
+
+- **macOS (Homebrew):** `brew install gitleaks`
+- **Linux (Go toolchain):** `go install github.com/gitleaks/gitleaks/v8@latest`
+- **Diğer:** <https://github.com/gitleaks/gitleaks/releases> üzerinden binary indir, `PATH`'e ekle.
+
+Doğrulama: `gitleaks version` → 8.x çıktısı görünmeli.
+
+Config: Repo kökündeki `.gitleaks.toml` default rule set'i miras alır. Yeni kural veya allowlist eklemek için `[extend]` bloğunun altına kural ekle — her değişiklik ayrı bir issue + PR ile gelir.
+
+### Hook sızıntı yakaladığında
+
+1. Çıktıda `Finding` ve redact edilmiş eşleşme gösterilir (gerçek sır log'a düşmez).
+2. **Gerçek sır ise:** staged dosyadan çıkar, secret'ı döndür (provider panelinde revoke + rotate), `.env`'e taşı, yeniden stage + commit et.
+3. **False positive ise:** `.gitleaks.toml`'e `[allowlist]` bloğu eklenmesi için ayrı bir PR aç (kuralı gevşetmeden önce gerekçe yorumu zorunlu). Tek seferlik bypass için commit'in ilgili satırına `# gitleaks:allow` yorumu eklenebilir; bunu istismar etmeyin.
+4. `--no-verify` ile hook'u atlamak yasaktır — incident bırakmadan çözüm.
 
 ## Bağımlılıklar
 
