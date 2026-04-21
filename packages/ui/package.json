@@ -12,15 +12,26 @@
     "build": "tsc -b",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist .turbo"
+    "clean": "rm -rf dist .turbo storybook-static",
+    "storybook": "storybook dev -p 6006 --no-open",
+    "build-storybook": "storybook build"
   },
   "peerDependencies": {
     "react": ">=19"
   },
   "devDependencies": {
     "@glaon/config": "workspace:*",
+    "@storybook/addon-a11y": "^10.3.5",
+    "@storybook/addon-mcp": "^0.6.0",
+    "@storybook/react-vite": "^10.3.5",
     "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.0.1",
     "react": "^19.2.5",
-    "typescript": "^5.7.2"
+    "react-dom": "^19.2.5",
+    "storybook": "^10.3.5",
+    "storybook-dark-mode": "^5.0.0",
+    "typescript": "^5.7.2",
+    "vite": "^8.0.9"
   }
 }
