@@ -48,6 +48,17 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - Do not declare the work ready for review while checks are red or pending.
 - For flaky CI, try `gh run rerun` once, but resolve persistent failures with code changes — never by disabling the check.
 
+## Chromatic Visual Regression (MANDATORY)
+
+- Every PR runs Chromatic as a required status check. The workflow is configured with `exitZeroOnChanges: false`, so any pixel-level change blocks merge until resolved.
+- When the check is red:
+  - Unintended regression → fix in code, push again.
+  - Intentional visual change → open the Chromatic build, review the diff, click **Accept**. Never work around the check by tweaking `.github/workflows/chromatic.yml` or suppressing stories.
+- `development` is the baseline branch (`autoAcceptChanges: development`). Story changes merged into `development` become the new baseline automatically.
+- Skip list: `dependabot/**` and `release-please--**`. Other bot branches should not be added without discussion.
+- `CHROMATIC_PROJECT_TOKEN` secret and branch protection rules are user-managed; see [docs/chromatic.md](docs/chromatic.md).
+- Chromatic MCP: after the first successful publish, the remote endpoint exposes only `docs` tools. Dev/test tools stay on the local Storybook server — don't try to replicate them remotely.
+
 ## PR Scope & Test Plan Sync (MANDATORY)
 
 - The PR body is a live document, not a one-shot write. Whenever scope shifts during development — new dependency added, feature added or removed, deferred item pulled in, something moved to a follow-up issue — update the PR body in the same push.

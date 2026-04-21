@@ -1,0 +1,48 @@
+name: Chromatic
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+
+concurrency:
+  group: chromatic-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  visual-regression:
+    name: visual regression
+    runs-on: ubuntu-latest
+    if: |
+      !startsWith(github.head_ref, 'dependabot/') &&
+      !startsWith(github.head_ref, 'release-please--') &&
+      !startsWith(github.ref_name, 'dependabot/') &&
+      !startsWith(github.ref_name, 'release-please--')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Publish to Chromatic
+        uses: chromaui/action@latest
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          workingDir: packages/ui
+          onlyChanged: true
+          exitZeroOnChanges: false
+          autoAcceptChanges: development
