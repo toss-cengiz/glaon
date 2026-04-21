@@ -7,7 +7,11 @@ Glaon'un tüm UI component'leri — web ve (ileride) React Native — tek bir St
 - Konum: [packages/ui](../packages/ui/)
 - Config: [packages/ui/.storybook/](../packages/ui/.storybook/)
 - Framework: `@storybook/react-vite` (v10)
-- Minimum addon: `@storybook/addon-a11y` (diğer "essentials"/"interactions" v10'da core'a taşındı, ayrı paket gerekmez)
+- Addon'lar:
+  - `@storybook/addon-a11y` — accessibility paneli + `a11y.test: 'error'`
+  - `@storybook/addon-mcp` — AI agent'ların Storybook'u MCP üzerinden kullanması
+  - `storybook-dark-mode` — toolbar'dan tema değiştirici
+- Not: v10'da "essentials" ve "interactions" core'a taşındı, ayrı paket gerekmez.
 
 ## Komutlar
 
@@ -84,6 +88,32 @@ React Native story'leri ileride `RN/*` prefix'i altında gelecek (ayrı issue #4
 - PR'da yeni bir `*.tsx` eklenmiş ama eşdeğer `*.stories.tsx` yoksa review'da block edilir.
 - Mevcut component'e prop/variant eklenmişse story da güncellenir.
 - Bu kural [CLAUDE.md](../CLAUDE.md) içinde "Storybook Rule (MANDATORY)" başlığı altındadır.
+
+## MCP (AI agent entegrasyonu)
+
+`@storybook/addon-mcp` Storybook dev server'ı çalışırken `http://localhost:6006/mcp` adresinde bir MCP (Model Context Protocol) endpoint açar. Bu sayede Claude Code gibi AI agent'lar component'leri, prop'ları ve dokümanları programatik olarak keşfedebilir.
+
+Aktif toolset'ler:
+
+- `dev` → `preview-stories` aracı: mevcut story'leri listele, argları gör.
+- `docs` → autodocs / mdx içeriklerini sorgula.
+- `test` → **kapalı**. `run-story-tests` aracı için `@storybook/addon-vitest` + Vitest browser mode + Playwright gerekli; bu zincir ayrı issue'ya bırakıldı (storybook-static build'e etkisi ve dosya sayısı büyük). İhtiyaç duyulduğunda açılacak.
+
+Agent'ı bağlamak için MCP client konfigürasyonunuza Storybook dev server URL'ini ekleyin (client-specific; örn. Claude Code için `.mcp.json` veya `claude mcp add` komutu).
+
+Güvenlik: MCP endpoint sadece lokal dev server'da aktiftir; prod static build'de (`build-storybook` çıktısı) MCP yoktur. Başka bir makineden bağlantı için port forward/SSH tüneli kullanın — endpoint'i public'e açmayın.
+
+## Dark mode
+
+`storybook-dark-mode` addon'u Storybook toolbar'ına ay/güneş butonu ekler. Tercih otomatik olarak `localStorage`'a yazılır (Storybook'un kendi prefs alanı, uygulama kodu değil). Glaon web/mobile uygulamalarının kendi tema sistemi bundan bağımsız — bu sadece story kanvasının arka planını değiştirir.
+
+Story'ye özel farklı default istiyorsanız:
+
+```ts
+export const DarkOnly: Story = {
+  parameters: { darkMode: { current: 'dark' } },
+};
+```
 
 ## Follow-up işler (bu issue kapsamı dışı)
 
