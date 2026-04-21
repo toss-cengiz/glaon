@@ -63,6 +63,15 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - Platform-specific code (SecureStore, WebBrowser, expo-auth-session, DOM APIs) lives in `apps/*`.
 - `@glaon/ui` is the only place that imports Untitled UI source.
 
+## Storybook Rule (MANDATORY)
+
+- Every new UI component (web or mobile) ships in the same PR with at least one Storybook story. No story, no merge.
+- Stories live next to the component as `<Component>.stories.tsx` using CSF 3.0.
+- Minimum per component: default state + at least one edge case (disabled / loading / error / empty, whichever applies).
+- Accessibility: `@storybook/addon-a11y` is enabled with `a11y.test: 'error'`. Don't silently disable; document any intentional exception inline.
+- Prop or variant additions to an existing component must update the corresponding stories in the same PR.
+- Details and conventions: [docs/storybook.md](docs/storybook.md).
+
 ## Commits
 
 - Conventional Commits style (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`).
