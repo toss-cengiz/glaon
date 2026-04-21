@@ -48,6 +48,14 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - Do not declare the work ready for review while checks are red or pending.
 - For flaky CI, try `gh run rerun` once, but resolve persistent failures with code changes — never by disabling the check.
 
+## PR Scope & Test Plan Sync (MANDATORY)
+
+- The PR body is a live document, not a one-shot write. Whenever scope shifts during development — new dependency added, feature added or removed, deferred item pulled in, something moved to a follow-up issue — update the PR body in the same push.
+- The **Scope** (In / Out) lists and the **Test plan** checklist must match the current diff at all times. A reviewer reading only the PR body should be able to reproduce the verification without surprises.
+- New work gets new test plan items. Removed work gets deleted from the plan — don't leave stale unchecked boxes.
+- Keep the tracking issue in sync too: if the In/Out split changed, amend the issue body or drop a comment so the issue remains the single source of truth.
+- Practical trigger: right before `git push`, re-read the PR body and ask "does this still describe what I'm pushing?" — if not, `gh pr edit --body-file` first.
+
 ## Security-First Rules
 
 - No `localStorage` for tokens on web. In-memory + httpOnly cookie, or SecureStore on mobile.
