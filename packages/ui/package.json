@@ -10,6 +10,7 @@
   },
   "scripts": {
     "build": "tsc -b",
+    "chromatic": "chromatic",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist .turbo"
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@glaon/config": "workspace:*",
     "@types/react": "^19.2.0",
+    "chromatic": "^16.3.0",
     "react": "^19.2.5",
     "typescript": "^5.7.2"
   }
