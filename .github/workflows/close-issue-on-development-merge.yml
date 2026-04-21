@@ -1,0 +1,48 @@
+name: Close linked issue on development merge
+
+on:
+  pull_request_target:
+    types: [closed]
+    branches: [development]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  close:
+    if: github.event.pull_request.merged == true
+    name: close-referenced-issues
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract and close referenced issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          combined="$PR_TITLE
+          $PR_BODY"
+          numbers=$(printf '%s\n' "$combined" \
+            | grep -oiE '(clos(es|ed|ing)?|fix(es|ed|ing)?|resolv(es|ed|ing)?)[[:space:]]+#[0-9]+' \
+            | grep -oE '#[0-9]+' \
+            | tr -d '#' \
+            | sort -u || true)
+          if [ -z "$numbers" ]; then
+            echo "No Closes/Fixes/Resolves references found in PR #$PR_NUMBER."
+            exit 0
+          fi
+          for n in $numbers; do
+            state=$(gh issue view "$n" --repo "$REPO" --json state --jq .state 2>/dev/null || echo "")
+            if [ "$state" = "CLOSED" ]; then
+              echo "Issue #$n already closed, skipping."
+              continue
+            fi
+            echo "Closing issue #$n"
+            gh issue close "$n" --repo "$REPO" --reason completed \
+              --comment "Closed by PR #$PR_NUMBER (merged to development)."
+          done

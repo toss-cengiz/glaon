@@ -48,6 +48,14 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - Do not declare the work ready for review while checks are red or pending.
 - For flaky CI, try `gh run rerun` once, but resolve persistent failures with code changes — never by disabling the check.
 
+## PR Merge Hygiene (MANDATORY)
+
+- Every PR body must contain a `Closes #N` (or `Fixes #N` / `Resolves #N`) reference to the tracking issue. This is the contract for post-merge automation.
+- GitHub's built-in auto-close only fires on merges to the default branch (`main`). Since we merge to `development`, a custom workflow (`.github/workflows/close-issue-on-development-merge.yml`) parses the PR body on merge and closes referenced issues automatically.
+- When the issue closes, the "Glaon Roadmap" project moves it to **Done** via the built-in Project v2 workflow ("Item closed → Status: Done"). If this workflow is ever disabled, re-enable it in the project UI — do not bypass by editing statuses manually.
+- Feature branches are auto-deleted on merge (repo setting `delete_branch_on_merge: true`). Do not recreate branches with the same name after merge; open a fresh issue + fresh branch.
+- A PR that omits `Closes #N` is a workflow bug, not a minor oversight — amend the body before merging.
+
 ## Security-First Rules
 
 - No `localStorage` for tokens on web. In-memory + httpOnly cookie, or SecureStore on mobile.
