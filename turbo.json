@@ -17,6 +17,11 @@
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"]
     },
+    "e2e": {
+      "dependsOn": ["@glaon/web#build"],
+      "outputs": ["playwright-report/**", "test-results/**"],
+      "env": ["CI"]
+    },
     "type-check": {
       "dependsOn": ["^build"]
     },
