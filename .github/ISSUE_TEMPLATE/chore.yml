@@ -13,11 +13,12 @@ body:
       label: Phase
       options:
         - phase-0 (Foundation)
-        - phase-1 (HA integration)
-        - phase-2 (Core UI)
-        - phase-3 (Security hardening)
-        - phase-4 (Features)
-        - phase-5 (Polish & release)
+        - phase-1 (Design)
+        - phase-2 (HA integration)
+        - phase-3 (Core UI)
+        - phase-4 (Security hardening)
+        - phase-5 (Features)
+        - phase-6 (Polish & release)
     validations:
       required: true
   - type: dropdown
