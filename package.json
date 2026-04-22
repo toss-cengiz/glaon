@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "devDependencies": {
     "husky": "^9.1.7",
+    "knip": "^6.6.1",
     "lint-staged": "^16.4.0",
     "prettier": "^3.3.3",
     "syncpack": "^14.3.0",
@@ -34,6 +35,7 @@
     "e2e": "turbo run e2e",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "knip": "knip",
     "lint": "turbo run lint",
     "prepare": "husky",
     "syncpack:fix": "syncpack fix-mismatches --dependency-types prod,dev,overrides && syncpack set-semver-ranges --dependency-types prod,dev,overrides",
