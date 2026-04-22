@@ -1,16 +1,6 @@
 {
   "name": "@glaon/config",
   "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "exports": {
-    "./eslint": "./eslint.config.js",
-    "./tsconfig.base.json": "../../tsconfig.base.json"
-  },
-  "scripts": {
-    "lint": "echo 'nothing to lint'",
-    "type-check": "echo 'no-op'"
-  },
   "dependencies": {
     "@eslint/js": "^9.17.0",
     "eslint": "^9.17.0",
@@ -18,5 +8,15 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "globals": "^15.13.0",
     "typescript-eslint": "^8.18.1"
-  }
+  },
+  "exports": {
+    "./eslint": "./eslint.config.js",
+    "./tsconfig.base.json": "../../tsconfig.base.json"
+  },
+  "private": true,
+  "scripts": {
+    "lint": "echo 'nothing to lint'",
+    "type-check": "echo 'no-op'"
+  },
+  "type": "module"
 }

@@ -1,19 +1,6 @@
 {
   "name": "@glaon/web",
   "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "build:addon": "tsc -b && vite build --base=./ --mode development",
-    "preview": "vite preview",
-    "lint": "eslint .",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist .turbo coverage"
-  },
   "dependencies": {
     "@glaon/core": "workspace:*",
     "@glaon/ui": "workspace:*",
@@ -34,5 +21,18 @@
     "typescript": "^5.7.2",
     "vite": "^6.0.3",
     "vitest": "^2.1.8"
-  }
+  },
+  "private": true,
+  "scripts": {
+    "build": "tsc -b && vite build",
+    "build:addon": "tsc -b && vite build --base=./ --mode development",
+    "clean": "rm -rf dist .turbo coverage",
+    "dev": "vite",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "type-check": "tsc --noEmit"
+  },
+  "type": "module"
 }
