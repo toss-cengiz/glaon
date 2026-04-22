@@ -30,6 +30,7 @@
     "dev": "vite",
     "lint": "eslint .",
     "preview": "vite preview",
+    "size": "size-limit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "type-check": "tsc --noEmit"

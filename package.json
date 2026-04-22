@@ -4,11 +4,13 @@
   "version": "0.0.0",
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
+    "@size-limit/file": "^12.1.0",
     "husky": "^9.1.7",
     "knip": "^6.6.1",
-    "publint": "^0.3.18",
     "lint-staged": "^16.4.0",
     "prettier": "^3.3.3",
+    "publint": "^0.3.18",
+    "size-limit": "^12.1.0",
     "syncpack": "^14.3.0",
     "turbo": "^2.3.3",
     "typescript": "^5.7.2"
@@ -40,6 +42,7 @@
     "knip": "knip",
     "package-contract": "turbo run package-contract --filter=./packages/*",
     "lint": "turbo run lint",
+    "size": "turbo run size",
     "prepare": "husky",
     "syncpack:fix": "syncpack fix-mismatches --dependency-types prod,dev,overrides && syncpack set-semver-ranges --dependency-types prod,dev,overrides",
     "syncpack:lint": "syncpack lint --dependency-types prod,dev,overrides",
