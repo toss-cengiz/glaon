@@ -1,30 +1,56 @@
 {
   "name": "glaon",
-  "version": "0.0.0",
-  "private": true,
   "description": "Glaon — a secure, custom frontend for Home Assistant (web, wall tablet, mobile).",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/toss-cengiz/glaon.git"
+  "version": "0.0.0",
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.2",
+    "@lhci/cli": "^0.15.1",
+    "@size-limit/file": "^12.1.0",
+    "husky": "^9.1.7",
+    "knip": "^6.6.1",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.3.3",
+    "publint": "^0.3.18",
+    "size-limit": "^12.1.0",
+    "syncpack": "^14.3.0",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
   },
-  "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=20.11.0",
     "pnpm": ">=9"
   },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --max-warnings=0 --no-warn-ignored",
+      "prettier --check"
+    ],
+    "*.{js,mjs,cjs,json,md,yml,yaml}": [
+      "prettier --check"
+    ]
+  },
+  "packageManager": "pnpm@9.15.0",
+  "private": true,
+  "repository": "toss-cengiz/glaon.git",
   "scripts": {
     "build": "turbo run build",
+    "build:addon": "pnpm --filter @glaon/web build:addon && rm -rf addon/dist && cp -R apps/web/dist addon/dist",
+    "clean": "turbo run clean && rm -rf node_modules .turbo",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "type-check": "turbo run type-check",
+    "e2e": "turbo run e2e",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "clean": "turbo run clean && rm -rf node_modules .turbo"
-  },
-  "devDependencies": {
-    "prettier": "^3.3.3",
-    "turbo": "^2.3.3",
-    "typescript": "^5.7.2"
+    "knip": "knip",
+    "lhci": "pnpm lhci:desktop && pnpm lhci:mobile",
+    "lhci:desktop": "lhci autorun --config=.lighthouserc.cjs",
+    "lhci:mobile": "lhci autorun --config=.lighthouserc.mobile.cjs",
+    "package-contract": "turbo run package-contract --filter=./packages/*",
+    "lint": "turbo run lint",
+    "size": "turbo run size",
+    "prepare": "husky",
+    "syncpack:fix": "syncpack fix-mismatches --dependency-types prod,dev,overrides && syncpack set-semver-ranges --dependency-types prod,dev,overrides",
+    "syncpack:lint": "syncpack lint --dependency-types prod,dev,overrides",
+    "test": "turbo run test",
+    "type-check": "turbo run type-check"
   }
 }

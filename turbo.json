@@ -15,13 +15,35 @@
     },
     "test": {
       "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "test:coverage": {
+      "dependsOn": ["^build"],
       "outputs": ["coverage/**"]
+    },
+    "test:stories": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "e2e": {
+      "dependsOn": ["@glaon/web#build"],
+      "outputs": ["playwright-report/**", "test-results/**"],
+      "env": ["CI"]
     },
     "type-check": {
       "dependsOn": ["^build"]
     },
     "clean": {
       "cache": false
+    },
+    "package-contract": {
+      "dependsOn": ["build"],
+      "outputs": []
+    },
+    "size": {
+      "dependsOn": ["build"],
+      "inputs": [".size-limit.json", "dist/**/*.{js,css}"],
+      "outputs": []
     }
   }
 }

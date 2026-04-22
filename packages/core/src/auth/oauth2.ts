@@ -47,7 +47,7 @@ export async function exchangeCodeForTokens(
   });
 
   if (!response.ok) {
-    throw new Error(`Token exchange failed: ${response.status}`);
+    throw new Error(`Token exchange failed: ${String(response.status)}`);
   }
 
   const raw = (await response.json()) as {
@@ -77,7 +77,7 @@ export async function refreshAccessToken(
   });
 
   if (!response.ok) {
-    throw new Error(`Token refresh failed: ${response.status}`);
+    throw new Error(`Token refresh failed: ${String(response.status)}`);
   }
 
   const raw = (await response.json()) as {

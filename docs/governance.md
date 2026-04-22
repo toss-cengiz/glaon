@@ -1,0 +1,307 @@
+# Governance — yönetişim
+
+Glaon'un hangi kuralı neyin koruduğunu, kuralı kimin nasıl değiştireceğini ve bir kuralı bozmak istediğinde hangi yolu izleyeceğini bir arada tutan tek sayfa.
+
+## Neden bu sayfa var?
+
+CLAUDE.md, geliştirme sırasında uygulanan davranış kurallarını anlatır (Issue-First, Branching, PR Scope & Test Plan Sync, vb.). Bu doküman ise o kuralları **GitHub'da makineye öğretilen** tarafla — branch protection ruleset'leri, CODEOWNERS, PR template — eşler. İkisi birlikte: CLAUDE.md = insan kuralı, buradaki config'ler = GitHub'ın otomatik zorlaması.
+
+## Korunan branch'ler
+
+Repo'nun iki özel branch'i var:
+
+| Branch        | Ne için                                      | Koruma seviyesi                                                      |
+| ------------- | -------------------------------------------- | -------------------------------------------------------------------- |
+| `development` | Entegrasyon branch'i; feature PR'ları buraya | PR zorunlu · linear history · required status checks · no force-push |
+| `main`        | Release branch'i; sadece release-please PR'ı | PR zorunlu · linear history · required status checks · no force-push |
+
+Direkt push her iki branch'te de kapalı. Değişiklik **her zaman** PR üzerinden gider.
+
+Tam konfigürasyon config-as-code olarak JSON'da tutulur:
+
+- [`.github/rulesets/development.json`](../.github/rulesets/development.json)
+- [`.github/rulesets/main.json`](../.github/rulesets/main.json)
+
+## Merge method policy
+
+Development ruleset'i `required_linear_history: true` zorladığı için merge-commit (yani `Create a merge commit` seçeneği) kullanılamaz. Repo ayarları bunu destekleyecek şekilde kilitlenmiştir:
+
+| Ayar                 | Değer              | Neden                                                                    |
+| -------------------- | ------------------ | ------------------------------------------------------------------------ |
+| `allow_squash_merge` | `true` _(default)_ | Standart akış: her PR development'a tek commit olarak düşer.             |
+| `allow_rebase_merge` | `true`             | Zaten tek commit olan, conventional-commit başlığı doğru PR'lar için.    |
+| `allow_merge_commit` | `false`            | `required_linear_history` ile çakışıyordu; hem UI hem ruleset kapatıyor. |
+
+Squash commit formatı:
+
+- **Title:** `PR_TITLE` — PR başlığı commit başlığı olur.
+- **Body:** `PR_BODY` — PR body'si commit gövdesine kopyalanır.
+
+Bu format release-please için kritik: `development → main` akışında release-please merge edilmiş commit'leri okuyarak versiyon bump'ı ve CHANGELOG'u üretir. Squash commit başlığı geçerli bir Conventional Commit (`feat:`, `fix:`, `refactor!:`, vb.) değilse release-please o PR'ı atlar. PR başlığını bu yüzden `commitlint` formatında tutuyoruz.
+
+Pratik sonuç:
+
+- PR UI'ında yalnızca **Squash and merge** ve **Rebase and merge** seçenekleri görünür. Merge-commit butonu gri.
+- Feature PR'ları varsayılan olarak **Squash and merge** ile kapanır.
+- Rebase yalnızca PR zaten tek commit ise ve o commit'in başlığı tam olarak istenen commit başlığı ise mantıklı.
+
+Bu ayarlar Web UI'dan `Settings → General → Merge button` sayfası üzerinden de görülebilir; ama tek gerçeklik kaynağı [`scripts/apply-repo-settings.sh`](../scripts/apply-repo-settings.sh) script'idir. UI'dan elle değişiklik yapma — bir sonraki script çalışmasında ezilir.
+
+## Required status checks
+
+Development'a merge olacak her PR'ın aşağıdaki check'leri yeşil olmalı:
+
+- `type-check · lint · audit` — TS + ESLint + `pnpm audit --audit-level high`
+- `conventional-commits` — commitlint, PR commit'leri için
+- `gitleaks` — secret tarama
+- `review` — [Dependency review](#dependency-review), PR'da eklenmekte olan bağımlılıkları tarar
+- `visual regression` — Chromatic
+
+`main`'deki liste aynı, sadece `conventional-commits` yok (main'e sadece release-please PR'ı ulaşır; commitlint PR-only event'lerde koşar, main direct push zaten yasak).
+
+Bunların dışında CI'da çalışan ama **henüz required olmayan** kontroller:
+
+- `analyze (javascript-typescript)` — [CodeQL SAST](./SECURITY.md#statik-analiz-sast). Bulgular Security sekmesinde görünür; bloklama kararı gürültü seviyesi ölçüldükten sonra alınır.
+
+Yeni bir required check eklemek istersen:
+
+1. CI workflow'unda job adını kesinleştir (bu ad ruleset'te `"context"` olur).
+2. İlgili JSON'daki `required_status_checks` listesine `{ "context": "<job adı>" }` ekle.
+3. `scripts/apply-rulesets.sh` çalıştır.
+4. Değişikliği PR ile commit et — UI'den değil.
+
+## Dependency review
+
+[`.github/workflows/dependency-review.yml`](../.github/workflows/dependency-review.yml) her PR'da çalışır ve `pnpm-lock.yaml` diff'ini inceler: o PR'la birlikte eklenen (veya major bump yapılan) bağımlılıklarda bilinen bir advisory varsa job fail olur.
+
+`pnpm audit` ile ne farkı var:
+
+- `pnpm audit` CI'ın `type-check · lint · audit` job'unda çalışır ve lockfile'ın **tamamını** tarar — "şu an repo'da savunmasız bir dep var mı?" sorusuna cevap verir. Sorun mevcutsa merge'i bloklar, ama sorunu kimin eklediğini söylemez ve Renovate bir fix sunana kadar PR'ları stale yapar.
+- `Dependency review` action sadece o PR'ın **getirdiği değişikliği** tarar. Yeni bir zayıf dep PR ile repo'ya girmeye çalışırsa merge zaten olamaz; geri kalan zamanlarda job gürültüsüzdür. Renovate advisory bump'larıyla da uyumlu (bump'ı kendisi blocklaayacak ufak bir pencere olsa da Renovate otomatik merge eden patch'leri hızla getirir).
+
+İki katman birbirinin yerini tutmaz, üst üste biner: "şu an temiz mi?" (`audit`) + "bu PR durumu kötüleştiriyor mu?" (`review`).
+
+Konfigürasyon:
+
+- `fail-on-severity: high` — audit ile aynı eşik.
+- `comment-summary-in-pr: always` — lockfile değişen her PR'a özet yorum bırakılır.
+- `deny-licenses` şu an boş — lisans politikası ayrı bir karar (bkz. #92'nin "Out of scope" notu).
+
+## Third-party GitHub Actions — SHA pinning
+
+Workflow'larımızdaki her üçüncü-taraf `uses:` referansı tag yerine tam commit SHA'sına pinlenir; tag'in hangi versiyona denk geldiği satır sonundaki yorumdan okunur:
+
+```yaml
+- uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+```
+
+Neden:
+
+- Tag'ler mutable. Bir saldırgan action reposuna erişim kazanırsa `v4` tag'ini kötü niyetli bir commit'e taşıyabilir ve CI bir sonraki çalıştırmada sessizce onu çalıştırır. SHA immutable — repo compromise olsa bile bizim workflow'umuz bilinen iyi commit'te kalır.
+- `@latest`, `@main`, dallanan tag'ler (`@v1`) en kötü varyant: her çalıştırmada farklı kod çalışabilir, supply-chain tehditi + reproducibility kaybı.
+- OpenSSF Scorecard'ın "Pinned-Dependencies" kontrolü bu kuralı gerekçelendirir; #98'de Scorecard eklendiğinde bu check zaten yeşil olur.
+
+Kapsam:
+
+- Tüm `.github/workflows/**` ve repo içindeki composite action'lar.
+- GitHub-hosted first-party action'lar (`actions/*`, `github/*`) **da dahil**. İstisna tanımıyoruz — gelecekte birini içeriden compromise etmenin maliyeti, pin tutmanın maliyetinden kat kat yüksek.
+- Docker image referansları (`docker://...`) için aynı disiplin — digest ile pinlenir.
+
+Güncelleme akışı — Renovate otomatik:
+
+[`renovate.json`](../renovate.json) `config:best-practices` preset'ini extend ediyor; bu preset `helpers:pinGitHubActionDigests` kuralını devreye alır ve `github-actions` manager'ında `pinDigests: true` yapar. Haftalık schedule'da Renovate:
+
+1. Tag'in işaret ettiği yeni SHA'yı tespit eder (annotated tag'leri dereference ederek).
+2. SHA'yı günceller, yorumdaki versiyon etiketini de tazeler.
+3. CI yeşilse patch/minor bump'ları otomatik merge eder; major bump'lar dashboard'da onay bekler.
+
+Bu yüzden el ile re-pinning nadiren gerekir. Elle güncelleme yapmak zorunda kalırsan — örneğin acil bir güvenlik fix'i Renovate schedule'ını beklemek istemediğinde:
+
+```bash
+# pinact ile tüm workflow'ları tara ve güncelle
+pinact run .github/workflows/
+```
+
+[pinact](https://github.com/suzuki-shunsuke/pinact) tag → SHA çözümlemesini yapar ve yorumları ekler. Alternatif: her referansı tek tek `gh api repos/<owner>/<action>/git/ref/tags/<tag>` ile çözmek (annotated tag'se sonuç `git/tags/<sha>` endpoint'iyle dereference edilir).
+
+Yeni bir third-party action'ı workflow'a eklerken pin'siz bir `uses:` commit'lemek kural ihlalidir — PR review'unda bloklanır.
+
+## OSSF Scorecard
+
+[OpenSSF Scorecard](https://github.com/ossf/scorecard) repo'yu ~20 supply-chain sinyaline göre (branch protection, SAST, token permissions, pinned-dependencies, signed-releases, code-review, vb.) puanlar. Kendi kurallarımızın ne kadarının makineye öğretildiğini dışarıdan bir gözle görmek için.
+
+Konum: [`.github/workflows/scorecard.yml`](../.github/workflows/scorecard.yml).
+
+### Tetikleme
+
+- **Haftalık schedule** — Pazartesi 01:30 UTC (CI trafiği en düşük pencere).
+- **`push` → `main`** — release-please PR'ı merge olduktan sonra baseline güncellenir.
+- **`branch_protection_rule`** — ruleset değişince Scorecard'ın branch-protection skoru anında refresh olur.
+
+### Token disiplini
+
+Top-level `permissions: read-all`; analysis job'u sadece ihtiyacı olan dört yazma/okuma hakkını (`security-events: write`, `id-token: write`, `contents: read`, `actions: read`) alır. `Token-Permissions` check'i bu minimal-principle kalıbı arar — top-level'da default verilseydi skor düşerdi.
+
+### Sonuçları nerede okurum?
+
+- **GitHub Security → Code scanning** — SARIF upload buraya düşer, findings "Scorecard" kaynağıyla etiketli.
+- **Workflow artifact** — `scorecard-sarif`, 30 gün tutulur; lokalde `sarif-fmt` veya VS Code SARIF Viewer ile açılır.
+- **Scorecard public API** — `publish_results: true` sayesinde `https://api.securityscorecards.dev/projects/github.com/toss-cengiz/glaon` endpoint'inde JSON.
+
+### Baseline
+
+İlk haftalık koşumdan sonra baseline ve her sinyalin durumu Security → Code scanning sekmesinde görünür. Badge README'ye eklenmez — skor ≥ 7.0 olmadan baseline reklamı yapmak ters tepki yaratır.
+
+### Düşük puanlı sinyallerin takibi
+
+Scorecard'ın her check'i kendi başına bir iyileştirme vektörü. Zaten kapatılmış Phase 0 işleri birkaç sinyali hazır hale getiriyor:
+
+| Scorecard check        | Neredeyiz?                                 | Bağlı iş                           |
+| ---------------------- | ------------------------------------------ | ---------------------------------- |
+| Branch-Protection      | development + main ruleset'lenmiş          | #69 (initial) + bu doküman         |
+| Pinned-Dependencies    | tüm GitHub Actions SHA'ya pinlenmiş        | #94 (SHA pinning)                  |
+| Code-Review            | PR + linear history zorunlu                | #69 (initial)                      |
+| Dependency-Update-Tool | Renovate aktif                             | Renovate setup (tamamlanmış)       |
+| SAST                   | CodeQL koşuyor                             | #91 (CodeQL)                       |
+| Security-Policy        | `SECURITY.md` var                          | [docs/SECURITY.md](./SECURITY.md)  |
+| License                | LICENSE henüz yok                          | Follow-up (Phase 0 "Out of scope") |
+| Signed-Releases        | SBOM release'e ekleniyor, cosign henüz yok | #99 (SBOM), follow-up (cosign)     |
+| Fuzzing                | yok                                        | Future                             |
+
+İlk koşumdan sonra skor < 7.0 ise eksik sinyallerin her biri için gerektiğinde yeni issue açılır; Scorecard tek başına aksiyon üretmez, veri verir.
+
+## Turborepo remote cache
+
+Turborepo lokal olarak `.turbo/` altında task çıktılarını cache'ler; CI runner'ları ephemeral olduğu için bu cache hiçbir run arasında paylaşılmaz. **Remote cache** bu yüzden var: task çıktıları Vercel-barındırılan bir API'ye yüklenir, sonraki run'larda aynı input hash'ine sahip task'lar cache'ten replay edilir. Tipik monorepo'larda `type-check` / `lint` / `build` süresinde %40–60 düşüş.
+
+Konfigürasyon üç parçalı:
+
+- **Runtime**: Vercel Turborepo Remote Cache (free tier — 1 user, 8 concurrent task). Kendi başına başka bir infra gerektirmez.
+- **Secrets**: `TURBO_TOKEN` (repo secret, Vercel team token), `TURBO_TEAM` (repo _variable_, Vercel team slug — gizli değil).
+- **Wire-up**: [`ci.yml`](../.github/workflows/ci.yml), [`addon-build.yml`](../.github/workflows/addon-build.yml), [`storybook-tests.yml`](../.github/workflows/storybook-tests.yml) workflow'larında top-level `env:` bloğu ile sağlanır. Turbo bu env'leri görünce otomatik olarak remote cache'e yazar + okur.
+
+### İlk kurulum (one-time, kullanıcı aksiyonu)
+
+Bu iş bir kere yapılır; sonrasında contributor akışı hiç değişmez.
+
+1. Vercel hesabında **Settings → Tokens** → yeni token oluştur. Scope: **Full Account** veya en az **Turborepo Remote Cache**.
+2. Vercel team slug'ını öğren: dashboard URL'sinde `vercel.com/<team-slug>` — boş bırakılırsa personal account slug'ı kullanılır.
+3. Repo'da iki secret/var ekle:
+   ```bash
+   gh secret set TURBO_TOKEN --body "<vercel-token>"
+   gh variable set TURBO_TEAM --body "<team-slug>"
+   ```
+   `TURBO_TEAM` niye `variable` olarak tutuluyor: team slug gizli değildir (Vercel'de public'e açık) ve variable olarak tutmak fork PR'larında istemsiz secret ifşası risk'ini sıfırlar.
+4. Lokalde opsiyonel — kendi makinenden cache'e yazmak istersen:
+   ```bash
+   pnpm turbo login   # Vercel'e OAuth ile login
+   pnpm turbo link    # repo'yu team'e bağlar
+   ```
+   Contributor'lar için **zorunlu değil** — CI zaten hit üretir.
+
+### Nasıl doğrularım?
+
+Aynı branch'te iki PR açıp ardışık olarak tetikledikten sonra workflow loglarında:
+
+```
+@glaon/web:build: cache hit, replaying logs abc123def456
+```
+
+satırı görünmeli. İlk çalıştırmada `cache miss, executing` beklenir — ikinci PR'ın `type-check` / `lint` / `test:stories` gibi jobs'ları log replay'e düşmeli ve her task <5s sürmeli.
+
+### Fork PR'ları + forbidden access davranışı
+
+Secrets fork PR'larına GitHub tarafından iletilmez (güvenlik). Turbo fork PR'ında `TURBO_TOKEN` bulamayınca **sessizce** lokal-only moda düşer — ne warning, ne error. Trust-first PR'larda cache hit varsa kullanılır; fork PR'ında tam build koşar. Bu davranış bilinçli; fork PR'ları için cache paylaşma riski almıyoruz.
+
+### Token rotasyonu
+
+- **Rutin rotasyon**: Yılda bir. Vercel Token'ını revoke et + yenisini üret + `gh secret set TURBO_TOKEN` ile güncelle.
+- **Compromise durumunda**: Token'ı derhal Vercel dashboard → Tokens'tan `Delete` et (revoke anında aktif tüm cache write request'leri reddedilir). Yenisini üret + repo secret'ı güncelle. Cache içeriğini flush etmek gerekirse: `pnpm turbo prune --cache=local` yerine Vercel dashboard → Remote Cache → **Delete all artifacts**.
+- **Revocation**: Eski token revoke edildikten sonra eski workflow run'ları da `TURBO_TOKEN` geçersizliği yüzünden cache yazamaz — lokal-only'a düşer. Build bozulmaz, sadece speedup kaybolur.
+
+### Disable etme
+
+Geçici olarak remote cache'i kapatmak istersen:
+
+```bash
+gh secret delete TURBO_TOKEN
+# veya tek bir run için:
+#   env'i workflow_dispatch input'u ile override et, ya da PR branch'inde
+#   env satırlarını geçici olarak sil (unutma: drive-by sayılır, PR gerekir).
+```
+
+Cache kalıcı olarak kapatılacaksa workflow'lardaki `env:` blokları PR ile geri alınır ve Vercel team bağlantısı kesilir (`pnpm turbo unlink`).
+
+## CODEOWNERS
+
+[`.github/CODEOWNERS`](../.github/CODEOWNERS) her dosya path'ini en az bir sahibe bağlar. Tek maintainer (`@toss-cengiz`) olduğu için pratik etkisi henüz yok ama yapı hazır — yeni bir katılımcı geldiğinde path-based owner ataması tek commit.
+
+Ruleset'te `require_code_owner_review` şu an `false`. Ekip genişlediğinde `true`'ya alınır + `required_approving_review_count` yükseltilir.
+
+## PR template
+
+[`.github/pull_request_template.md`](../.github/pull_request_template.md) `gh pr create` çağrılırken otomatik yüklenir (body verilmezse). Yapı sabit: **Summary / Scope (In-Out) / Test plan / User action / Closes #N**.
+
+Bu şekil CLAUDE.md'deki "PR Scope & Test Plan Sync" mandatory kuralının pratik karşılığı — her PR aynı formatı taşır, reviewer ne olduğunu tek bakışta okur.
+
+## Bir kuralı değiştirme
+
+**UI'dan değiştirme.** GitHub → Settings'ten manuel edit kayıp bırakır: sonraki `apply-rulesets.sh` çalışması UI değişikliğini ezer.
+
+Doğru akış:
+
+1. İlgili JSON veya markdown dosyasını düzenle.
+2. PR aç (Issue-First Rule + bu dosyadaki branching kuralı geçerli).
+3. Merge sonrası `scripts/apply-rulesets.sh` çalıştır — idempotent.
+
+## İlk apply (one-time kullanıcı aksiyonu)
+
+İki script var, ikisi de idempotent ve admin:repo scope'lu bir token gerektirir:
+
+```bash
+gh auth login --scopes "repo,admin:repo_hook,admin:org,admin:public_key"
+# veya mevcut token'a admin:repo scope'u ekle
+
+scripts/apply-rulesets.sh       # branch protection ruleset'leri
+scripts/apply-repo-settings.sh  # merge method ayarları
+```
+
+`apply-rulesets.sh` çıktısı:
+
+```
+Applying ruleset: development-protection
+  → created
+Applying ruleset: main-protection
+  → created
+
+Done. Current rulesets on toss-cengiz/glaon:
+  - development-protection (active)
+  - main-protection (active)
+```
+
+Sonraki çalıştırmalar `created` yerine `updated` yazar.
+
+`apply-repo-settings.sh` çıktısı:
+
+```
+Applying repo merge-method settings...
+  allow_squash_merge:  true
+  allow_rebase_merge:  true
+  allow_merge_commit:  false
+  squash_title:        PR_TITLE
+  squash_body:         PR_BODY
+Done.
+```
+
+## Bypass
+
+`bypass_actors` her iki ruleset'te boş. Bu bilinçli: branch protection kuralı insan için olduğu kadar Claude için de. Bir agent'ın veya bot'un kuralı geçmesi gerekiyorsa, o ihtiyaç kendi başına bir issue olur; körü körüne bypass eklenmez.
+
+## Referanslar
+
+- CLAUDE.md: repo'nun davranış kuralları.
+- [GitHub Rulesets API](https://docs.github.com/en/rest/repos/rules) — ruleset schema'sı.
+- [CODEOWNERS syntax](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners).
+- [pinact](https://github.com/suzuki-shunsuke/pinact) — GitHub Action SHA pinning aracı.
+- [OpenSSF Scorecard — Pinned-Dependencies](https://github.com/ossf/scorecard/blob/main/docs/checks.md#pinned-dependencies) — SHA pinning kontrolünün gerekçesi.
+- İlgili issue: #69 (initial setup), #75 (merge method policy), #91 (CodeQL SAST), #92 (dependency review), #94 (SHA pinning), #98 (OSSF Scorecard).

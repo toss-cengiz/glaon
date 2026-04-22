@@ -1,0 +1,38 @@
+# Glaon CODEOWNERS
+# Every path resolves to at least one owner. Last matching pattern wins, so
+# specific paths go after the catch-all.
+#
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default fallback
+*                                   @toss-cengiz
+
+# Apps
+/apps/web/**                        @toss-cengiz
+/apps/mobile/**                     @toss-cengiz
+
+# Shared packages
+/packages/config/**                 @toss-cengiz
+/packages/core/**                   @toss-cengiz
+/packages/ui/**                     @toss-cengiz
+
+# HA Add-on delivery
+/addon/**                           @toss-cengiz
+
+# CI, governance, tooling
+/.github/**                         @toss-cengiz
+/.claude/**                         @toss-cengiz
+/.husky/**                          @toss-cengiz
+/renovate.json                      @toss-cengiz
+/release-please-config.json         @toss-cengiz
+/commitlint.config.mjs              @toss-cengiz
+/eslint.config.mjs                  @toss-cengiz
+/.gitleaks.toml                     @toss-cengiz
+/.mcp.json                          @toss-cengiz
+/turbo.json                         @toss-cengiz
+/tsconfig.base.json                 @toss-cengiz
+
+# Documentation
+/docs/**                            @toss-cengiz
+/README.md                          @toss-cengiz
+/CLAUDE.md                          @toss-cengiz

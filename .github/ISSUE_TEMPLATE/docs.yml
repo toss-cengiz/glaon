@@ -1,0 +1,60 @@
+name: Documentation
+description: Changes to user-facing docs or repo guides.
+title: 'docs(<scope>): <what>'
+labels: ['type:docs']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        User-facing docs (`docs/`, `README.md`) are Turkish. Repo guides (`CLAUDE.md`, inline) are English. See the language policy in [CLAUDE.md](../CLAUDE.md).
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase
+      options:
+        - phase-0 (Foundation)
+        - phase-1 (Design)
+        - phase-2 (HA integration)
+        - phase-3 (Core UI)
+        - phase-4 (Security hardening)
+        - phase-5 (Features)
+        - phase-6 (Polish & release)
+    validations:
+      required: true
+  - type: dropdown
+    id: areas
+    attributes:
+      label: Areas
+      multiple: true
+      options:
+        - area:web
+        - area:mobile
+        - area:core
+        - area:ui
+        - area:addon
+        - area:ci
+        - area:security
+        - area:docs
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What changes?
+      description: Concrete list of doc edits, not a vague "improve docs".
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where?
+      description: Path to the file or section (e.g. `docs/security.md#csp`).
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why?
+      description: What prompted this — user confusion, drift from code, policy change, stakeholder ask?
+    validations:
+      required: true

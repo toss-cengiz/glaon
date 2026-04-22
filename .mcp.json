@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "chromatic": {
+      "type": "http",
+      "url": "https://development--69e71a019e496564c84d2a4b.chromatic.com/mcp",
+      "headers": {
+        "X-Client-Id": "cdf3737dff9d485485968e50b63fd8b4"
+      }
+    }
+  }
+}

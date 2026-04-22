@@ -1,0 +1,82 @@
+name: Feature
+description: Propose a new feature or enhancement.
+title: 'feat(<scope>): <short imperative>'
+labels: ['type:feat']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issue-First Rule applies — open this before touching code. See [CLAUDE.md](../CLAUDE.md).
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase
+      description: Which phase does this belong to?
+      options:
+        - phase-0 (Foundation)
+        - phase-1 (Design)
+        - phase-2 (HA integration)
+        - phase-3 (Core UI)
+        - phase-4 (Security hardening)
+        - phase-5 (Features)
+        - phase-6 (Polish & release)
+    validations:
+      required: true
+  - type: dropdown
+    id: areas
+    attributes:
+      label: Areas
+      description: Which parts of the codebase does this touch?
+      multiple: true
+      options:
+        - area:web
+        - area:mobile
+        - area:core
+        - area:ui
+        - area:addon
+        - area:ci
+        - area:security
+        - area:docs
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why does this matter? What breaks or becomes easier?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed
+    attributes:
+      label: Proposed approach
+      description: High-level direction — not a full spec.
+    validations:
+      required: true
+  - type: textarea
+    id: scope-in
+    attributes:
+      label: Scope — In
+      description: What's explicitly included.
+    validations:
+      required: true
+  - type: textarea
+    id: scope-out
+    attributes:
+      label: Scope — Out
+      description: What's explicitly deferred to follow-ups.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Checklist the PR must satisfy before close.
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: input
+    id: related
+    attributes:
+      label: Related issues
+      description: 'Comma-separated: #12, #34'

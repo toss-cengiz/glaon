@@ -1,0 +1,19 @@
+{
+  "name": "@glaon/web-e2e",
+  "version": "0.0.0",
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.2",
+    "@glaon/config": "workspace:*",
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  },
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf playwright-report test-results .turbo",
+    "e2e": "playwright test",
+    "e2e:report": "playwright show-report",
+    "e2e:ui": "playwright test --ui",
+    "type-check": "tsc --noEmit"
+  }
+}
