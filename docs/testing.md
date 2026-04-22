@@ -1,14 +1,92 @@
-# Testing — E2E ve katmanlar
+# Testing — katmanlar
 
-Glaon'da testler üç katmana yayılır:
+Glaon'da testler dört katmana yayılır:
 
-| Katman                         | Araç                           | Ne soruyu cevaplar                      |
-| ------------------------------ | ------------------------------ | --------------------------------------- |
-| **Görsel regresyon**           | Chromatic (Storybook snapshot) | Component pixel-level değişti mi?       |
-| **Erişilebilirlik**            | Storybook `addon-a11y`         | Axe kuralları kırılıyor mu?             |
-| **Davranışsal E2E** (bu sayfa) | Playwright                     | Kullanıcı akışı uçtan uca çalışıyor mu? |
+| Katman               | Araç                           | Ne soruyu cevaplar                        |
+| -------------------- | ------------------------------ | ----------------------------------------- |
+| **Unit**             | Vitest + Testing Library       | Pure function / component logic doğru mu? |
+| **Görsel regresyon** | Chromatic (Storybook snapshot) | Component pixel-level değişti mi?         |
+| **Erişilebilirlik**  | Storybook `addon-a11y`         | Axe kuralları kırılıyor mu?               |
+| **Davranışsal E2E**  | Playwright                     | Kullanıcı akışı uçtan uca çalışıyor mu?   |
 
-Unit testler (Vitest) ileride katılacak; bu sayfa şimdilik sadece **E2E** için.
+Sayfa aşağıda önce **Unit**, sonra **E2E** için ayrılmıştır.
+
+## Unit tests (Vitest)
+
+Mobile tarafı Jest/Metro ekosisteminden ötürü ayrı bir runner (ayrı issue); bu bölüm web + shared paketler için.
+
+### Kapsanan workspace'ler
+
+| Workspace     | Ortam   | Coverage include (şu an)   | Threshold |
+| ------------- | ------- | -------------------------- | --------- |
+| `@glaon/core` | `node`  | `src/observability/**`     | 70%       |
+| `@glaon/ui`   | `jsdom` | `src/components/Button/**` | 50%       |
+| `@glaon/web`  | `jsdom` | `src/App.tsx`              | 40%       |
+
+### Dosya layout'u
+
+Testler **co-located**: component/modülün yanında `*.test.ts(x)`. Ayrı `__tests__/` klasörü açmak zorunda değil — IDE'de navigasyon daha hızlı olsun diye aynı klasörde tutuyoruz.
+
+```
+packages/core/src/
+  observability/
+    scrubber.ts
+    scrubber.test.ts   ← yanında
+```
+
+Bir feature birden fazla dosyaya yayılıyorsa her dosya kendi testini alır. Test dosyası sadece Vitest API (`describe`, `it`, `expect`) + assertion + (gerekirse) test helper import eder — production kod yolu testten etkilenmez.
+
+### Komutlar
+
+```bash
+# Tüm workspace'lerde unit testleri çalıştır
+pnpm test
+
+# Coverage raporu ile (her paket kendi coverage/ dizinini oluşturur)
+pnpm turbo run test:coverage
+
+# Tek paket
+pnpm --filter @glaon/core test
+pnpm --filter @glaon/ui test
+pnpm --filter @glaon/web test
+
+# Watch mode (TDD döngüsü)
+pnpm --filter @glaon/core exec vitest
+```
+
+CI bu işleri `unit-tests` job'unda `pnpm turbo run test:coverage` olarak çalıştırır — threshold kırıldığında job fail olur.
+
+### Coverage thresholds ve ratchet
+
+İlk kurulumda kod tabanının büyük kısmı (auth, ha client, Sentry init) testsiz. Target threshold'lara (70/50/40) ulaşmak için iki eksen kullanılıyor:
+
+1. **Threshold sayısı** — hedef: `core 70%`, `ui 50%`, `web 40%`. Bu PR'da konfigürasyondaki rakamlar bunlar.
+2. **`coverage.include` kapsamı** — bugün sadece _gerçekten testli_ modülleri içeriyor (tabloya bak). Yeni bir modüle test yazıldığında aynı PR'da `vitest.config.ts`'teki `include` listesine ekleniyor.
+
+Yani threshold yükselmez; **scope genişler**. Neden: düşük bir threshold'la başlayıp yukarı kırmak, "bugün %65 geçiyor, yarın %64'e düştük, ne yapsak?" tartışmasını davet ediyor. Floor sabit (hedef seviyesi), scope ise test yazdıkça büyür. "50% threshold" sözü `include` içinde anlamlı.
+
+Yeni bir modül için test yazarken akış:
+
+1. Test dosyasını yaz (`<module>.test.ts`).
+2. `vitest.config.ts`'te `test.coverage.include` listesine ilgili path glob'unu ekle.
+3. `pnpm --filter <pkg> test:coverage` ile yerel olarak doğrula.
+4. Aynı PR ile gönder — testler, config include'u ve (uygunsa) ilave asset'ler bir arada.
+
+Threshold değerini değiştirmek ayrı bir konu: hedefin kendisi (70/50/40) yukarı çekilmesi planlı bir karar — ADR veya issue ile. Drive-by olarak düşürme yok.
+
+### Stil ve iyi pratikler
+
+- `describe` bloklarını modül başına tut; her `it` tek bir davranışı doğrulasın.
+- Assertion'lar kullanıcı perspektifinden: `screen.getByRole('button', { name: 'Save' })` > `container.querySelector('.btn-primary')`.
+- `@testing-library/jest-dom/vitest` matchers'ı (`toBeInTheDocument`, `toBeDisabled`, …) `setup.ts` ile global. Ayrıca import etmeye gerek yok.
+- Test içinde `any` / `ts-ignore` yok — production kodunda da yasak, test kodunda dahi haklı bir istisnayı yorumla gerekçeleyince kabul edilir (nadiren).
+- Randomness, date, network her zaman stub'lanır. Gerçek fetch / WebSocket dışarıda kalır; test ne kontrol ediliyorsa onu kontrol eder.
+
+Unit test **değildir**:
+
+- DOM'da görsel farkı test etmek (Chromatic).
+- Üç component arası akışı test etmek (Playwright).
+- Bir utility'nin TypeScript tipini test etmek (type-check job zaten yapıyor).
 
 ## Zorunlu kural (CLAUDE.md'ye referans)
 
@@ -143,4 +221,6 @@ Lokalde flake yakalamak için `--trace on` ile koş.
 
 - Playwright docs: <https://playwright.dev>
 - Playwright trace viewer: <https://playwright.dev/docs/trace-viewer>
-- İlgili issue: #65
+- Vitest docs: <https://vitest.dev>
+- Testing Library: <https://testing-library.com/docs/react-testing-library/intro/>
+- İlgili issue: #65 (E2E), #87 (unit).
