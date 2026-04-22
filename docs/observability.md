@@ -1,17 +1,18 @@
 # Observability — Sentry entegrasyonu
 
-Glaon çalışma zamanı hatalarını ve performans sinyallerini **Sentry** üzerinden toplar. Bu sayfa web tarafının entegrasyonunu anlatır; mobile tarafı ayrı bir issue'da (bkz. #78) ele alınacak.
+Glaon çalışma zamanı hatalarını ve performans sinyallerini **Sentry** üzerinden toplar. Web ve mobile aynı PII politikasını paylaşır; SDK importu platform-spesifik.
 
 ## Mimari
 
-İki katman var:
+Üç katman var:
 
-| Katman                          | Ne yapar                                                                                                   |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `@glaon/core/observability`     | Platform-bağımsız tipler + PII scrubber. DOM/RN import etmez. Web ve mobile aynı scrubber'ı paylaşır.      |
-| `apps/web/src/observability.ts` | `@sentry/browser` SDK'sını runtime'da init eder; core'dan gelen `buildBeforeSend`'i `Sentry.init`'e verir. |
+| Katman                             | Ne yapar                                                                                                               |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `@glaon/core/observability`        | Platform-bağımsız tipler + PII scrubber. DOM/RN import etmez. Web ve mobile aynı scrubber'ı paylaşır.                  |
+| `apps/web/src/observability.ts`    | `@sentry/browser` SDK'sını runtime'da init eder; core'dan gelen `buildBeforeSend`'i `Sentry.init`'e verir.             |
+| `apps/mobile/src/observability.ts` | `@sentry/react-native` SDK'sını init eder; aynı core scrubber'ı `beforeSend`'e bağlar. Expo config plugin ile wire'lı. |
 
-Core, **politika** (ne maskelenir, hangi anahtar hassas) ve **saf fonksiyonlar** (scrub) tutar. SDK importu ve init, uygulama katmanında.
+Core, **politika** (ne maskelenir, hangi anahtar hassas) ve **saf fonksiyonlar** (scrub) tutar. SDK importu ve init, uygulama katmanında. Bu sayede mobile bundle DOM-only `@sentry/browser`'ı çekmez; web bundle RN-only `@sentry/react-native`'i çekmez.
 
 ## Scrubber ne maskeler
 
@@ -27,7 +28,7 @@ Scrubber non-mutating (girdi objesini değiştirmez) ve `MAX_SCRUB_DEPTH = 8` il
 
 Yeni bir hassas alan eklemek için `SENSITIVE_URL_PARAMS`, `SENSITIVE_HEADER_NAMES` veya `SENSITIVE_KEY_SUBSTRINGS` listelerine ekle ve ilgili test case'i ekle. Kod değişmeden.
 
-## Konfigürasyon
+## Web — konfigürasyon
 
 ### Environment variables
 
@@ -59,12 +60,46 @@ Bu gate CI'daki E2E workflow'unu etkiler — [`.github/workflows/e2e.yml`](../.g
 
 DSN varsa `Sentry.init` çağrılır: `tracesSampleRate` prod'da 0.1, dev'de 1.0; `sendDefaultPii: false`; `beforeSend` core scrubber'ı.
 
+## Mobile — konfigürasyon
+
+### Expo config plugin
+
+`@sentry/react-native` [apps/mobile/app.json](../apps/mobile/app.json)'da plugin olarak kayıtlı (`"@sentry/react-native/expo"`). `eas build` native modülü otomatik bağlar; ek Podfile / gradle müdahalesi yok. Bare workflow'a geçilirse plugin yerine elle config gerekir.
+
+### Environment variables
+
+`apps/mobile/.env.example` içinde dokümante. `EXPO_PUBLIC_` prefix'li değişkenler Metro bundle'ına inline edilir — DSN böylece runtime'da `process.env`'den okunur.
+
+| Değişken                         | Zorunlu             | Açıklama                                                           |
+| -------------------------------- | ------------------- | ------------------------------------------------------------------ |
+| `EXPO_PUBLIC_SENTRY_DSN`         | Prod EAS build için | DSN yoksa prod bundle'da loud `console.error`, dev'de sessiz warn. |
+| `EXPO_PUBLIC_SENTRY_ENVIRONMENT` | Hayır               | Override environment tag. Boşsa `__DEV__` üzerinden türetilir.     |
+| `EXPO_PUBLIC_SENTRY_RELEASE`     | Hayır               | Release identifier (genelde git SHA veya app version).             |
+
+Source map upload (mobile) bu PR'ın kapsamında değil — EAS build pipeline'ı (#36) ile birlikte açılacak. O zaman `SENTRY_AUTH_TOKEN` + org/project slug'ları EAS secret olarak inject edilir.
+
+### Prod build gate
+
+Mobile'da web'deki gibi build-time DSN gate'i **yok**. Mantıken karşılığı EAS build step'inde çalışacak bir script — #36'nın kapsamı. Şu an için prod bundle'da DSN eksikse `initObservability` `console.error` basar, çalışmaya devam eder.
+
+### Runtime init
+
+[apps/mobile/App.tsx](../apps/mobile/App.tsx) ilk render'dan önce `initObservability()` çağırır. DSN yoksa:
+
+- **Prod bundle'da** — `console.error` ile bağırır; crash etmez.
+- **Dev'de (`__DEV__`)** — `console.warn` ile sessizce kapanır.
+
+DSN varsa `Sentry.init` çağrılır: `tracesSampleRate` prod'da 0.1, dev'de 1.0; `sendDefaultPii: false`; `beforeSend` core scrubber'ı — web ile aynı politika.
+
 ## Yeni breadcrumb veya custom event eklemek
 
-SDK doğrudan `apps/web`'te import'lanır; bileşen kodu Sentry'yi bilmek zorunda değil. İhtiyaç olduğunda:
+SDK doğrudan platform adapter'ında import'lanır; bileşen kodu Sentry'yi bilmek zorunda değil. İhtiyaç olduğunda:
 
 ```ts
+// apps/web için
 import * as Sentry from '@sentry/browser';
+// apps/mobile için
+// import * as Sentry from '@sentry/react-native';
 
 Sentry.addBreadcrumb({
   category: 'ha.ws',
@@ -102,15 +137,19 @@ pnpm --filter @glaon/core test
 
 ## Kullanıcı tarafı — merge sonrası adımlar
 
-Bu PR kod iskeletini bitirir; gerçek event akışı için repo-dışı konfigürasyon gerekiyor:
+Kod iskeleti tamam; gerçek event akışı için repo-dışı konfigürasyon gerekiyor:
 
-1. **Sentry projesi oluştur** — `sentry.io`'da yeni React projesi aç. DSN'i kopyala.
-2. **Repo secret'ları ekle** — GitHub repo → Settings → Secrets → Actions:
-   - `SENTRY_DSN_WEB` (veya benzeri isim, deploy workflow'unda `VITE_SENTRY_DSN` olarak inject edilir)
+1. **Sentry projeleri oluştur** — `sentry.io`'da iki ayrı proje aç: biri `glaon-web` (React), biri `glaon-mobile` (React Native). Her ikisinden DSN'i kopyala.
+2. **Web için repo secret'ları ekle** — GitHub repo → Settings → Secrets → Actions:
+   - `SENTRY_DSN_WEB` (deploy workflow'unda `VITE_SENTRY_DSN` olarak inject edilir)
    - `SENTRY_AUTH_TOKEN` — Sentry → User Auth Tokens, `project:releases` + `project:write` scope'ları ile
-   - `SENTRY_ORG_SLUG`, `SENTRY_PROJECT_SLUG`
-3. **Deploy workflow'unu güncelle** — HA Add-on deploy akışı (#70) açıldığında yukarıdaki secret'lar build step'ine verilir. E2E workflow'undaki placeholder DSN burada gerçek DSN ile değişir.
-4. **PII scrubber doğrulaması** — Prod trafiği başladıktan sonra Sentry UI'da ilk birkaç event'i gözden geçir; query string, header, body alanlarında token/secret kalmadığını doğrula. Yeni bir sızıntı tespit edilirse `SENSITIVE_*` listelerine ekle.
+   - `SENTRY_ORG_SLUG`, `SENTRY_PROJECT_SLUG_WEB`
+3. **Mobile için EAS secret'ları ekle** — `eas secret:create` ile:
+   - `EXPO_PUBLIC_SENTRY_DSN` — `glaon-mobile` projesinin DSN'i
+   - Source map upload secret'ları (#36 ile birlikte): `SENTRY_AUTH_TOKEN`, `SENTRY_ORG_SLUG`, `SENTRY_PROJECT_SLUG_MOBILE`
+4. **Deploy workflow'unu güncelle** — HA Add-on deploy akışı (#70) açıldığında web secret'ları build step'ine verilir. E2E workflow'undaki placeholder DSN burada gerçek DSN ile değişir.
+5. **EAS build profilinde source map upload'u aç** (#36) — `@sentry/react-native/expo` plugin'i native modülü wire eder, fakat source map upload ayrı `expo-router` script adımı gerektirir; #36 bunu EAS config'e ekleyecek.
+6. **PII scrubber doğrulaması** — Prod trafiği başladıktan sonra Sentry UI'da ilk birkaç event'i gözden geçir; query string, header, body alanlarında token/secret kalmadığını doğrula. Yeni bir sızıntı tespit edilirse `SENSITIVE_*` listelerine ekle (tek yerden her iki platformu da etkiler).
 
 ## Neden SDK core'da değil
 

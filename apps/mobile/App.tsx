@@ -1,6 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { initObservability } from './src/observability';
+
+initObservability();
+
 export default function App() {
   return (
     <View style={styles.container}>
