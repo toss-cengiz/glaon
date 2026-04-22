@@ -58,6 +58,7 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - Skip list: `dependabot/**` and `release-please--**`. Other bot branches should not be added without discussion.
 - `CHROMATIC_PROJECT_TOKEN` secret and branch protection rules are user-managed; see [docs/chromatic.md](docs/chromatic.md).
 - Chromatic MCP: after the first successful publish, the remote endpoint exposes only `docs` tools. Dev/test tools stay on the local Storybook server — don't try to replicate them remotely.
+- The Chromatic MCP entry in `.mcp.json` is part of the repo contract — don't edit or remove it as a drive-by. New MCP servers get their own entry and their own issue; breaking changes to the existing Chromatic URL require a tracked migration PR.
 
 ## PR Scope & Test Plan Sync (MANDATORY)
 
