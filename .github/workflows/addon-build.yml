@@ -1,0 +1,68 @@
+name: Add-on build
+
+on:
+  pull_request:
+    paths:
+      - 'addon/**'
+      - 'apps/web/**'
+      - 'packages/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/addon-build.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build (${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            build_from: ghcr.io/home-assistant/amd64-base:3.21
+            platform: linux/amd64
+          - arch: aarch64
+            build_from: ghcr.io/home-assistant/aarch64-base:3.21
+            platform: linux/arm64
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web + stage add-on context
+        run: pnpm build:addon
+
+      - name: Set up QEMU
+        if: matrix.arch != 'amd64'
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build add-on image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./addon
+          file: ./addon/Dockerfile
+          platforms: ${{ matrix.platform }}
+          build-args: |
+            BUILD_FROM=${{ matrix.build_from }}
+          push: false
+          tags: glaon-addon:${{ matrix.arch }}
