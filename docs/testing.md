@@ -5,6 +5,7 @@ Glaon'da testler dört katmana yayılır:
 | Katman               | Araç                                            | Ne soruyu cevaplar                                                               |
 | -------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------- |
 | **Unit**             | Vitest + Testing Library                        | Pure function / component logic doğru mu?                                        |
+| **Story tests**      | Vitest browser mode + `@storybook/addon-vitest` | Her story hatasız render oluyor, `play()` geçiyor, a11y yeşil mi?                |
 | **Görsel regresyon** | Chromatic (Storybook snapshot)                  | Component pixel-level değişti mi?                                                |
 | **Erişilebilirlik**  | Storybook `addon-a11y` + `@axe-core/playwright` | Axe kuralları hem izole component'te hem de render edilmiş sayfada kırılıyor mu? |
 | **Davranışsal E2E**  | Playwright                                      | Kullanıcı akışı uçtan uca çalışıyor mu?                                          |

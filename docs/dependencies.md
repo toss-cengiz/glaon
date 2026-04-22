@@ -144,7 +144,6 @@ Her carve-out `knip.json`'da workspace bazlı listelenir. Gerekçeler:
 
 - **`@glaon/ui`, `@glaon/config` workspace ref'leri** — Apps/packages bu paketleri declare ediyor ama henüz import etmiyor. Pre-wiring: feature PR'ları geldiğinde `package.json`'a dep eklemek yerine hazır. Gerçek kullanım başlayınca allowlist'ten düşer.
 - **Expo ekosistemi** (`apps/mobile`) — `expo-auth-session`, `expo-crypto`, `expo-updates`, `expo-system-ui`, `babel-preset-expo`, `@babel/core` gibi paketler native-linking + `app.json` plugin mekanizması üzerinden tüketiliyor; TS import'u yok. Knip'in Expo plugin'i bunu kısmen görür, kısmen görmez — açıkça allowlist.
-- **`@vitest/coverage-v8`** (`apps/web`) — Vitest'in coverage provider'ı runtime'da implicit yükleniyor; direkt import yok.
 - **`eslint` binary** — `@glaon/config` paketi üzerinden transitive geliyor; her workspace'in `lint` script'i `eslint .` çağrıyor ama binary'nin kendisi workspace'in `package.json`'unda yok. pnpm hoisting bunu çözüyor.
 - **`tools/figma-plugin/code.js`** — Figma tarafından yüklenen plugin dosyası; npm graph'ının dışında. Root `ignore`.
 - **`.lighthouserc.cjs`, `.lighthouserc.mobile.cjs`** — `lhci autorun --config=<file>` tarafından okunan config'ler; TS/JS import graph'ının içinde değil. Root `ignore`.

@@ -17,7 +17,7 @@
       "project": ["src/**/*.{ts,tsx}"],
       "vite": false,
       "vitest": false,
-      "ignoreDependencies": ["@glaon/ui", "@glaon/config", "@vitest/coverage-v8"]
+      "ignoreDependencies": ["@glaon/ui", "@glaon/config"]
     },
     "apps/web-e2e": {
       "entry": ["tests/**/*.spec.ts"],
