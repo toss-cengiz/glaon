@@ -56,6 +56,53 @@ Sen yalnızca Release PR'ı merge edersin; kalanı otomatik.
 
 **Neden squash commit başlığı kritik:** `development → main` merge edildiğinde release-please, `main`'e düşen her commit'in başlığını `@commitlint/config-conventional` kurallarına göre parse eder. Squash title PR_TITLE (bkz. `scripts/apply-repo-settings.sh`) olduğu için PR başlıkları zaten commitlint'ten geçmiş olur; ama release PR'ını açarken de aynı disiplin geçerli. Başlık `feat:`/`fix:`/`perf:`/`refactor:` ile başlamıyorsa release-please o commit'i CHANGELOG'da göstermez ve versiyon bump'ı üretmez.
 
+## Release artifact'leri — SBOM
+
+Her GitHub Release, [SPDX JSON](https://spdx.github.io/spdx-spec/v2.3/SPDX-JSON/) formatında Software Bill of Materials dosyalarıyla birlikte yayınlanır. Release-please release'i yarattıktan sonra aynı workflow'ta iki follow-up job koşar ve çıktıları release asset olarak yükler.
+
+### Hangi dosyalar ekli?
+
+| Dosya                                | Kaynak                                   | Kapsam                                                                 |
+| ------------------------------------ | ---------------------------------------- | ---------------------------------------------------------------------- |
+| `glaon-sbom.spdx.json`               | syft, `path: .` ile workspace taraması   | Tüm `pnpm-lock.yaml` + `package.json` zinciri (apps + packages + root) |
+| `glaon-addon-amd64-sbom.spdx.json`   | syft, build edilmiş add-on image üstünde | `amd64` add-on container'ı (base image + nginx + web bundle)           |
+| `glaon-addon-aarch64-sbom.spdx.json` | syft, build edilmiş add-on image üstünde | `aarch64` add-on container'ı                                           |
+
+Workspace SBOM: Node.js tarafındaki tüm doğrudan + transitive bağımlılıkları listeler. Mobile (Expo) build'i şu an kapsam dışı — mobile release pipeline ayrı bir iş ([#99](https://github.com/toss-cengiz/glaon/issues/99)'un "Scope — Out" notu).
+
+Image SBOM (arch başına): HA add-on olarak dağıtılan container'ın her iki architecture'ı için ayrı üretilir. Base image (`ghcr.io/home-assistant/*-base:3.21`) içindeki alpine paketleri, çalışma zamanında yüklenen `nginx`, ve `COPY dist` ile gelen web asset'lerini kapsar.
+
+### Nasıl indirir ve doğrularım?
+
+Release sayfasından tek tek indirilir; komut satırından toplu indirme:
+
+```bash
+gh release download v0.1.0 \
+  --pattern 'glaon-sbom.spdx.json' \
+  --pattern 'glaon-addon-*-sbom.spdx.json'
+```
+
+Dosyalar SPDX 2.3 JSON spec'ine uyar; hızlı bir sanity check için:
+
+```bash
+jq '.spdxVersion, .name, (.packages | length)' glaon-sbom.spdx.json
+# "SPDX-2.3"
+# "glaon"  (veya repo adı)
+# 450+     (workspace dep sayısı)
+```
+
+Vulnerability taraması için SBOM'u [grype](https://github.com/anchore/grype) gibi bir tool'a besleyebilirsin:
+
+```bash
+grype sbom:glaon-addon-amd64-sbom.spdx.json
+```
+
+### Şu an kapsam dışı — takip eden işler
+
+- **Cosign / Sigstore imzalaması**: SBOM dosyaları henüz kriptografik olarak imzalanmıyor. [#99](https://github.com/toss-cengiz/glaon/issues/99)'un "Scope — Out" notu bu adımı bir sonraki güvenlik iterasyonuna bırakır. İmzalamadan sonra `glaon-sbom.spdx.json.sig` formatında ek asset'ler düşecek ve bu bölüm doğrulama komutuyla güncellenecek.
+- **VEX attestation'ları**: Hangi CVE'lerin aslında Glaon'un runtime'ında exploit edilemediğini tanımlayan VEX belgeleri henüz üretilmiyor. Grype çıktısındaki false-positive'ler için yakın gelecekte planlı.
+- **Mobile SBOM**: Expo prebuild + EAS build pipeline'ı mobile release issue'sunda ele alınacak; SBOM üretimi o akışa entegre edilir.
+
 ## Manuel tag — acil durum fallback
 
 release-please çalışmadığı durumda (workflow bozuk, API limit, vb.) manuel tag:

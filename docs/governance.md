@@ -156,17 +156,17 @@ Top-level `permissions: read-all`; analysis job'u sadece ihtiyacı olan dört ya
 
 Scorecard'ın her check'i kendi başına bir iyileştirme vektörü. Zaten kapatılmış Phase 0 işleri birkaç sinyali hazır hale getiriyor:
 
-| Scorecard check        | Neredeyiz?                          | Bağlı iş                           |
-| ---------------------- | ----------------------------------- | ---------------------------------- |
-| Branch-Protection      | development + main ruleset'lenmiş   | #69 (initial) + bu doküman         |
-| Pinned-Dependencies    | tüm GitHub Actions SHA'ya pinlenmiş | #94 (SHA pinning)                  |
-| Code-Review            | PR + linear history zorunlu         | #69 (initial)                      |
-| Dependency-Update-Tool | Renovate aktif                      | Renovate setup (tamamlanmış)       |
-| SAST                   | CodeQL koşuyor                      | #91 (CodeQL)                       |
-| Security-Policy        | `SECURITY.md` var                   | [docs/SECURITY.md](./SECURITY.md)  |
-| License                | LICENSE henüz yok                   | Follow-up (Phase 0 "Out of scope") |
-| Signed-Releases        | release-please henüz imzalamıyor    | Future (release infra genişlemesi) |
-| Fuzzing                | yok                                 | Future                             |
+| Scorecard check        | Neredeyiz?                                 | Bağlı iş                           |
+| ---------------------- | ------------------------------------------ | ---------------------------------- |
+| Branch-Protection      | development + main ruleset'lenmiş          | #69 (initial) + bu doküman         |
+| Pinned-Dependencies    | tüm GitHub Actions SHA'ya pinlenmiş        | #94 (SHA pinning)                  |
+| Code-Review            | PR + linear history zorunlu                | #69 (initial)                      |
+| Dependency-Update-Tool | Renovate aktif                             | Renovate setup (tamamlanmış)       |
+| SAST                   | CodeQL koşuyor                             | #91 (CodeQL)                       |
+| Security-Policy        | `SECURITY.md` var                          | [docs/SECURITY.md](./SECURITY.md)  |
+| License                | LICENSE henüz yok                          | Follow-up (Phase 0 "Out of scope") |
+| Signed-Releases        | SBOM release'e ekleniyor, cosign henüz yok | #99 (SBOM), follow-up (cosign)     |
+| Fuzzing                | yok                                        | Future                             |
 
 İlk koşumdan sonra skor < 7.0 ise eksik sinyallerin her biri için gerektiğinde yeni issue açılır; Scorecard tek başına aksiyon üretmez, veri verir.
 
