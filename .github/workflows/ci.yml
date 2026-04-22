@@ -133,7 +133,11 @@ jobs:
 
   commit-lint:
     name: conventional-commits
-    if: github.event_name == 'pull_request'
+    # Skipped for release PRs (development → main): those bundle historical
+    # squash commits whose headers grew past 72 chars when GitHub appended
+    # ` (#N)`. docs/release.md explicitly notes conventional-commits is not
+    # a required check on main; this keeps the job off noisy release PRs.
+    if: github.event_name == 'pull_request' && github.base_ref != 'main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
