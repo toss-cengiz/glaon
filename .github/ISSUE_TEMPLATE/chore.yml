@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this for repo hygiene: tooling, CI, dependencies, refactors without a user-visible behavior change. User-visible behavior goes in the feature or bug template.
+        Use this for repo hygiene: tooling, CI, dependencies, refactors without a user-visible behavior change. User-visible behavior goes in the feature or bug template. Issue-First Rule applies — see [CLAUDE.md](../CLAUDE.md).
   - type: dropdown
     id: phase
     attributes:

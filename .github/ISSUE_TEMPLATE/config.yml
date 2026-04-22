@@ -1,1 +1,8 @@
-blank_issues_enabled: false
+blank_issues_enabled: true
+contact_links:
+  - name: Security advisory (private)
+    url: https://github.com/toss-cengiz/glaon/security/advisories/new
+    about: Report a vulnerability privately. Do not open a public issue for security findings — use the advisory flow so the fix can land before disclosure.
+  - name: Claude Code + contribution conventions
+    url: https://github.com/toss-cengiz/glaon/blob/development/CLAUDE.md
+    about: Issue-First Rule, branching, PR hygiene, security rules, and test-plan sync all live in CLAUDE.md. Read before opening a non-trivial issue.
