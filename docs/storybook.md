@@ -22,9 +22,54 @@ pnpm --filter @glaon/ui storybook
 
 # Statik build (CI / deploy için)
 pnpm --filter @glaon/ui build-storybook
+
+# Story'leri test olarak koş (render + play + a11y, browser mode)
+pnpm --filter @glaon/ui test:stories
 ```
 
 Statik çıktı `packages/ui/storybook-static/` altında üretilir ve `.gitignore`'dadır.
+
+## Story tests (Vitest browser mode)
+
+Story'ler zaten component'lerin tüm kanonik state'lerini belgeliyor. `@storybook/addon-vitest` bu story'leri doğrudan Vitest'in browser modunda (Playwright ile Chromium üzerinde) çalıştırır: her story render edilir, tanımlıysa `play()` fonksiyonu yürütülür, a11y kontrolü (`addon-a11y` + axe) çağrılır. Paralel bir test ağacı yazmaya gerek kalmaz.
+
+### Altyapı
+
+- Vitest 4 `projects` ile `unit` (jsdom) ve `storybook` (browser) ayrı tutulur — biri diğerini engellemez, coverage sadece `unit` projesinde toplanır.
+- Browser provider: `@vitest/browser-playwright` + Chromium. CI'da `~/.cache/ms-playwright` cache'lenir; lokalde `pnpm --filter @glaon/ui exec playwright install chromium` yeterli.
+- Yapılandırma: [packages/ui/vitest.config.ts](../packages/ui/vitest.config.ts) — `storybookTest` plugin'i `.storybook/main.ts`'i okur ve framework config'ini (react-native-web alias dahil) aynen uygular. Yeni story dosyaları otomatik pick-up edilir; boilerplate yok.
+- Storybook 10.3+ preview annotations'ı otomatik enjekte eder, ekstra `setup-file` gerekmez.
+
+### Ne fail eder?
+
+- **Render error** — story mount edilmiyorsa (missing import, throw during render, prop contract ihlali).
+- **Play function assertion** — `play` içindeki `expect()` başarısız olursa.
+- **A11y violation** — `parameters.a11y.test = 'error'` seviyesinde axe serious+ violation.
+
+Görsel farklar bu katmanda asla fail etmez; onu Chromatic sahiplenir. Story tests "davranış ve a11y", Chromatic "pixel".
+
+### CI
+
+[`.github/workflows/storybook-tests.yml`](../.github/workflows/storybook-tests.yml) path-filtered: sadece `packages/ui/**`, `pnpm-lock.yaml` veya kendi workflow'u değiştiğinde koşar. Bu yaklaşım Lighthouse CI ile aynı desen (gereksiz tetiklemeyi engeller, Storybook dışı PR'ları hızlı tutar).
+
+### Yerel iş akışı
+
+```bash
+# Tüm story'leri tek seferde koş
+pnpm --filter @glaon/ui test:stories
+
+# Watch mode (story değiştikçe otomatik re-run)
+pnpm --filter @glaon/ui exec vitest --project=storybook
+
+# Sadece bir story dosyası
+pnpm --filter @glaon/ui exec vitest --project=storybook src/components/Button/Button.stories.tsx
+```
+
+### İyi pratikler
+
+- `play()` fonksiyonları user-centric: `userEvent.click`, `findByRole`, `expect(button).toHaveFocus()` — implementation detail'ına (internal state, private ref) dokunma.
+- Flaky bir story'yi geçici olarak `tags: ['!test']` ile koşumdan çıkarabilirsin; ama bu bir düzeltme değildir, bir issue aç ve commit mesajında referansla.
+- Browser context'te `window` ve `document` vardır, `jest-dom` matchers koşum ortamına göre `@testing-library/jest-dom` üzerinden aktif olur.
 
 ## Story yazım kuralları
 
@@ -174,7 +219,7 @@ Aktif toolset'ler:
 
 - `dev` → `preview-stories` aracı: mevcut story'leri listele, argları gör.
 - `docs` → autodocs / mdx içeriklerini sorgula.
-- `test` → **kapalı**. `run-story-tests` aracı için `@storybook/addon-vitest` + Vitest browser mode + Playwright gerekli; bu zincir ayrı issue'ya bırakıldı (storybook-static build'e etkisi ve dosya sayısı büyük). İhtiyaç duyulduğunda açılacak.
+- `test` → `run-story-tests` aracı: `@storybook/addon-vitest` + Vitest browser mode + Playwright zinciri üzerinden story'leri test olarak koşar. Storybook dev server'ı açıkken agent direkt tetikleyebilir.
 
 Agent'ı bağlamak için MCP client konfigürasyonunuza Storybook dev server URL'ini ekleyin (client-specific; örn. Claude Code için `.mcp.json` veya `claude mcp add` komutu).
 

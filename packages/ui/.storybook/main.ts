@@ -6,6 +6,7 @@ export default defineMain({
   addons: [
     '@storybook/addon-a11y',
     '@storybook/addon-designs',
+    '@storybook/addon-vitest',
     'storybook-dark-mode',
     {
       name: '@storybook/addon-mcp',
@@ -13,6 +14,7 @@ export default defineMain({
         toolsets: {
           dev: true,
           docs: true,
+          test: true,
         },
       },
     },
