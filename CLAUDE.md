@@ -142,6 +142,13 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - CI enforces `pnpm audit --audit-level high`. High + critical severity vulnerabilities fail the build. Don't weaken the audit level to silence a finding — patch the dep (or open an issue to pin around it).
 - Major version bumps always require human review: Renovate lists them in the dashboard with approval-needed, and they only turn into PRs after the dashboard checkbox is ticked.
 
+## Architecture Decision Records
+
+- Non-trivial architectural decisions are captured as ADRs in [docs/adr/](docs/adr/README.md). The "why" gets frozen at decision time so we debate new evidence instead of re-opening old choices every quarter.
+- Write an ADR when the decision is expensive to reverse, had a real debate against alternatives, or will prompt "why is it like this?" from a future reader — framework/runtime choices, package boundaries, security model, delivery channel, supply-chain picks. Skip it for library version bumps, routine refactors, and minor tooling choices.
+- ADRs are immutable. To change a decision, write a new ADR and mark the old one `Superseded by ADR-NNNN`. Don't edit in place; history is the point.
+- The ADR lands in the same PR as the code that implements (or starts implementing) it so the rationale and the code ship together. Format + process are in [docs/adr/README.md](docs/adr/README.md).
+
 ## Home Assistant Notes
 
 - WebSocket protocol: https://developers.home-assistant.io/docs/api/websocket
