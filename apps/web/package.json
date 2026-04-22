@@ -9,8 +9,10 @@
     "build:addon": "tsc -b && vite build --base=./ --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist .turbo"
+    "clean": "rm -rf dist .turbo coverage"
   },
   "dependencies": {
     "@glaon/core": "workspace:*",
@@ -22,10 +24,15 @@
   "devDependencies": {
     "@glaon/config": "workspace:*",
     "@sentry/vite-plugin": "^5.2.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^4.4.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "jsdom": "^25.0.1",
     "typescript": "^5.7.2",
-    "vite": "^6.0.3"
+    "vite": "^6.0.3",
+    "vitest": "^2.1.8"
   }
 }
