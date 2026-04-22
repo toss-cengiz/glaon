@@ -14,13 +14,13 @@ Bu sayfa:
 
 Üç ayrı Figma dosyası (aynı takım / workspace altında):
 
-| Dosya             | İçerik                                                                               | URL                |
-| ----------------- | ------------------------------------------------------------------------------------ | ------------------ |
-| **Design System** | Primitive'ler, color palette, type scale, spacing, radii, shadow — published library | _TBD (bkz. aşağı)_ |
-| **Components**    | Design System'i tüketen composite component'ler (Card, Dialog, DeviceTile…)          | _TBD_              |
-| **Screens**       | Web + mobile ekran mockup'ları (dashboard, detail, settings…)                        | _TBD_              |
+| Dosya             | İçerik                                                                               | URL                                                                 |
+| ----------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| **Design System** | Primitive'ler, color palette, type scale, spacing, radii, shadow — published library | <https://www.figma.com/design/KP0SVNxQEjT0gotajwc9I0/Design-System> |
+| **Components**    | Design System'i tüketen composite component'ler (Card, Dialog, DeviceTile…)          | <https://www.figma.com/design/auyB12SfWNs3eUho4UpI2k/Components>    |
+| **Screens**       | Web + mobile ekran mockup'ları (dashboard, detail, settings…)                        | <https://www.figma.com/design/JdUxahXzXwVAsjkgzIjIT9/Screens>       |
 
-> Dosyalar oluşturulduktan sonra URL'ler bu tabloya işlenir (küçük follow-up commit). Tüm takım üyeleri üçüne de en az "can view" seviyesinde erişime sahip olur.
+Tüm takım üyeleri üçüne de en az "can view" seviyesinde erişime sahip olur.
 
 ### Neden üç dosya?
 
@@ -118,6 +118,18 @@ storybook-id: web-primitives-button
 ```
 
 Chromatic Figma plugin (#53) bu etiketi okuyup pixel diff map'ini kurar. Storybook ID formatı: CSF path'inin kebab-case'i (`Web Primitives/Button` → `web-primitives-button`).
+
+## Chromatic ile design-code diff
+
+Figma'daki tasarım ile Storybook'taki kod karşılığı Chromatic üzerinden yan yana görünür. Bu bağlantı tasarım ↔ kod drift'ini PR review anında yakalar — tasarımcı Figma'da renk değiştirdiğinde Chromatic build'i component snapshot'ında "Design changed" badge'i basar, developer kod tarafında takip edip etmediğini tek ekranda görür.
+
+Detaylar [docs/chromatic.md](chromatic.md#figma-entegrasyonu)'daki "Figma entegrasyonu" bölümünde. Mapping mekaniği buradaki [naming convention](#naming-convention-figma--kod) bölümüne dayanır.
+
+### Kısa özet (developer tarafı)
+
+- PR açtığında Chromatic build'inin **Component snapshots** sayfasına gir → her story için Figma preview + Storybook preview + diff badge görünür.
+- Badge "In sync" ise iş tamam. "Design changed" ise tasarımcıdan gelen değişikliği kod tarafında takip et. "Code changed" (design'a göre) ise tasarımcı onay verene kadar bekle.
+- Storybook'ta olmayan Figma component'leri "Not implemented" olarak işaretlenir — bu bir signal, Storybook Rule'a göre zorunlu follow-up.
 
 ## Design review akışı
 
