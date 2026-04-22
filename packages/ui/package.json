@@ -39,6 +39,7 @@
     "chromatic": "chromatic",
     "clean": "rm -rf dist .turbo storybook-static coverage",
     "lint": "eslint .",
+    "package-contract": "publint && attw --pack . --ignore-rules cjs-resolves-to-esm internal-resolution-error no-resolution",
     "storybook": "storybook dev -p 6006 --no-open",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",

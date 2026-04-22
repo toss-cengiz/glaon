@@ -31,6 +31,10 @@
     },
     "clean": {
       "cache": false
+    },
+    "package-contract": {
+      "dependsOn": ["build"],
+      "outputs": []
     }
   }
 }

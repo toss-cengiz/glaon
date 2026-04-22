@@ -4,16 +4,17 @@ Glaon'un npm paketlerini güncel ve güvenli tutan otomasyon katmanı. Amacı: "
 
 ## Aktörler
 
-| Bileşen                                              | Ne yapar                                                                                         |
-| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| [Renovate](https://docs.renovatebot.com/)            | Haftalık outdated taraması + otomatik güncelleme PR'ları                                         |
-| `pnpm audit --audit-level high`                      | CI'da her PR'da çalışır; high/critical açıklık bulursa build kırar                               |
-| [`syncpack`](https://jamiemason.github.io/syncpack/) | Cross-workspace tek-versiyon politikası; PR'da drift varsa CI kırar                              |
-| [`knip`](https://knip.dev)                           | Kullanılmayan dosya / bağımlılık / import taraması; yeni ölü kod PR'da CI'yı kırar               |
-| Dependency Review action                             | Her PR'da `pnpm-lock.yaml` diff'ini tarar — bkz. [governance](./governance.md#dependency-review) |
-| GitHub Dependabot alerts                             | Repo-level UI uyarıları (user tarafından açılır)                                                 |
+| Bileşen                                                                           | Ne yapar                                                                                         |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| [Renovate](https://docs.renovatebot.com/)                                         | Haftalık outdated taraması + otomatik güncelleme PR'ları                                         |
+| `pnpm audit --audit-level high`                                                   | CI'da her PR'da çalışır; high/critical açıklık bulursa build kırar                               |
+| [`syncpack`](https://jamiemason.github.io/syncpack/)                              | Cross-workspace tek-versiyon politikası; PR'da drift varsa CI kırar                              |
+| [`knip`](https://knip.dev)                                                        | Kullanılmayan dosya / bağımlılık / import taraması; yeni ölü kod PR'da CI'yı kırar               |
+| [`publint`](https://publint.dev/) + [`attw`](https://arethetypeswrong.github.io/) | `packages/*` için `package.json` exports + tip çözümleme sözleşmesi; bozulursa CI kırar          |
+| Dependency Review action                                                          | Her PR'da `pnpm-lock.yaml` diff'ini tarar — bkz. [governance](./governance.md#dependency-review) |
+| GitHub Dependabot alerts                                                          | Repo-level UI uyarıları (user tarafından açılır)                                                 |
 
-Aktörler birbiriyle çakışmaz — Dependabot alerts sadece sinyal üretir, düzeltmeyi Renovate yapar; `syncpack` cross-workspace tutarlılığı zorlar; `knip` ölü kod + kullanılmayan bağımlılık taraması; audit ve dependency review CI'da son kontrol.
+Aktörler birbiriyle çakışmaz — Dependabot alerts sadece sinyal üretir, düzeltmeyi Renovate yapar; `syncpack` cross-workspace tutarlılığı zorlar; `knip` ölü kod + kullanılmayan bağımlılık taraması; `publint` + `attw` paket contract'ını doğrular; audit ve dependency review CI'da son kontrol.
 
 ## Renovate iş akışı
 
@@ -155,6 +156,56 @@ Her carve-out `knip.json`'da workspace bazlı listelenir. Gerekçeler:
 
 Allowlist büyümek için değil, kapanmak için var — yeni dep gerçek kullanılır hâle gelir gelmez ilgili ignore satırı düşürülür.
 
+## Paket contract kontrolü (publint + attw)
+
+`packages/*` paketleri (`@glaon/config`, `@glaon/core`, `@glaon/ui`) monorepo dışından tüketilmese bile bir "paket contract"ı var: `package.json` içindeki `exports`, `main`, `types`, `type: "module"` alanları tutarlı olmalı, alt-path export'lar gerçekten dosyayı göstermeli, type declaration'lar hem ESM hem CJS resolver'a çalışır gözükmeli. Bu alanlar sessizce kayarsa ilk kurban downstream consumer (web/mobile bundler) olur. `publint` + [`@arethetypeswrong/cli`](https://arethetypeswrong.github.io/) bu sözleşmeyi PR zamanında çekecek şekilde lint'ler.
+
+### Tetikleme
+
+- Lokal: `pnpm package-contract` — `packages/*` filter'lı turbo task'ı; her paketin kendi `publint` + `attw` çağrısını koşar.
+- Lokal tekil: `pnpm --filter @glaon/core package-contract`.
+- CI: `package-contract` isimli ayrı bir job; type-check/lint/audit ile eşdeğer blocking status check.
+
+### Kapsam
+
+- `@glaon/config`: sadece `publint` (tip dosyası yok, `exports` yalnız `./eslint` → `eslint.config.js`).
+- `@glaon/core`: `publint && attw --pack .` — 5 alt-path export (`.`, `./auth`, `./ha`, `./observability`, `./types`).
+- `@glaon/ui`: `publint && attw --pack .` — tek entry (`./src/index.ts`), `react >=19` peer.
+
+### Kabul edilen `attw` kategorileri
+
+Paketler `private: true` — npm'e publish olmuyor, sadece bundler tüketiyor. Bu yüzden `attw` üç kategoriyi `--ignore-rules` ile muaf tutuyoruz:
+
+| Rule                        | Muafiyet gerekçesi                                                                                                                                         |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cjs-resolves-to-esm`       | `exports` alanı `.ts` kaynağını gösteriyor (`./src/index.ts`); Node16 CJS resolver "bu ESM'dir" diyor — doğru, paket bundler-first. Node CJS consumer yok. |
+| `internal-resolution-error` | `.ts` exports'una Node doğrudan resolve edemez; bundler `ts-loader`/Vite `esbuild` dönüştürür. Monorepo-internal kullanım için beklenen davranış.          |
+| `no-resolution`             | Aynı kök sebep — Node "bu dosyayı tanımıyorum" diyor; bundler tanıyor.                                                                                     |
+
+Bilerek açık bıraktıklarımız (gerçek hata kategorileri):
+
+- `false-cjs` — Paket ESM iddia ediyor ama CJS module yayınlıyor (veya tersi).
+- `false-esm` — ESM gibi görünen dosyalar aslında CJS.
+- `entrypoint-resolution` farkları (CJS ve ESM aynı sembolü farklı çözüyor).
+- `missing-types` / `types-incorrect-extension`.
+
+Bu kategorilerden biri düşerse `attw` CI'ı kırar — ignore listesi büyümez, sebebin kendisi düzeltilir.
+
+### Publish-readiness
+
+Bu "bundler-first, src'den export" modeli Phase 0 konvansiyonu. Paketlerden biri gerçekten `npm publish` edilecek olursa (ki şu an plan yok):
+
+1. `exports` built `dist/` hedeflerine çevrilir (`./dist/index.js` + `./dist/index.d.ts`).
+2. `tsc -b` output'ları `dist/` altına emit edilir, `files` alanı paketten.
+3. Yukarıdaki üç `--ignore-rules` düşer; `attw` temiz `🟢` grid'i bundler + Node10 + Node16 hepsinde ister.
+
+Bu geçiş ayrı bir issue + ADR ile yönetilir — bu dökümanda takipçi olarak not edilir, şu an kapsamda değil.
+
+### Bilinçli istisnalar (genişletme)
+
+- `@glaon/config` paketinin `tsconfig.base.json` alt-path export'u kasten kaldırıldı. External bir path'a (`"../../tsconfig.base.json"`) işaret ediyordu; `publint` bunu iki ayrı kural ile bildirdi. Gerçek tüketici yok — workspace'ler doğrudan `extends: "../../tsconfig.base.json"` kullanıyor.
+- Yeni bir external alt-path export'u eklemeye karar verirsen, exports entry'si workspace'in kendi paket köküne bağlı kalmalı — paket dışı göreceli yollar paket boundary'sini bozar ve `publint` doğru olarak kırar.
+
 ## Rollback / pin
 
 Bir paket yeni sürüm sonrası sorun çıkarırsa:
@@ -186,5 +237,6 @@ Bir paket yeni sürüm sonrası sorun çıkarırsa:
 - Renovate config: [renovate.json](../renovate.json)
 - Syncpack config: [.syncpackrc.json](../.syncpackrc.json)
 - Knip config: [knip.json](../knip.json)
-- CI audit + syncpack + knip: [.github/workflows/ci.yml](../.github/workflows/ci.yml)
-- İlgili issue: #57 (Renovate), #95 (syncpack), #96 (knip).
+- Package contract script: kök [package.json](../package.json) `package-contract`, turbo task aynı isimde, per-package `publint` / `attw` çağrıları [`packages/*/package.json`](../packages)
+- CI audit + syncpack + knip + package-contract: [.github/workflows/ci.yml](../.github/workflows/ci.yml)
+- İlgili issue: #57 (Renovate), #95 (syncpack), #96 (knip), #97 (publint + attw).
