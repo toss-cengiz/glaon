@@ -92,6 +92,14 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - Platform-specific code (SecureStore, WebBrowser, expo-auth-session, DOM APIs) lives in `apps/*`.
 - `@glaon/ui` is the only place that imports Untitled UI source.
 
+## Design Source of Truth (MANDATORY)
+
+- Figma is the canonical source for Glaon's design: colors, spacing, typography, shadow, component visuals, and screen mockups all live there. Code **references** this source — it does not invent parallel values.
+- Design tokens are not hand-typed. They are exported from Figma Variables via the Figma Tokens plugin, committed as JSON, and transformed by Style Dictionary into per-platform outputs. Hex codes and raw spacing numbers don't appear in component code; token references do.
+- New primitives are designed in Figma first. A code-only primitive without a Figma counterpart is not mergeable — design review gate applies before the Storybook story is written.
+- Figma component descriptions carry the Storybook component ID in the form `storybook-id: <kebab-case>`. This is the contract that Chromatic's Figma plugin (#53) relies on; don't change the format without coordinating that integration.
+- Setup and workflow details: [docs/figma.md](docs/figma.md).
+
 ## Storybook Rule (MANDATORY)
 
 - Every new UI component (web or mobile) ships in the same PR with at least one Storybook story. No story, no merge.
