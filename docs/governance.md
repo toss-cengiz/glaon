@@ -22,6 +22,31 @@ Tam konfigürasyon config-as-code olarak JSON'da tutulur:
 - [`.github/rulesets/development.json`](../.github/rulesets/development.json)
 - [`.github/rulesets/main.json`](../.github/rulesets/main.json)
 
+## Merge method policy
+
+Development ruleset'i `required_linear_history: true` zorladığı için merge-commit (yani `Create a merge commit` seçeneği) kullanılamaz. Repo ayarları bunu destekleyecek şekilde kilitlenmiştir:
+
+| Ayar                 | Değer              | Neden                                                                    |
+| -------------------- | ------------------ | ------------------------------------------------------------------------ |
+| `allow_squash_merge` | `true` _(default)_ | Standart akış: her PR development'a tek commit olarak düşer.             |
+| `allow_rebase_merge` | `true`             | Zaten tek commit olan, conventional-commit başlığı doğru PR'lar için.    |
+| `allow_merge_commit` | `false`            | `required_linear_history` ile çakışıyordu; hem UI hem ruleset kapatıyor. |
+
+Squash commit formatı:
+
+- **Title:** `PR_TITLE` — PR başlığı commit başlığı olur.
+- **Body:** `PR_BODY` — PR body'si commit gövdesine kopyalanır.
+
+Bu format release-please için kritik: `development → main` akışında release-please merge edilmiş commit'leri okuyarak versiyon bump'ı ve CHANGELOG'u üretir. Squash commit başlığı geçerli bir Conventional Commit (`feat:`, `fix:`, `refactor!:`, vb.) değilse release-please o PR'ı atlar. PR başlığını bu yüzden `commitlint` formatında tutuyoruz.
+
+Pratik sonuç:
+
+- PR UI'ında yalnızca **Squash and merge** ve **Rebase and merge** seçenekleri görünür. Merge-commit butonu gri.
+- Feature PR'ları varsayılan olarak **Squash and merge** ile kapanır.
+- Rebase yalnızca PR zaten tek commit ise ve o commit'in başlığı tam olarak istenen commit başlığı ise mantıklı.
+
+Bu ayarlar Web UI'dan `Settings → General → Merge button` sayfası üzerinden de görülebilir; ama tek gerçeklik kaynağı [`scripts/apply-repo-settings.sh`](../scripts/apply-repo-settings.sh) script'idir. UI'dan elle değişiklik yapma — bir sonraki script çalışmasında ezilir.
+
 ## Required status checks
 
 Development'a merge olacak her PR'ın aşağıdaki check'leri yeşil olmalı:
@@ -64,15 +89,17 @@ Doğru akış:
 
 ## İlk apply (one-time kullanıcı aksiyonu)
 
-Script'i çalıştırmak admin:repo scope'lu bir token gerektirir:
+İki script var, ikisi de idempotent ve admin:repo scope'lu bir token gerektirir:
 
 ```bash
 gh auth login --scopes "repo,admin:repo_hook,admin:org,admin:public_key"
 # veya mevcut token'a admin:repo scope'u ekle
-scripts/apply-rulesets.sh
+
+scripts/apply-rulesets.sh       # branch protection ruleset'leri
+scripts/apply-repo-settings.sh  # merge method ayarları
 ```
 
-Başarılı çıktı:
+`apply-rulesets.sh` çıktısı:
 
 ```
 Applying ruleset: development-protection
@@ -87,6 +114,18 @@ Done. Current rulesets on toss-cengiz/glaon:
 
 Sonraki çalıştırmalar `created` yerine `updated` yazar.
 
+`apply-repo-settings.sh` çıktısı:
+
+```
+Applying repo merge-method settings...
+  allow_squash_merge:  true
+  allow_rebase_merge:  true
+  allow_merge_commit:  false
+  squash_title:        PR_TITLE
+  squash_body:         PR_BODY
+Done.
+```
+
 ## Bypass
 
 `bypass_actors` her iki ruleset'te boş. Bu bilinçli: branch protection kuralı insan için olduğu kadar Claude için de. Bir agent'ın veya bot'un kuralı geçmesi gerekiyorsa, o ihtiyaç kendi başına bir issue olur; körü körüne bypass eklenmez.
@@ -96,4 +135,4 @@ Sonraki çalıştırmalar `created` yerine `updated` yazar.
 - CLAUDE.md: repo'nun davranış kuralları.
 - [GitHub Rulesets API](https://docs.github.com/en/rest/repos/rules) — ruleset schema'sı.
 - [CODEOWNERS syntax](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners).
-- İlgili issue: #69.
+- İlgili issue: #69 (initial setup), #75 (merge method policy).

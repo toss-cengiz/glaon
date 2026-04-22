@@ -34,6 +34,7 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - Never branch from `main` for feature work; never commit directly to `main` or `development`.
 - PRs always target `development`. Base flag: `gh pr create --base development`.
 - The user reviews and merges the PR. **Claude does not run `gh pr merge`** unless explicitly told to.
+- Merge method is **Squash and merge** (default) or **Rebase and merge**; merge-commits are disabled repo-wide because `development`/`main` both require linear history. The squash commit inherits `PR_TITLE` as its subject and `PR_BODY` as its message, so the PR title must already be a valid Conventional Commit — release-please reads those commits on `main` to produce the release. See [docs/governance.md](docs/governance.md#merge-method-policy).
 - `development → main` merges happen only during release cycles, in a separate PR.
 - Standard start-of-work sequence:
   ```bash
