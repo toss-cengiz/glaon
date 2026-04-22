@@ -17,6 +17,12 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  # Turborepo remote cache — reads + writes. Absent on fork PRs; turbo
+  # falls back to local-only cache silently.
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
 jobs:
   build:
     name: build (${{ matrix.arch }})
