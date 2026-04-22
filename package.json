@@ -1,29 +1,18 @@
 {
   "name": "glaon",
-  "version": "0.0.0",
-  "private": true,
   "description": "Glaon — a secure, custom frontend for Home Assistant (web, wall tablet, mobile).",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/toss-cengiz/glaon.git"
+  "version": "0.0.0",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.3.3",
+    "syncpack": "^14.3.0",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
   },
-  "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=20.11.0",
     "pnpm": ">=9"
-  },
-  "scripts": {
-    "build": "turbo run build",
-    "build:addon": "pnpm --filter @glaon/web build:addon && rm -rf addon/dist && cp -R apps/web/dist addon/dist",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "e2e": "turbo run e2e",
-    "type-check": "turbo run type-check",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "clean": "turbo run clean && rm -rf node_modules .turbo",
-    "prepare": "husky"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -34,11 +23,22 @@
       "prettier --check"
     ]
   },
-  "devDependencies": {
-    "husky": "^9.1.7",
-    "lint-staged": "^16.4.0",
-    "prettier": "^3.3.3",
-    "turbo": "^2.3.3",
-    "typescript": "^5.7.2"
+  "packageManager": "pnpm@9.15.0",
+  "private": true,
+  "repository": "toss-cengiz/glaon.git",
+  "scripts": {
+    "build": "turbo run build",
+    "build:addon": "pnpm --filter @glaon/web build:addon && rm -rf addon/dist && cp -R apps/web/dist addon/dist",
+    "clean": "turbo run clean && rm -rf node_modules .turbo",
+    "dev": "turbo run dev",
+    "e2e": "turbo run e2e",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "turbo run lint",
+    "prepare": "husky",
+    "syncpack:fix": "syncpack fix-mismatches --dependency-types prod,dev,overrides && syncpack set-semver-ranges --dependency-types prod,dev,overrides",
+    "syncpack:lint": "syncpack lint --dependency-types prod,dev,overrides",
+    "test": "turbo run test",
+    "type-check": "turbo run type-check"
   }
 }

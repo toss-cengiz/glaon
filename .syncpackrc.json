@@ -1,0 +1,61 @@
+{
+  "$schema": "https://jamiemason.github.io/syncpack/schema.json",
+  "semverGroups": [
+    {
+      "label": "Workspace-local references carry no range (pnpm workspace:* protocol)",
+      "dependencies": ["@glaon/**"],
+      "packages": ["**"],
+      "range": ""
+    },
+    {
+      "label": "Expo ecosystem in @glaon/mobile tracks Expo SDK pins — exact for react/react-native, ~ for expo-*",
+      "dependencies": [
+        "react",
+        "react-dom",
+        "react-native",
+        "expo",
+        "expo-*",
+        "typescript",
+        "@types/react",
+        "@types/react-dom"
+      ],
+      "packages": ["@glaon/mobile"],
+      "isIgnored": true
+    },
+    {
+      "label": "Default range policy: caret for minor+patch flexibility",
+      "dependencies": ["**"],
+      "packages": ["**"],
+      "range": "^"
+    }
+  ],
+  "versionGroups": [
+    {
+      "label": "Workspace-local packages resolve via pnpm protocol — pinning is automatic",
+      "dependencies": ["@glaon/**"],
+      "packages": ["**"],
+      "isIgnored": true
+    },
+    {
+      "label": "Expo SDK pins — @glaon/mobile follows Expo's own upgrade cadence (Expo CLI manages these)",
+      "dependencies": [
+        "react",
+        "react-dom",
+        "react-native",
+        "expo",
+        "expo-*",
+        "typescript",
+        "@types/react",
+        "@types/react-dom"
+      ],
+      "packages": ["@glaon/mobile"],
+      "isIgnored": true
+    },
+    {
+      "label": "Intentional drift: @glaon/ui tracks Storybook's Vite 8 / plugin-react 6; @glaon/web stays on Vite 6 / plugin-react 4 for app build. Revisit when Storybook supports Vite 6 again or when web needs Vite 8.",
+      "dependencies": ["vite", "@vitejs/plugin-react"],
+      "packages": ["**"],
+      "isIgnored": true
+    }
+  ]
+}

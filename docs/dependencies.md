@@ -4,13 +4,15 @@ Glaon'un npm paketlerini güncel ve güvenli tutan otomasyon katmanı. Amacı: "
 
 ## Aktörler
 
-| Bileşen                                   | Ne yapar                                                           |
-| ----------------------------------------- | ------------------------------------------------------------------ |
-| [Renovate](https://docs.renovatebot.com/) | Haftalık outdated taraması + otomatik güncelleme PR'ları           |
-| `pnpm audit --audit-level high`           | CI'da her PR'da çalışır; high/critical açıklık bulursa build kırar |
-| GitHub Dependabot alerts                  | Repo-level UI uyarıları (user tarafından açılır)                   |
+| Bileşen                                              | Ne yapar                                                                                         |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| [Renovate](https://docs.renovatebot.com/)            | Haftalık outdated taraması + otomatik güncelleme PR'ları                                         |
+| `pnpm audit --audit-level high`                      | CI'da her PR'da çalışır; high/critical açıklık bulursa build kırar                               |
+| [`syncpack`](https://jamiemason.github.io/syncpack/) | Cross-workspace tek-versiyon politikası; PR'da drift varsa CI kırar                              |
+| Dependency Review action                             | Her PR'da `pnpm-lock.yaml` diff'ini tarar — bkz. [governance](./governance.md#dependency-review) |
+| GitHub Dependabot alerts                             | Repo-level UI uyarıları (user tarafından açılır)                                                 |
 
-Üç aktör birbiriyle çakışmaz — Dependabot alerts sadece sinyal üretir, düzeltmeyi Renovate yapar; audit CI'da son kontrol.
+Aktörler birbiriyle çakışmaz — Dependabot alerts sadece sinyal üretir, düzeltmeyi Renovate yapar; `syncpack` cross-workspace tutarlılığı zorlar; audit ve dependency review CI'da son kontrol.
 
 ## Renovate iş akışı
 
@@ -69,6 +71,40 @@ Major'lar auto-PR açmaz — önce dashboard'da "approval needed" olarak durur. 
 3. Kod tarafında migration gerekliyse **aynı PR'a commit ekle**. Bu hâlâ Renovate PR'ı ama insan değişikliği de eklenebilir.
 4. Type-check + lint + audit + Chromatic tümü yeşil olmadan merge etme. Chromatic'te unintended görsel değişiklik varsa migration tamam değil demektir.
 
+## Cross-workspace tutarlılık (syncpack)
+
+[syncpack](https://jamiemason.github.io/syncpack/) aynı paketin farklı workspace'lerde farklı versiyonlara kayma riskini kesiyor. Örnek: `@glaon/core` `react@19.2.5` kullanırken `@glaon/web`'in `react@19.3.0`'e geçmesi — CI drift olarak yakalar.
+
+### Tetikleme
+
+- Lokal: `pnpm syncpack:lint` — sadece rapor.
+- Lokal fix: `pnpm syncpack:fix` — `fix-mismatches` (tüm workspace'leri aynı versiyona hizalar) + `set-semver-ranges` (range operatörünü politikaya uydurur).
+- CI: her PR'da `verify` job'u içinde `pnpm syncpack:lint` koşar; drift varsa job fail olur.
+
+### Politika (`.syncpackrc.json`)
+
+- **Varsayılan range**: `^` — minör/patch güncellemeleri auto.
+- **`@glaon/*` workspace ref'leri**: range yok (`workspace:*` pnpm protokolü).
+- **Tek-versiyon zorlaması**: `prod`, `dev`, `overrides` dependency type'larında. `peerDependencies` policy dışında — peer'ler bilinçli geniş olabilir (ör. `@glaon/ui`'ın `react: ">=19"` peer'i).
+
+### Bilinçli istisnalar (`versionGroups`)
+
+Drift her zaman hata değil. İki bilinçli carve-out var:
+
+1. **Expo ekosistemi** (`@glaon/mobile`) — `react`, `react-native`, `expo`, `expo-*`, `typescript`, `@types/react*` Expo SDK konvansiyonunu izler (exact pin veya `~`). Expo CLI bu versiyonları kendi SDK alignment'ı için yönetir; cross-workspace tek-versiyona zorlamak, Expo upgrade akışını kırar. Mobile Expo SDK güncellediğinde bu paketler kendi cadence'inde hareket eder.
+2. **Vite hattı** — `@glaon/ui` Storybook'un `react-native-web-vite` gereği Vite 8 + `@vitejs/plugin-react` v6, `@glaon/web` ise stabil Vite 6 + plugin-react v4 kullanıyor. Storybook Vite 6'ya döndüğünde veya web Vite 8'e geçince tek-versiyona geçilir.
+
+Her istisna `.syncpackrc.json` içinde `label` yorumuyla açıklanır — "neden ignored?" sorusu config'i okuyunca cevaplanmalı.
+
+### Yeni istisna nasıl eklenir
+
+1. Drift'in gerekçesi var mı? (SDK constraint, upstream runtime farkı, geçici migration penceresi — hepsi geçerli.)
+2. `.syncpackrc.json`'da `versionGroups` listesine yeni bir entry ekle. `label` o gerekçeyi açık yaz — gelecekteki okuyan bizden birimizin kontrol'ünü kolaylaştırır.
+3. Gerekliyse `semverGroups`'a da benzer bir carve-out (range politikası farklıysa).
+4. `pnpm syncpack:lint` yerel yeşil olduktan sonra PR ile commit et.
+
+Drift'e keyfi izin vermek yok — her istisna config'te gerekçeli.
+
 ## Rollback / pin
 
 Bir paket yeni sürüm sonrası sorun çıkarırsa:
@@ -98,5 +134,6 @@ Bir paket yeni sürüm sonrası sorun çıkarırsa:
 ## Referanslar
 
 - Renovate config: [renovate.json](../renovate.json)
-- CI audit: [.github/workflows/ci.yml](../.github/workflows/ci.yml)
-- İlgili issue: #57
+- Syncpack config: [.syncpackrc.json](../.syncpackrc.json)
+- CI audit + syncpack: [.github/workflows/ci.yml](../.github/workflows/ci.yml)
+- İlgili issue: #57 (Renovate), #95 (syncpack).

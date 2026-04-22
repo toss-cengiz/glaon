@@ -1,10 +1,12 @@
 {
   "name": "@glaon/core",
   "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "devDependencies": {
+    "@glaon/config": "workspace:*",
+    "@vitest/coverage-v8": "^2.1.8",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
   "exports": {
     ".": "./src/index.ts",
     "./auth": "./src/auth/index.ts",
@@ -12,18 +14,16 @@
     "./observability": "./src/observability/index.ts",
     "./types": "./src/types.ts"
   },
+  "main": "./src/index.ts",
+  "private": true,
   "scripts": {
     "build": "tsc -b",
+    "clean": "rm -rf dist .turbo coverage",
     "lint": "eslint .",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist .turbo coverage"
+    "type-check": "tsc --noEmit"
   },
-  "devDependencies": {
-    "@glaon/config": "workspace:*",
-    "@vitest/coverage-v8": "^2.1.8",
-    "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
-  }
+  "type": "module",
+  "types": "./src/index.ts"
 }

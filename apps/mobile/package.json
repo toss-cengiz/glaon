@@ -1,18 +1,6 @@
 {
   "name": "@glaon/mobile",
   "version": "0.0.0",
-  "private": true,
-  "main": "index.ts",
-  "scripts": {
-    "dev": "expo start",
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "build": "echo 'Use EAS Build: eas build --platform all'",
-    "lint": "eslint .",
-    "type-check": "tsc --noEmit",
-    "clean": "rm -rf .expo dist .turbo"
-  },
   "dependencies": {
     "@glaon/core": "workspace:*",
     "@glaon/ui": "workspace:*",
@@ -31,5 +19,17 @@
     "@glaon/config": "workspace:*",
     "@types/react": "~19.2.0",
     "typescript": "~5.7.2"
+  },
+  "main": "index.ts",
+  "private": true,
+  "scripts": {
+    "android": "expo start --android",
+    "build": "echo 'Use EAS Build: eas build --platform all'",
+    "clean": "rm -rf .expo dist .turbo",
+    "dev": "expo start",
+    "ios": "expo start --ios",
+    "lint": "eslint .",
+    "start": "expo start",
+    "type-check": "tsc --noEmit"
   }
 }
