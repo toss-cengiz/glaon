@@ -1,0 +1,156 @@
+# Figma — Tasarım Tek Kaynağı
+
+Glaon için tasarım Figma'da yaşar. Renkler, spacing, typography, shadow, component görselleri, ekran mockup'ları hepsi Figma'dadır. Kod bu kaynağa **referans yazar**, alternatif değildir.
+
+Bu sayfa:
+
+- Figma dosya yapısını tanımlar.
+- Design token export stratejisini sabitler.
+- Figma Remote MCP bind adımlarını anlatır.
+- Figma ⇄ Storybook naming eşlemesini koyar.
+- Design → kod review akışını anlatır.
+
+## Dosya yapısı
+
+Üç ayrı Figma dosyası (aynı takım / workspace altında):
+
+| Dosya             | İçerik                                                                               | URL                |
+| ----------------- | ------------------------------------------------------------------------------------ | ------------------ |
+| **Design System** | Primitive'ler, color palette, type scale, spacing, radii, shadow — published library | _TBD (bkz. aşağı)_ |
+| **Components**    | Design System'i tüketen composite component'ler (Card, Dialog, DeviceTile…)          | _TBD_              |
+| **Screens**       | Web + mobile ekran mockup'ları (dashboard, detail, settings…)                        | _TBD_              |
+
+> Dosyalar oluşturulduktan sonra URL'ler bu tabloya işlenir (küçük follow-up commit). Tüm takım üyeleri üçüne de en az "can view" seviyesinde erişime sahip olur.
+
+### Neden üç dosya?
+
+- **Library vs consumer ayrımı**: Design System published library olduğunda, Components ve Screens dosyaları onu tüketir (version pinning, instance override trace'i). Tek dosyada karışık olsa branch publish karmaşık hale gelir.
+- **Scope-based review**: Token değişikliği Design System PR'ında, yeni composite Components dosyasında, ekran mockup'ı Screens dosyasında tartışılır.
+- **Chromatic-Figma uyumu** (#53): Chromatic Figma plugin'i bir Storybook component'ini bir Figma component'ine map ederken, Design System dosyasındaki kanonik olanı işaret eder.
+
+## Design token akışı
+
+### Karar: **Seçenek A** — Figma Tokens plugin → Style Dictionary
+
+Tokens `@glaon/core` (veya `@glaon/design-tokens` — ayrı paket kararı token generator issue'sunda) içinde JSON olarak commit'lenir. Figma'dan export, Style Dictionary üzerinden web/mobile dağılım.
+
+```
+Figma Variables  →  [Figma Tokens plugin]  →  tokens/*.json  →  [Style Dictionary]  →  {web/*.css, rn/*.ts}
+     (kanonik)          export                  (repo)            transform              (tüketici)
+```
+
+Neden A (B ve C'ye karşı):
+
+- **Deterministik build**: Tokens commit'lenir → PR diff'i görülür → "renk mi değişti?" sorusu tek kelimelik review'la cevaplanır.
+- **Offline build**: CI + local build Figma'ya bağlı değil; network outage prod'u etkilemez.
+- **Chromatic-Figma hazır**: Token + component kombinasyonu bire bir izlenebilir (#53).
+- **Rollback kolay**: Yanlış bir token revert = git revert.
+
+Seçilmeyenler:
+
+- **B** (lokal REST script): Aynı JSON'u üretir ama "kim ne zaman koştu" belirsiz. İlerde A'ya CI eklenirse B otomatik devre dışı kalır; şimdi seçmenin kazancı yok.
+- **C** (runtime MCP read): Tasarım verisi kod base'ine işlenmez → PR diff'lenemez, build-time deterministik değil, offline çalışmaz. Keşif/prototip için OK ama prod için değil.
+
+### Token generator implementasyonu (bu issue'da yok)
+
+Figma Tokens plugin'in hangi versiyonu, tokens.json şeması, Style Dictionary config'i, CI'a bağlanması — hepsi **ayrı issue**. Bu baseline issue sadece kararı sabitler; kod üretimi design system dosyası oluşup ilk token set'i çıkınca başlar.
+
+### Token kategorileri (plugin config'i için)
+
+Figma Variables'da en az iki mode tanımlanır:
+
+- **Theme**: `light` / `dark`
+- **Platform**: `web` / `mobile` (spacing scale RN'de 4px multiplier farkı var; typography stack'leri farklı)
+
+Token isimlendirmesi: `color.brand.primary`, `space.4`, `radius.md`, `shadow.card`, `type.body.medium.size`. Dot-notation Style Dictionary default'u ile uyumlu.
+
+## Figma Remote MCP
+
+Claude Code ve diğer agent'lar Figma Remote MCP üzerinden tasarım dosyalarını okur (component listesi, frame'ler, variable'lar). Lokal Figma desktop app'inin MCP server'ı (dev-mode) ayrı bir kanaldır; Glaon için remote MCP kullanılır çünkü takımın tümü aynı endpoint'e bağlanır.
+
+### Kurulum
+
+1. Figma hesabı ile giriş yap → Team'de **Dev mode** ve MCP enabled.
+2. Claude Code → Figma MCP authenticate tool'u tetikle; browser OAuth flow'u açılır.
+3. Onaylanan scope: file read (component, variable, frame metadata). **Write scope istenmez.**
+4. Repo kökündeki [`.mcp.json`](../.mcp.json)'a Figma entry'si eklenir (_yazma sırası: OAuth başarıyla döndükten sonra, ayrı commit_). Beklenen şekil:
+
+   ```jsonc
+   {
+     "mcpServers": {
+       "chromatic": { "...mevcut...": true },
+       "figma": {
+         "type": "http",
+         "url": "https://<figma-remote-endpoint>",
+         "headers": { "...auth metadata...": "" },
+       },
+     },
+   }
+   ```
+
+   > Gerçek URL ve auth header'lar Figma tarafından OAuth callback'inde sağlanır; şu an placeholder. `.mcp.json` güncellemesi OAuth başarıyla tamamlanana kadar ertelenir.
+
+5. `claude mcp list` → `figma` status **connected**.
+
+### Kullanım sınırları
+
+- Read-only. Agent Figma'da değişiklik yapmaz; tasarım değişiklikleri insan aksiyonudur.
+- Büyük dosyalarda frame sayısı MCP response boyutunu şişirir; spesifik component/page sorgula.
+
+## Naming convention (Figma ⇄ kod)
+
+Design System Figma dosyasındaki component hiyerarşisi bire bir Storybook `title` alanına eşlenir:
+
+| Figma path                              | Storybook title                                   |
+| --------------------------------------- | ------------------------------------------------- |
+| `Web Primitives/Button/Primary`         | `Web Primitives/Button` → story `Primary`         |
+| `Web Primitives/Button/Disabled`        | `Web Primitives/Button` → story `Disabled`        |
+| `RN Primitives/PressableButton/Primary` | `RN Primitives/PressableButton` → story `Primary` |
+
+Storybook tarafındaki konvansiyon [docs/storybook.md](storybook.md)'de tanımlı.
+
+### Component description → Storybook ID
+
+Her Figma component'inin description alanında Storybook component ID'si yazılır:
+
+```
+storybook-id: web-primitives-button
+```
+
+Chromatic Figma plugin (#53) bu etiketi okuyup pixel diff map'ini kurar. Storybook ID formatı: CSF path'inin kebab-case'i (`Web Primitives/Button` → `web-primitives-button`).
+
+## Design review akışı
+
+1. **Figma'da öneri**: Tasarımcı ilgili dosyada branch açar (Figma branching) veya comment'lerle değişikliği iletir.
+2. **Tartışma**: Figma comment thread'i.
+3. **Merge (Figma tarafı)**: Onay sonrası branch main'e merge olur. Design System'de token değişikliyse published library bump'lanır.
+4. **Kod PR'ı**: Token değişikliyse ayrı bir issue + PR açılır, token regenerate edilir, commit'lenir. Component görsel değişikliyse Chromatic'te diff oluşur → #53 üzerinden otomatik mapping.
+
+### Tasarım ↔ kod senkron kuralı
+
+- Figma'da değişen bir component'in kodda karşılığı yoksa, kod PR'ı **zorunlu follow-up** (issue + PR). Design System'de orphan component bırakılmaz.
+- Kodda yeni bir primitive eklenmek isteniyorsa **önce Figma'da** tasarlanır; Figma olmadan eklenen component'in review'ı blocked.
+
+## Follow-up işler (bu issue kapsamı dışı)
+
+| Konu                                             | Durum                                                           |
+| ------------------------------------------------ | --------------------------------------------------------------- |
+| Figma Tokens plugin + Style Dictionary generator | ayrı issue açılacak (dosyalar + ilk token set'i olduktan sonra) |
+| Figma MCP `.mcp.json` entry                      | OAuth başarılı olunca küçük PR                                  |
+| Chromatic ⇄ Figma design-code diff               | #53                                                             |
+| Figma branching + design review Slack bot        | ayrı issue                                                      |
+
+## Sorun giderme
+
+- **MCP OAuth loop** → Figma takım ayarında "Third-party integrations" kapatılmış olabilir; takım admin'i açar.
+- **`claude mcp list` → figma connected yok** → `.mcp.json` entry'si henüz commit'lenmedi; bu dosyanın MCP bölümü OAuth bitince güncellenir.
+- **Storybook ID'leri eşleşmiyor** → Figma component description formatı `storybook-id: <kebab-case>` olmalı; boşluk veya noktalı virgül olursa plugin parse edemez.
+- **Token değişikliği kodda yansımıyor** → Generator script'i henüz yok; şimdilik manuel export → JSON commit; generator ayrı issue ile.
+
+## Referanslar
+
+- Figma Variables: <https://help.figma.com/hc/en-us/articles/15145852043927>
+- Figma Tokens plugin: <https://docs.tokens.studio/>
+- Style Dictionary: <https://amzn.github.io/style-dictionary/>
+- Figma MCP (remote): <https://www.figma.com/developers/mcp>
+- İlgili issue'lar: #52 (bu sayfa), #53 (Chromatic-Figma), #47 (Storybook RN), #48 (Untitled UI wrap)
