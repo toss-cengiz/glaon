@@ -37,8 +37,8 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Audit production dependencies
-        run: pnpm audit --prod
+      - name: Audit dependencies (high + critical)
+        run: pnpm audit --audit-level high
 
   secret-scan:
     name: gitleaks

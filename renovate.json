@@ -1,0 +1,82 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:best-practices", ":semanticCommits"],
+  "baseBranches": ["development"],
+  "timezone": "Europe/Istanbul",
+  "schedule": ["before 9am on monday"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Dependency Dashboard",
+  "dependencyDashboardHeader": "Renovate automation tracking issue. Every dependency update Renovate performs — whether it auto-merges or waits for review — is listed here. This dashboard itself satisfies the repo's Issue-First Rule for dependency work; individual update PRs reference this issue.\n\nCheck a box next to an item to approve (and create a PR for) a deferred major update.",
+  "labels": ["dependencies"],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["dependencies", "area:security"],
+    "schedule": ["at any time"]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 9am on monday"]
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "matchUpdateTypes": ["minor"],
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "matchPackageNames": ["storybook", "@storybook/**", "storybook-dark-mode"],
+      "groupName": "storybook"
+    },
+    {
+      "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"],
+      "groupName": "react 19"
+    },
+    {
+      "matchPackageNames": ["react-native", "react-native-web", "expo", "expo-**"],
+      "groupName": "react native + expo"
+    },
+    {
+      "matchPackageNames": [
+        "eslint",
+        "eslint-**",
+        "@eslint/**",
+        "@typescript-eslint/**",
+        "typescript-eslint",
+        "globals"
+      ],
+      "groupName": "eslint"
+    },
+    {
+      "matchPackageNames": ["typescript"],
+      "groupName": "typescript"
+    },
+    {
+      "matchPackageNames": ["vite", "@vitejs/**"],
+      "groupName": "vite"
+    },
+    {
+      "matchPackageNames": ["chromatic", "chromaui/**"],
+      "groupName": "chromatic"
+    },
+    {
+      "matchPackageNames": ["@commitlint/**", "commitlint", "husky", "lint-staged"],
+      "groupName": "commit hooks"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions"
+    }
+  ]
+}
