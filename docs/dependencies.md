@@ -9,10 +9,11 @@ Glaon'un npm paketlerini güncel ve güvenli tutan otomasyon katmanı. Amacı: "
 | [Renovate](https://docs.renovatebot.com/)            | Haftalık outdated taraması + otomatik güncelleme PR'ları                                         |
 | `pnpm audit --audit-level high`                      | CI'da her PR'da çalışır; high/critical açıklık bulursa build kırar                               |
 | [`syncpack`](https://jamiemason.github.io/syncpack/) | Cross-workspace tek-versiyon politikası; PR'da drift varsa CI kırar                              |
+| [`knip`](https://knip.dev)                           | Kullanılmayan dosya / bağımlılık / import taraması; yeni ölü kod PR'da CI'yı kırar               |
 | Dependency Review action                             | Her PR'da `pnpm-lock.yaml` diff'ini tarar — bkz. [governance](./governance.md#dependency-review) |
 | GitHub Dependabot alerts                             | Repo-level UI uyarıları (user tarafından açılır)                                                 |
 
-Aktörler birbiriyle çakışmaz — Dependabot alerts sadece sinyal üretir, düzeltmeyi Renovate yapar; `syncpack` cross-workspace tutarlılığı zorlar; audit ve dependency review CI'da son kontrol.
+Aktörler birbiriyle çakışmaz — Dependabot alerts sadece sinyal üretir, düzeltmeyi Renovate yapar; `syncpack` cross-workspace tutarlılığı zorlar; `knip` ölü kod + kullanılmayan bağımlılık taraması; audit ve dependency review CI'da son kontrol.
 
 ## Renovate iş akışı
 
@@ -105,6 +106,55 @@ Her istisna `.syncpackrc.json` içinde `label` yorumuyla açıklanır — "neden
 
 Drift'e keyfi izin vermek yok — her istisna config'te gerekçeli.
 
+## Ölü kod taraması (knip)
+
+[knip](https://knip.dev) yaşam süresi dolmuş kodu — refactor sonrası kalmış export, paketten çıkarılmış ama `package.json`'da unutulmuş bağımlılık, yetim dosya — lint zamanında yakalıyor. TS'in `noUnusedLocals` kontrolü dosya içi; knip cross-file + cross-package.
+
+### Tetikleme
+
+- Lokal: `pnpm knip` — repo genelinde tarama.
+- CI: `verify` job'u içinde `pnpm knip` koşar; bulgu varsa job fail olur.
+
+### Mevcut politika (tier 1)
+
+Şu an CI blocking (exit 1) olan bulgu tipleri:
+
+- Kullanılmayan dosyalar (`files`)
+- Kullanılmayan bağımlılıklar (`dependencies`, `devDependencies`)
+- Listelenmemiş bağımlılıklar (`unlisted`)
+- Çözülemeyen import'lar (`unresolved`)
+- Listelenmemiş binary'ler (`binaries`)
+
+Kullanılmayan export'lar (`exports`, `nsExports`, `types`, `nsTypes`, `enumMembers`, `duplicates`, `classMembers`) şu an taranmıyor — bunlar tier 2+.
+
+### Tier yükseltme kriteri
+
+Export taraması eklemek (tier 2) için:
+
+1. Monorepo en az bir apps/\* + bir packages/\* gerçek kullanıcı akışı ile olgunlaşmalı (sadece scaffold değil).
+2. `pnpm knip --include exports,types` lokalde temiz olmalı — kalan sinyal yoksa tier yükseltilir.
+3. Yükseltme ayrı bir issue + PR; scope "`knip.json`'a rules + CI include flag".
+
+Böyle yapmamızın nedeni: Phase 0'da çok sayıda placeholder export var (ör. `@glaon/core/auth`, `@glaon/ui/Button`) — erken export taraması, henüz yazılmamış koddan dolayı sürekli false positive üretir.
+
+### Bilinçli istisnalar
+
+Her carve-out `knip.json`'da workspace bazlı listelenir. Gerekçeler:
+
+- **`@glaon/ui`, `@glaon/config` workspace ref'leri** — Apps/packages bu paketleri declare ediyor ama henüz import etmiyor. Pre-wiring: feature PR'ları geldiğinde `package.json`'a dep eklemek yerine hazır. Gerçek kullanım başlayınca allowlist'ten düşer.
+- **Expo ekosistemi** (`apps/mobile`) — `expo-auth-session`, `expo-crypto`, `expo-updates`, `expo-system-ui`, `babel-preset-expo`, `@babel/core` gibi paketler native-linking + `app.json` plugin mekanizması üzerinden tüketiliyor; TS import'u yok. Knip'in Expo plugin'i bunu kısmen görür, kısmen görmez — açıkça allowlist.
+- **`@vitest/coverage-v8`** (`apps/web`) — Vitest'in coverage provider'ı runtime'da implicit yükleniyor; direkt import yok.
+- **`eslint` binary** — `@glaon/config` paketi üzerinden transitive geliyor; her workspace'in `lint` script'i `eslint .` çağrıyor ama binary'nin kendisi workspace'in `package.json`'unda yok. pnpm hoisting bunu çözüyor.
+- **`tools/figma-plugin/code.js`** — Figma tarafından yüklenen plugin dosyası; npm graph'ının dışında. Root `ignore`.
+
+### Yeni istisna nasıl eklenir
+
+1. `pnpm knip` ile rapor al; false positive mi doğrula (örn. paket gerçekten kullanılıyor mu, sadece import'u henüz yazılmamış mı?).
+2. `knip.json`'da ilgili workspace'in `ignoreDependencies` / `ignoreUnresolved` / `ignoreBinaries` / `ignore` alanına ekle.
+3. Gerekçeyi PR body'sinde açıkla **ve** bu dökümanın "Bilinçli istisnalar" bölümündeki listeye bir satır ekle. Config'te yorum satırı yok (JSON), "neden?" sorusu bu dökümanda cevaplanmalı.
+
+Allowlist büyümek için değil, kapanmak için var — yeni dep gerçek kullanılır hâle gelir gelmez ilgili ignore satırı düşürülür.
+
 ## Rollback / pin
 
 Bir paket yeni sürüm sonrası sorun çıkarırsa:
@@ -135,5 +185,6 @@ Bir paket yeni sürüm sonrası sorun çıkarırsa:
 
 - Renovate config: [renovate.json](../renovate.json)
 - Syncpack config: [.syncpackrc.json](../.syncpackrc.json)
-- CI audit + syncpack: [.github/workflows/ci.yml](../.github/workflows/ci.yml)
-- İlgili issue: #57 (Renovate), #95 (syncpack).
+- Knip config: [knip.json](../knip.json)
+- CI audit + syncpack + knip: [.github/workflows/ci.yml](../.github/workflows/ci.yml)
+- İlgili issue: #57 (Renovate), #95 (syncpack), #96 (knip).

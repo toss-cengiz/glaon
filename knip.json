@@ -1,0 +1,54 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignore": ["tools/figma-plugin/code.js"],
+  "ignoreBinaries": ["eslint"],
+  "workspaces": {
+    ".": {
+      "entry": ["commitlint.config.mjs", "eslint.config.mjs"]
+    },
+    "apps/web": {
+      "entry": [
+        "src/main.tsx",
+        "src/test/setup.ts",
+        "src/**/*.test.{ts,tsx}",
+        "vite.config.ts",
+        "vitest.config.ts"
+      ],
+      "project": ["src/**/*.{ts,tsx}"],
+      "vite": false,
+      "vitest": false,
+      "ignoreDependencies": ["@glaon/ui", "@glaon/config", "@vitest/coverage-v8"]
+    },
+    "apps/web-e2e": {
+      "entry": ["tests/**/*.spec.ts"],
+      "project": ["**/*.ts"],
+      "ignoreDependencies": ["@glaon/config"]
+    },
+    "apps/mobile": {
+      "entry": ["App.tsx"],
+      "project": ["**/*.{ts,tsx}"],
+      "ignoreDependencies": [
+        "@glaon/ui",
+        "@glaon/config",
+        "@babel/core",
+        "expo-auth-session",
+        "expo-crypto",
+        "expo-updates",
+        "expo-system-ui"
+      ],
+      "ignoreUnresolved": ["babel-preset-expo"]
+    },
+    "packages/core": {
+      "project": ["src/**/*.{ts,tsx}"],
+      "ignoreDependencies": ["@glaon/config"]
+    },
+    "packages/ui": {
+      "entry": ["src/**/*.stories.@(ts|tsx)", "src/**/*.test.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx}", ".storybook/**/*.{ts,tsx}"],
+      "ignoreDependencies": ["@glaon/config"]
+    },
+    "packages/config": {
+      "project": ["**/*.{js,ts}"]
+    }
+  }
+}

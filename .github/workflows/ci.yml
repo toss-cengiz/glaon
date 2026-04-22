@@ -43,6 +43,9 @@ jobs:
       - name: Cross-workspace dep consistency (syncpack)
         run: pnpm syncpack:lint
 
+      - name: Unused files · deps · exports (knip)
+        run: pnpm knip
+
   unit-tests:
     name: unit-tests
     runs-on: ubuntu-latest
