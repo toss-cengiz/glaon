@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Something's broken. Describe repro so another developer can confirm.
+        Something's broken. Describe repro so another developer can confirm. Issue-First Rule applies — see [CLAUDE.md](../CLAUDE.md).
   - type: dropdown
     id: phase
     attributes:
