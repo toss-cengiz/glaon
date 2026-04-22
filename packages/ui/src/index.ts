@@ -3,3 +3,4 @@
 // and composes its primitives into Glaon-branded components.
 
 export * from './components/Button';
+export * from './components/PressableButton';

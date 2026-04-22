@@ -6,7 +6,7 @@ Glaon'un tüm UI component'leri — web ve (ileride) React Native — tek bir St
 
 - Konum: [packages/ui](../packages/ui/)
 - Config: [packages/ui/.storybook/](../packages/ui/.storybook/)
-- Framework: `@storybook/react-vite` (v10)
+- Framework: `@storybook/react-native-web-vite` (v10) — tek config hem web hem React Native story'yi render eder. `react-native` → `react-native-web` alias'ını otomatik kurar.
 - Addon'lar:
   - `@storybook/addon-a11y` — accessibility paneli + `a11y.test: 'error'`
   - `@storybook/addon-mcp` — AI agent'ların Storybook'u MCP üzerinden kullanması
@@ -75,11 +75,55 @@ Her component için en az:
 
 `title` alanı Storybook sidebar'ında hiyerarşiyi belirler. Mevcut konvansiyon:
 
-- `Primitives/*` — tek dokunuşluk UI (Button, Input, Badge…)
+- `Web Primitives/*` — sadece web'de çalışan, DOM/HTML tabanlı component'ler (Button, Input, Badge…)
+- `RN Primitives/*` — React Native API'leri (`Pressable`, `View`, `Text`…) ile yazılmış, `react-native-web` üzerinden Storybook'ta da render olan component'ler
 - `Composites/*` — birden fazla primitive'den oluşan component (Card, Dialog…)
 - `UI Kit/*` — Untitled UI wrap'leri (ayrı issue #48)
 
-React Native story'leri ileride `RN/*` prefix'i altında gelecek (ayrı issue #47).
+Aynı Storybook instance'ında Web ve RN story'leri yan yana yaşar; sidebar'da ilk kırılım platformu belirtir.
+
+## React Native story yazımı
+
+RN component'leri web'dekiyle aynı CSF 3.0 kalıbını kullanır; tek fark import ve kategori. `react-native` ve `react-native-web` paketlendiği için component dosyasında doğrudan `react-native`'den import edin:
+
+```tsx
+// PressableButton.tsx
+import { Pressable, Text, StyleSheet } from 'react-native';
+
+export function PressableButton({ children, ...rest }) {
+  return (
+    <Pressable accessibilityRole="button" {...rest}>
+      <Text>{children}</Text>
+    </Pressable>
+  );
+}
+```
+
+```tsx
+// PressableButton.stories.tsx
+import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
+import { PressableButton } from './PressableButton';
+
+const meta = {
+  title: 'RN Primitives/PressableButton',
+  component: PressableButton,
+  tags: ['autodocs'],
+  args: { children: 'Press me' },
+} satisfies Meta<typeof PressableButton>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Primary: Story = {};
+```
+
+### RN-specific kurallar
+
+- Component dosyasında DOM API (`window`, `document`, `HTMLElement`, inline CSS string'leri) **kullanmayın** — `react-native-web` çevirmez, native tarafta çöker.
+- Stilleri `StyleSheet.create` ile yazın; inline CSS object'leri RN'de invalid key'ler verdiğinde sessizce düşer.
+- Accessibility için `accessibilityRole`, `accessibilityLabel` gibi RN prop'larını kullanın — addon-a11y bunları axe üzerinden doğru kontrol eder.
+- Event handler'lar RN isimlendirmesiyle: `onPress` (not `onClick`), `onLongPress`, `onPressIn`/`Out`.
+- Story kanvasında absolute pozisyon kullanıyorsanız dış `View` ile sarın; `position: 'fixed'` RN'de yok.
 
 ## "Component var, story yok" durumu
 
@@ -119,7 +163,6 @@ export const DarkOnly: Story = {
 
 | Konu                                         | Issue                     |
 | -------------------------------------------- | ------------------------- |
-| React Native / react-native-web desteği      | #47                       |
 | Untitled UI component wrap'leri + story'leri | #48                       |
 | CI soft/hard fail: UI değişti, story yok     | açılacak (sonraki sprint) |
 

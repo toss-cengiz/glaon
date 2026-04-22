@@ -1,13 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
+import { View } from 'react-native';
 
-import { Button } from './Button';
+import { PressableButton } from './PressableButton';
 
 const meta = {
-  title: 'Web Primitives/Button',
-  component: Button,
+  title: 'RN Primitives/PressableButton',
+  component: PressableButton,
   tags: ['autodocs'],
   args: {
-    children: 'Click me',
+    children: 'Press me',
     variant: 'primary',
     size: 'md',
     disabled: false,
@@ -16,9 +17,9 @@ const meta = {
     variant: { control: 'inline-radio', options: ['primary', 'secondary'] },
     size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] },
     disabled: { control: 'boolean' },
-    onClick: { action: 'clicked' },
+    onPress: { action: 'pressed' },
   },
-} satisfies Meta<typeof Button>;
+} satisfies Meta<typeof PressableButton>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -35,16 +36,16 @@ export const Disabled: Story = {
 
 export const Sizes: Story = {
   render: (args) => (
-    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-      <Button {...args} size="sm">
+    <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+      <PressableButton {...args} size="sm">
         Small
-      </Button>
-      <Button {...args} size="md">
+      </PressableButton>
+      <PressableButton {...args} size="md">
         Medium
-      </Button>
-      <Button {...args} size="lg">
+      </PressableButton>
+      <PressableButton {...args} size="lg">
         Large
-      </Button>
-    </div>
+      </PressableButton>
+    </View>
   ),
 };

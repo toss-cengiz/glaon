@@ -1,7 +1,7 @@
-import { defineMain } from '@storybook/react-vite/node';
+import { defineMain } from '@storybook/react-native-web-vite/node';
 
 export default defineMain({
-  framework: '@storybook/react-vite',
+  framework: '@storybook/react-native-web-vite',
   stories: ['../src/**/*.mdx', '../src/**/*.stories.@(ts|tsx)'],
   addons: [
     '@storybook/addon-a11y',
