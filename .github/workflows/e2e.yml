@@ -49,6 +49,10 @@ jobs:
 
       - name: Build web app
         run: pnpm --filter @glaon/web build
+        env:
+          # Placeholder DSN so the production-build DSN gate in vite.config.ts passes.
+          # Events would go nowhere (dummy host) — E2E doesn't assert on Sentry traffic.
+          VITE_SENTRY_DSN: https://public@sentry.invalid/0
 
       - name: Run Playwright smoke tests
         run: pnpm --filter @glaon/web-e2e e2e --project=chromium --grep @smoke

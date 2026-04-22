@@ -9,6 +9,7 @@
     ".": "./src/index.ts",
     "./auth": "./src/auth/index.ts",
     "./ha": "./src/ha/index.ts",
+    "./observability": "./src/observability/index.ts",
     "./types": "./src/types.ts"
   },
   "scripts": {

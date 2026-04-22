@@ -14,11 +14,13 @@
   "dependencies": {
     "@glaon/core": "workspace:*",
     "@glaon/ui": "workspace:*",
+    "@sentry/browser": "^10.49.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
   },
   "devDependencies": {
     "@glaon/config": "workspace:*",
+    "@sentry/vite-plugin": "^5.2.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^4.4.0",
