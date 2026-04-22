@@ -59,6 +59,7 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - `CHROMATIC_PROJECT_TOKEN` secret and branch protection rules are user-managed; see [docs/chromatic.md](docs/chromatic.md).
 - Chromatic MCP: after the first successful publish, the remote endpoint exposes only `docs` tools. Dev/test tools stay on the local Storybook server — don't try to replicate them remotely.
 - The Chromatic MCP entry in `.mcp.json` is part of the repo contract — don't edit or remove it as a drive-by. New MCP servers get their own entry and their own issue; breaking changes to the existing Chromatic URL require a tracked migration PR.
+- Chromatic also runs a Figma design-code diff on each build. Every Storybook story is mapped to its Figma counterpart via the `storybook-id: <kebab-case>` string in the Figma component description (see [docs/figma.md](docs/figma.md#component-description--storybook-id)). When a build shows `Not implemented` or `Design changed`, treat it as a signal to coordinate a follow-up with design, not as a Chromatic config glitch.
 
 ## PR Scope & Test Plan Sync (MANDATORY)
 
