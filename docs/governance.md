@@ -126,6 +126,50 @@ pinact run .github/workflows/
 
 Yeni bir third-party action'ı workflow'a eklerken pin'siz bir `uses:` commit'lemek kural ihlalidir — PR review'unda bloklanır.
 
+## OSSF Scorecard
+
+[OpenSSF Scorecard](https://github.com/ossf/scorecard) repo'yu ~20 supply-chain sinyaline göre (branch protection, SAST, token permissions, pinned-dependencies, signed-releases, code-review, vb.) puanlar. Kendi kurallarımızın ne kadarının makineye öğretildiğini dışarıdan bir gözle görmek için.
+
+Konum: [`.github/workflows/scorecard.yml`](../.github/workflows/scorecard.yml).
+
+### Tetikleme
+
+- **Haftalık schedule** — Pazartesi 01:30 UTC (CI trafiği en düşük pencere).
+- **`push` → `main`** — release-please PR'ı merge olduktan sonra baseline güncellenir.
+- **`branch_protection_rule`** — ruleset değişince Scorecard'ın branch-protection skoru anında refresh olur.
+
+### Token disiplini
+
+Top-level `permissions: read-all`; analysis job'u sadece ihtiyacı olan dört yazma/okuma hakkını (`security-events: write`, `id-token: write`, `contents: read`, `actions: read`) alır. `Token-Permissions` check'i bu minimal-principle kalıbı arar — top-level'da default verilseydi skor düşerdi.
+
+### Sonuçları nerede okurum?
+
+- **GitHub Security → Code scanning** — SARIF upload buraya düşer, findings "Scorecard" kaynağıyla etiketli.
+- **Workflow artifact** — `scorecard-sarif`, 30 gün tutulur; lokalde `sarif-fmt` veya VS Code SARIF Viewer ile açılır.
+- **Scorecard public API** — `publish_results: true` sayesinde `https://api.securityscorecards.dev/projects/github.com/toss-cengiz/glaon` endpoint'inde JSON.
+
+### Baseline
+
+İlk haftalık koşumdan sonra baseline ve her sinyalin durumu Security → Code scanning sekmesinde görünür. Badge README'ye eklenmez — skor ≥ 7.0 olmadan baseline reklamı yapmak ters tepki yaratır.
+
+### Düşük puanlı sinyallerin takibi
+
+Scorecard'ın her check'i kendi başına bir iyileştirme vektörü. Zaten kapatılmış Phase 0 işleri birkaç sinyali hazır hale getiriyor:
+
+| Scorecard check        | Neredeyiz?                          | Bağlı iş                           |
+| ---------------------- | ----------------------------------- | ---------------------------------- |
+| Branch-Protection      | development + main ruleset'lenmiş   | #69 (initial) + bu doküman         |
+| Pinned-Dependencies    | tüm GitHub Actions SHA'ya pinlenmiş | #94 (SHA pinning)                  |
+| Code-Review            | PR + linear history zorunlu         | #69 (initial)                      |
+| Dependency-Update-Tool | Renovate aktif                      | Renovate setup (tamamlanmış)       |
+| SAST                   | CodeQL koşuyor                      | #91 (CodeQL)                       |
+| Security-Policy        | `SECURITY.md` var                   | [docs/SECURITY.md](./SECURITY.md)  |
+| License                | LICENSE henüz yok                   | Follow-up (Phase 0 "Out of scope") |
+| Signed-Releases        | release-please henüz imzalamıyor    | Future (release infra genişlemesi) |
+| Fuzzing                | yok                                 | Future                             |
+
+İlk koşumdan sonra skor < 7.0 ise eksik sinyallerin her biri için gerektiğinde yeni issue açılır; Scorecard tek başına aksiyon üretmez, veri verir.
+
 ## CODEOWNERS
 
 [`.github/CODEOWNERS`](../.github/CODEOWNERS) her dosya path'ini en az bir sahibe bağlar. Tek maintainer (`@toss-cengiz`) olduğu için pratik etkisi henüz yok ama yapı hazır — yeni bir katılımcı geldiğinde path-based owner ataması tek commit.
@@ -198,4 +242,4 @@ Done.
 - [CODEOWNERS syntax](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners).
 - [pinact](https://github.com/suzuki-shunsuke/pinact) — GitHub Action SHA pinning aracı.
 - [OpenSSF Scorecard — Pinned-Dependencies](https://github.com/ossf/scorecard/blob/main/docs/checks.md#pinned-dependencies) — SHA pinning kontrolünün gerekçesi.
-- İlgili issue: #69 (initial setup), #75 (merge method policy), #91 (CodeQL SAST), #92 (dependency review), #94 (SHA pinning).
+- İlgili issue: #69 (initial setup), #75 (merge method policy), #91 (CodeQL SAST), #92 (dependency review), #94 (SHA pinning), #98 (OSSF Scorecard).
