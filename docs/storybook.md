@@ -9,6 +9,7 @@ Glaon'un tüm UI component'leri — web ve (ileride) React Native — tek bir St
 - Framework: `@storybook/react-native-web-vite` (v10) — tek config hem web hem React Native story'yi render eder. `react-native` → `react-native-web` alias'ını otomatik kurar.
 - Addon'lar:
   - `@storybook/addon-a11y` — accessibility paneli + `a11y.test: 'error'`
+  - `@storybook/addon-designs` — story'nin yanında Figma frame embed'i (**Design** tab)
   - `@storybook/addon-mcp` — AI agent'ların Storybook'u MCP üzerinden kullanması
   - `storybook-dark-mode` — toolbar'dan tema değiştirici
 - Not: v10'da "essentials" ve "interactions" core'a taşındı, ayrı paket gerekmez.
@@ -81,6 +82,38 @@ Her component için en az:
 - `UI Kit/*` — Untitled UI wrap'leri (ayrı issue #48)
 
 Aynı Storybook instance'ında Web ve RN story'leri yan yana yaşar; sidebar'da ilk kırılım platformu belirtir.
+
+### Figma embed (`parameters.design`)
+
+Her component, Figma Design System dosyasındaki karşılığı ile `@storybook/addon-designs` üzerinden bağlanır. Bağlantı kurulunca Storybook'ta story'nin yanında **Design** tab'ı belirir ve Figma frame inline render olur.
+
+Konvansiyon: `meta.parameters.design` objesi — component seviyesinde, story seviyesinde değil. Sebep: bir component'in tüm variant'ları aynı kanonik Figma frame'e bakar.
+
+```tsx
+import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
+import { Button } from './Button';
+
+const meta = {
+  title: 'Web Primitives/Button',
+  component: Button,
+  tags: ['autodocs'],
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/design/KP0SVNxQEjT0gotajwc9I0/Design-System?node-id=123-456&t=abc',
+    },
+  },
+  args: { children: 'Click me', variant: 'primary' },
+} satisfies Meta<typeof Button>;
+```
+
+URL'i Figma'da almak için:
+
+1. Frame'i seç (component'in kanonik state'i — genelde Design System dosyasındaki published instance).
+2. Sağ tıkla → **Copy link to selection**. URL'de `?node-id=X-Y` query parametresi olmak zorunda; bu parametre olmadan addon Figma dosyasının kökünü gösterir.
+3. Component'in Figma description'ındaki `storybook-id` [docs/figma.md](figma.md#component-description--storybook-id)'de anlatılan formatla aynı component'i işaret etmeli — Chromatic'ın design-code diff akışı bu eşleşmeye bağımlı (#53).
+
+Figma frame henüz çizilmediyse `parameters.design` boş bırakılır ve component Figma'da çizildikten sonra ayrı bir küçük PR'da wire edilir — "design yok, story de yok" değil; primitive design review gate'i zaten `docs/figma.md`'de bu sırayı zorluyor.
 
 ## React Native story yazımı
 

@@ -5,6 +5,7 @@ export default defineMain({
   stories: ['../src/**/*.mdx', '../src/**/*.stories.@(ts|tsx)'],
   addons: [
     '@storybook/addon-a11y',
+    '@storybook/addon-designs',
     'storybook-dark-mode',
     {
       name: '@storybook/addon-mcp',
