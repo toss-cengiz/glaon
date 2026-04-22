@@ -34,6 +34,10 @@ docs/       — Mimari, güvenlik, yol haritası (Türkçe)
 
 ## Geliştirme
 
+Tek komutla reproducible ortam için [Dev Container](docs/devcontainer.md) kullanabilirsin — VS Code'da "Reopen in Container" yeterli.
+
+Lokal kurulum:
+
 ```bash
 # Node 22 LTS gerekir; .nvmrc dosyasındaki sürümü kullan.
 corepack enable
@@ -58,6 +62,7 @@ pnpm lint
 - [Mimari](docs/ARCHITECTURE.md)
 - [Güvenlik](docs/SECURITY.md)
 - [Yol Haritası](docs/ROADMAP.md)
+- [Dev Container](docs/devcontainer.md)
 - [HA Add-on](addon/README.md)
 
 ## Lisans
