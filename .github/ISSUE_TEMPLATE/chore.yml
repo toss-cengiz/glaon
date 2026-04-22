@@ -1,0 +1,66 @@
+name: Chore
+description: Tooling, CI, dependencies, refactors — no user-visible behavior change.
+title: 'chore(<scope>): <action>'
+labels: ['type:chore']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for repo hygiene: tooling, CI, dependencies, refactors without a user-visible behavior change. User-visible behavior goes in the feature or bug template.
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase
+      options:
+        - phase-0 (Foundation)
+        - phase-1 (HA integration)
+        - phase-2 (Core UI)
+        - phase-3 (Security hardening)
+        - phase-4 (Features)
+        - phase-5 (Polish & release)
+    validations:
+      required: true
+  - type: dropdown
+    id: areas
+    attributes:
+      label: Areas
+      multiple: true
+      options:
+        - area:web
+        - area:mobile
+        - area:core
+        - area:ui
+        - area:addon
+        - area:ci
+        - area:security
+        - area:docs
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why now? What breaks or gets harder if we skip this?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What's in, what's out.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: input
+    id: related
+    attributes:
+      label: Related issues
+      description: 'Comma-separated: #12, #34'
