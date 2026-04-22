@@ -59,6 +59,10 @@ Development'a merge olacak her PR'ın aşağıdaki check'leri yeşil olmalı:
 
 `main`'deki liste aynı, sadece `conventional-commits` yok (main'e sadece release-please PR'ı ulaşır; commitlint PR-only event'lerde koşar, main direct push zaten yasak).
 
+Bunların dışında CI'da çalışan ama **henüz required olmayan** kontroller:
+
+- `analyze (javascript-typescript)` — [CodeQL SAST](./SECURITY.md#statik-analiz-sast). Bulgular Security sekmesinde görünür; bloklama kararı gürültü seviyesi ölçüldükten sonra alınır.
+
 Yeni bir required check eklemek istersen:
 
 1. CI workflow'unda job adını kesinleştir (bu ad ruleset'te `"context"` olur).
@@ -194,4 +198,4 @@ Done.
 - [CODEOWNERS syntax](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners).
 - [pinact](https://github.com/suzuki-shunsuke/pinact) — GitHub Action SHA pinning aracı.
 - [OpenSSF Scorecard — Pinned-Dependencies](https://github.com/ossf/scorecard/blob/main/docs/checks.md#pinned-dependencies) — SHA pinning kontrolünün gerekçesi.
-- İlgili issue: #69 (initial setup), #75 (merge method policy), #92 (dependency review), #94 (SHA pinning).
+- İlgili issue: #69 (initial setup), #75 (merge method policy), #91 (CodeQL SAST), #92 (dependency review), #94 (SHA pinning).
