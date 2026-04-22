@@ -10,12 +10,12 @@
     "typescript-eslint": "^8.18.1"
   },
   "exports": {
-    "./eslint": "./eslint.config.js",
-    "./tsconfig.base.json": "../../tsconfig.base.json"
+    "./eslint": "./eslint.config.js"
   },
   "private": true,
   "scripts": {
     "lint": "echo 'nothing to lint'",
+    "package-contract": "publint",
     "type-check": "echo 'no-op'"
   },
   "type": "module"

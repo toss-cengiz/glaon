@@ -46,6 +46,27 @@ jobs:
       - name: Unused files · deps · exports (knip)
         run: pnpm knip
 
+  package-contract:
+    name: package-contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.4.0
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate package exports (publint + arethetypeswrong)
+        run: pnpm package-contract
+
   unit-tests:
     name: unit-tests
     runs-on: ubuntu-latest

@@ -20,6 +20,7 @@
     "build": "tsc -b",
     "clean": "rm -rf dist .turbo coverage",
     "lint": "eslint .",
+    "package-contract": "publint && attw --pack . --ignore-rules cjs-resolves-to-esm internal-resolution-error no-resolution",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "type-check": "tsc --noEmit"
