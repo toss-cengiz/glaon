@@ -170,6 +170,68 @@ Scorecard'ın her check'i kendi başına bir iyileştirme vektörü. Zaten kapat
 
 İlk koşumdan sonra skor < 7.0 ise eksik sinyallerin her biri için gerektiğinde yeni issue açılır; Scorecard tek başına aksiyon üretmez, veri verir.
 
+## Turborepo remote cache
+
+Turborepo lokal olarak `.turbo/` altında task çıktılarını cache'ler; CI runner'ları ephemeral olduğu için bu cache hiçbir run arasında paylaşılmaz. **Remote cache** bu yüzden var: task çıktıları Vercel-barındırılan bir API'ye yüklenir, sonraki run'larda aynı input hash'ine sahip task'lar cache'ten replay edilir. Tipik monorepo'larda `type-check` / `lint` / `build` süresinde %40–60 düşüş.
+
+Konfigürasyon üç parçalı:
+
+- **Runtime**: Vercel Turborepo Remote Cache (free tier — 1 user, 8 concurrent task). Kendi başına başka bir infra gerektirmez.
+- **Secrets**: `TURBO_TOKEN` (repo secret, Vercel team token), `TURBO_TEAM` (repo _variable_, Vercel team slug — gizli değil).
+- **Wire-up**: [`ci.yml`](../.github/workflows/ci.yml), [`addon-build.yml`](../.github/workflows/addon-build.yml), [`storybook-tests.yml`](../.github/workflows/storybook-tests.yml) workflow'larında top-level `env:` bloğu ile sağlanır. Turbo bu env'leri görünce otomatik olarak remote cache'e yazar + okur.
+
+### İlk kurulum (one-time, kullanıcı aksiyonu)
+
+Bu iş bir kere yapılır; sonrasında contributor akışı hiç değişmez.
+
+1. Vercel hesabında **Settings → Tokens** → yeni token oluştur. Scope: **Full Account** veya en az **Turborepo Remote Cache**.
+2. Vercel team slug'ını öğren: dashboard URL'sinde `vercel.com/<team-slug>` — boş bırakılırsa personal account slug'ı kullanılır.
+3. Repo'da iki secret/var ekle:
+   ```bash
+   gh secret set TURBO_TOKEN --body "<vercel-token>"
+   gh variable set TURBO_TEAM --body "<team-slug>"
+   ```
+   `TURBO_TEAM` niye `variable` olarak tutuluyor: team slug gizli değildir (Vercel'de public'e açık) ve variable olarak tutmak fork PR'larında istemsiz secret ifşası risk'ini sıfırlar.
+4. Lokalde opsiyonel — kendi makinenden cache'e yazmak istersen:
+   ```bash
+   pnpm turbo login   # Vercel'e OAuth ile login
+   pnpm turbo link    # repo'yu team'e bağlar
+   ```
+   Contributor'lar için **zorunlu değil** — CI zaten hit üretir.
+
+### Nasıl doğrularım?
+
+Aynı branch'te iki PR açıp ardışık olarak tetikledikten sonra workflow loglarında:
+
+```
+@glaon/web:build: cache hit, replaying logs abc123def456
+```
+
+satırı görünmeli. İlk çalıştırmada `cache miss, executing` beklenir — ikinci PR'ın `type-check` / `lint` / `test:stories` gibi jobs'ları log replay'e düşmeli ve her task <5s sürmeli.
+
+### Fork PR'ları + forbidden access davranışı
+
+Secrets fork PR'larına GitHub tarafından iletilmez (güvenlik). Turbo fork PR'ında `TURBO_TOKEN` bulamayınca **sessizce** lokal-only moda düşer — ne warning, ne error. Trust-first PR'larda cache hit varsa kullanılır; fork PR'ında tam build koşar. Bu davranış bilinçli; fork PR'ları için cache paylaşma riski almıyoruz.
+
+### Token rotasyonu
+
+- **Rutin rotasyon**: Yılda bir. Vercel Token'ını revoke et + yenisini üret + `gh secret set TURBO_TOKEN` ile güncelle.
+- **Compromise durumunda**: Token'ı derhal Vercel dashboard → Tokens'tan `Delete` et (revoke anında aktif tüm cache write request'leri reddedilir). Yenisini üret + repo secret'ı güncelle. Cache içeriğini flush etmek gerekirse: `pnpm turbo prune --cache=local` yerine Vercel dashboard → Remote Cache → **Delete all artifacts**.
+- **Revocation**: Eski token revoke edildikten sonra eski workflow run'ları da `TURBO_TOKEN` geçersizliği yüzünden cache yazamaz — lokal-only'a düşer. Build bozulmaz, sadece speedup kaybolur.
+
+### Disable etme
+
+Geçici olarak remote cache'i kapatmak istersen:
+
+```bash
+gh secret delete TURBO_TOKEN
+# veya tek bir run için:
+#   env'i workflow_dispatch input'u ile override et, ya da PR branch'inde
+#   env satırlarını geçici olarak sil (unutma: drive-by sayılır, PR gerekir).
+```
+
+Cache kalıcı olarak kapatılacaksa workflow'lardaki `env:` blokları PR ile geri alınır ve Vercel team bağlantısı kesilir (`pnpm turbo unlink`).
+
 ## CODEOWNERS
 
 [`.github/CODEOWNERS`](../.github/CODEOWNERS) her dosya path'ini en az bir sahibe bağlar. Tek maintainer (`@toss-cengiz`) olduğu için pratik etkisi henüz yok ama yapı hazır — yeni bir katılımcı geldiğinde path-based owner ataması tek commit.
