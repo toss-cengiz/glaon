@@ -35,6 +35,11 @@
     "package-contract": {
       "dependsOn": ["build"],
       "outputs": []
+    },
+    "size": {
+      "dependsOn": ["build"],
+      "inputs": [".size-limit.json", "dist/**/*.{js,css}"],
+      "outputs": []
     }
   }
 }
