@@ -2,12 +2,12 @@
 
 Glaon'da testler dört katmana yayılır:
 
-| Katman               | Araç                           | Ne soruyu cevaplar                        |
-| -------------------- | ------------------------------ | ----------------------------------------- |
-| **Unit**             | Vitest + Testing Library       | Pure function / component logic doğru mu? |
-| **Görsel regresyon** | Chromatic (Storybook snapshot) | Component pixel-level değişti mi?         |
-| **Erişilebilirlik**  | Storybook `addon-a11y`         | Axe kuralları kırılıyor mu?               |
-| **Davranışsal E2E**  | Playwright                     | Kullanıcı akışı uçtan uca çalışıyor mu?   |
+| Katman               | Araç                                            | Ne soruyu cevaplar                                                               |
+| -------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------- |
+| **Unit**             | Vitest + Testing Library                        | Pure function / component logic doğru mu?                                        |
+| **Görsel regresyon** | Chromatic (Storybook snapshot)                  | Component pixel-level değişti mi?                                                |
+| **Erişilebilirlik**  | Storybook `addon-a11y` + `@axe-core/playwright` | Axe kuralları hem izole component'te hem de render edilmiş sayfada kırılıyor mu? |
+| **Davranışsal E2E**  | Playwright                                      | Kullanıcı akışı uçtan uca çalışıyor mu?                                          |
 
 Sayfa aşağıda önce **Unit**, sonra **E2E** için ayrılmıştır.
 
@@ -165,6 +165,58 @@ test.describe('room list @smoke', () => {
 - Implementation detayları (internal component state, private function).
 - CSS class adlarına lock — `getByRole` / `getByLabel` / `getByText` kullan.
 - HA'ya gerçek bağlantı — aşağıya bak.
+
+## Runtime a11y (axe-core)
+
+Storybook `addon-a11y` component'i izole ederken axe koşar; E2E katmanı ise **render edilmiş sayfanın tamamını** — routing + state + compose edilmiş ağaç dahil — kontrol eder. İki katman birbirinin yerini almaz; Storybook component tasarım hatalarını, E2E ise integration-level regresyonları yakalar.
+
+### Helper
+
+[`apps/web-e2e/tests/support/a11y.ts`](../apps/web-e2e/tests/support/a11y.ts) içinde `assertA11y(page, options?)` tek fonksiyon ihraç eder. Smoke içinde DOM ready olduktan sonra çağrılır:
+
+```ts
+import { assertA11y } from './support/a11y';
+
+test('renders dashboard @smoke', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await assertA11y(page);
+});
+```
+
+### Fail eşiği
+
+- **Fatal (test fail):** `serious` + `critical` impact seviyeleri. CI PR'ı kırmız yapar, ayrıntılı violations listesi `a11y-violations` adıyla Playwright raporuna attach edilir.
+- **Informational (fail yok):** `moderate` + `minor` impact. Rapora `a11y-informational` attachment olarak düşer — görünür ama merge'ü engellemez. Fikir: bu seviyeleri zamanla azaltmak için bir zemin; erken aşamada gürültü yapmasın.
+
+Eşik istersen çağrı başına override edilebilir:
+
+```ts
+await assertA11y(page, { failOn: ['moderate', 'serious', 'critical'] });
+```
+
+### Kuralı devre dışı bırakma (nadir)
+
+`disableRules` escape-hatch'i var ama **her kullanım call-site'ta yorumla gerekçelendirilmeli**. Kabul edilen durumlar:
+
+- Known upstream kütüphane bug'ı (issue + versiyon yaz).
+- Kasıtlı tasarım kararı (örn. tooltip-on-hover widget'ta `aria-hidden` paternine özel).
+
+Gerekçesiz `disableRules` = review'da kırmızı bayrak.
+
+```ts
+await assertA11y(page, {
+  // Untitled UI Combobox v3.2: `aria-activedescendant`'ı option'lar render olmadan
+  // set ediyor, upstream #1234. Fix edildiğinde kaldır.
+  disableRules: ['aria-valid-attr-value'],
+});
+```
+
+### İyi kullanım
+
+- Her `@smoke` testine en az bir `assertA11y(page)` çağrısı — sayfa son state'e oturduktan sonra.
+- Birden fazla screen'li smoke'ta her screen transition'ından sonra ayrı çağrı.
+- Ayrı bir "a11y smoke" dosyası **açma**. Bu katman smoke'ların üstüne koşar; ayrı dosya ikinci bir pass olur, değer katmaz.
 
 ## HA mocking
 
