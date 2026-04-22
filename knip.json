@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "ignore": ["tools/figma-plugin/code.js"],
+  "ignore": ["tools/figma-plugin/code.js", ".lighthouserc.cjs", ".lighthouserc.mobile.cjs"],
   "ignoreBinaries": ["eslint"],
   "workspaces": {
     ".": {

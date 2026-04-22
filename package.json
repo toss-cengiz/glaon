@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
+    "@lhci/cli": "^0.15.1",
     "@size-limit/file": "^12.1.0",
     "husky": "^9.1.7",
     "knip": "^6.6.1",
@@ -40,6 +41,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "knip": "knip",
+    "lhci": "pnpm lhci:desktop && pnpm lhci:mobile",
+    "lhci:desktop": "lhci autorun --config=.lighthouserc.cjs",
+    "lhci:mobile": "lhci autorun --config=.lighthouserc.mobile.cjs",
     "package-contract": "turbo run package-contract --filter=./packages/*",
     "lint": "turbo run lint",
     "size": "turbo run size",
