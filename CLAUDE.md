@@ -115,6 +115,14 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - Do not install packages on the user's behalf without asking. Scaffolds can declare dependencies; actual install is the user's decision.
 - Do not run `pnpm audit --fix` or similar destructive commands unprompted.
 
+## Dependency Freshness (MANDATORY)
+
+- [Renovate](renovate.json) keeps dependencies current. It runs on a schedule (Monday mornings), opens grouped update PRs, and auto-merges patch + devDep-minor bumps once CI is green. Security advisories bypass the schedule.
+- The repo's **Dependency Dashboard** issue (auto-created by Renovate, labeled `dependencies`) is the single tracking issue for all automated update work. This is the Issue-First Rule's recognized exception — Renovate PRs reference the dashboard, no extra issue per update.
+- Don't bump package versions by hand as a drive-by. If Renovate has an open PR or a dashboard item for the dep you're about to touch, use that instead. Manual bumps are reserved for (a) resolving a specific bug, (b) unblocking migration work that has its own issue, or (c) a pin/rollback covered in [docs/dependencies.md](docs/dependencies.md).
+- CI enforces `pnpm audit --audit-level high`. High + critical severity vulnerabilities fail the build. Don't weaken the audit level to silence a finding — patch the dep (or open an issue to pin around it).
+- Major version bumps always require human review: Renovate lists them in the dashboard with approval-needed, and they only turn into PRs after the dashboard checkbox is ticked.
+
 ## Home Assistant Notes
 
 - WebSocket protocol: https://developers.home-assistant.io/docs/api/websocket
