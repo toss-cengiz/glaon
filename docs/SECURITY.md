@@ -63,6 +63,14 @@ Config: Repo kökündeki `.gitleaks.toml` default rule set'i miras alır. Yeni k
 - `pnpm audit --prod` CI'da kırar.
 - Renovate `automerge: false` ile PR açar; güvenlik güncellemeleri hızlı yol alır.
 - Versiyonlar range değil exact — `^` / `~` kullanımı `peerDependencies` dışında kaçınılır (devDeps için tolerans var).
+- [Dependency Review action](./governance.md#dependency-review) her PR'da `pnpm-lock.yaml` diff'ini tarar; yeni eklenen bağımlılıkta high/critical advisory varsa merge bloklanır (`pnpm audit`'in karşılayamadığı "PR ile kötüleşme" penceresi).
+
+## Statik analiz (SAST)
+
+- [CodeQL](https://codeql.github.com/) `javascript-typescript` dili için [.github/workflows/codeql.yml](../.github/workflows/codeql.yml) üzerinden çalışır. Tetikleyiciler: `development`/`main` push, her PR ve haftalık schedule (Pazartesi 07:15 UTC).
+- `security-extended` query pack kullanılır — `default`'tan geniş kapsam: taint flow, prototype pollution, ReDoS, unsafe deserialization, XSS sink'leri dahil.
+- Bulgular GitHub Security → Code scanning sekmesinde görünür; high severity bulgu gelirse bir **takip issue'su** açılır ve sessizce kapatılmaz.
+- Şimdilik required check **değil**; gürültü seviyesi ölçüldükten sonra ruleset'e eklenmesi #98 / sonraki işler kapsamında değerlendirilir.
 
 ## HA Add-on
 
