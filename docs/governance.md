@@ -65,6 +65,45 @@ Yeni bir required check eklemek istersen:
 3. `scripts/apply-rulesets.sh` çalıştır.
 4. Değişikliği PR ile commit et — UI'den değil.
 
+## Third-party GitHub Actions — SHA pinning
+
+Workflow'larımızdaki her üçüncü-taraf `uses:` referansı tag yerine tam commit SHA'sına pinlenir; tag'in hangi versiyona denk geldiği satır sonundaki yorumdan okunur:
+
+```yaml
+- uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+```
+
+Neden:
+
+- Tag'ler mutable. Bir saldırgan action reposuna erişim kazanırsa `v4` tag'ini kötü niyetli bir commit'e taşıyabilir ve CI bir sonraki çalıştırmada sessizce onu çalıştırır. SHA immutable — repo compromise olsa bile bizim workflow'umuz bilinen iyi commit'te kalır.
+- `@latest`, `@main`, dallanan tag'ler (`@v1`) en kötü varyant: her çalıştırmada farklı kod çalışabilir, supply-chain tehditi + reproducibility kaybı.
+- OpenSSF Scorecard'ın "Pinned-Dependencies" kontrolü bu kuralı gerekçelendirir; #98'de Scorecard eklendiğinde bu check zaten yeşil olur.
+
+Kapsam:
+
+- Tüm `.github/workflows/**` ve repo içindeki composite action'lar.
+- GitHub-hosted first-party action'lar (`actions/*`, `github/*`) **da dahil**. İstisna tanımıyoruz — gelecekte birini içeriden compromise etmenin maliyeti, pin tutmanın maliyetinden kat kat yüksek.
+- Docker image referansları (`docker://...`) için aynı disiplin — digest ile pinlenir.
+
+Güncelleme akışı — Renovate otomatik:
+
+[`renovate.json`](../renovate.json) `config:best-practices` preset'ini extend ediyor; bu preset `helpers:pinGitHubActionDigests` kuralını devreye alır ve `github-actions` manager'ında `pinDigests: true` yapar. Haftalık schedule'da Renovate:
+
+1. Tag'in işaret ettiği yeni SHA'yı tespit eder (annotated tag'leri dereference ederek).
+2. SHA'yı günceller, yorumdaki versiyon etiketini de tazeler.
+3. CI yeşilse patch/minor bump'ları otomatik merge eder; major bump'lar dashboard'da onay bekler.
+
+Bu yüzden el ile re-pinning nadiren gerekir. Elle güncelleme yapmak zorunda kalırsan — örneğin acil bir güvenlik fix'i Renovate schedule'ını beklemek istemediğinde:
+
+```bash
+# pinact ile tüm workflow'ları tara ve güncelle
+pinact run .github/workflows/
+```
+
+[pinact](https://github.com/suzuki-shunsuke/pinact) tag → SHA çözümlemesini yapar ve yorumları ekler. Alternatif: her referansı tek tek `gh api repos/<owner>/<action>/git/ref/tags/<tag>` ile çözmek (annotated tag'se sonuç `git/tags/<sha>` endpoint'iyle dereference edilir).
+
+Yeni bir third-party action'ı workflow'a eklerken pin'siz bir `uses:` commit'lemek kural ihlalidir — PR review'unda bloklanır.
+
 ## CODEOWNERS
 
 [`.github/CODEOWNERS`](../.github/CODEOWNERS) her dosya path'ini en az bir sahibe bağlar. Tek maintainer (`@toss-cengiz`) olduğu için pratik etkisi henüz yok ama yapı hazır — yeni bir katılımcı geldiğinde path-based owner ataması tek commit.
@@ -135,4 +174,6 @@ Done.
 - CLAUDE.md: repo'nun davranış kuralları.
 - [GitHub Rulesets API](https://docs.github.com/en/rest/repos/rules) — ruleset schema'sı.
 - [CODEOWNERS syntax](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners).
-- İlgili issue: #69 (initial setup), #75 (merge method policy).
+- [pinact](https://github.com/suzuki-shunsuke/pinact) — GitHub Action SHA pinning aracı.
+- [OpenSSF Scorecard — Pinned-Dependencies](https://github.com/ossf/scorecard/blob/main/docs/checks.md#pinned-dependencies) — SHA pinning kontrolünün gerekçesi.
+- İlgili issue: #69 (initial setup), #75 (merge method policy), #94 (SHA pinning).
