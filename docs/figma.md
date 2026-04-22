@@ -143,6 +143,42 @@ Detaylar [docs/chromatic.md](chromatic.md#figma-entegrasyonu)'daki "Figma entegr
 - Figma'da değişen bir component'in kodda karşılığı yoksa, kod PR'ı **zorunlu follow-up** (issue + PR). Design System'de orphan component bırakılmaz.
 - Kodda yeni bir primitive eklenmek isteniyorsa **önce Figma'da** tasarlanır; Figma olmadan eklenen component'in review'ı blocked.
 
+## Claude-authored design
+
+Figma Remote MCP (#52) read-only. "Yeni variant üret", "brand rengini tüm primitive'lerde güncelle", "verbal brief'ten token üret" gibi write-tarafı görevler için Claude'a ayrı bir kanal açılır — ama otomatik yazma yoktur. Akış: Claude plugin script'i yazar, kullanıcı Figma'da manuel çalıştırır, review eder, publish eder.
+
+### Parçalar
+
+1. **`brand-design` skill** — [`.claude/skills/brand-design/SKILL.md`](../.claude/skills/brand-design/SKILL.md). Glaon'un brand girdilerini (palette, typography, spacing, component personality, do/don't) ve Claude'un design sorularında uyacağı guardrail'leri tutar. Brand-seviyesi sorular ("warning rengi nasıl olsun?", "bu card hangi token'ı kullanmalı?") bu skill üzerinden çalışır.
+2. **Figma Plugin bridge** — [`tools/figma-plugin/`](../tools/figma-plugin/). Claude mutasyon gerektiren bir iş için plugin script'i üretir; kullanıcı Figma desktop'ta **Plugins → Development → Import plugin from manifest…** ile yükleyip çalıştırır. Plugin repo'da commit'li kalır, ama `code.js`'in task'a özel içeriği commit edilmez (scaffold hali korunur, task sonrası `git restore`).
+3. **REST write scope — Phase 0'da yok.** `file:write` token güçlü ama kazara mutasyon riski taşır; plugin akışı yetersiz olduğu iddia edilene kadar kapalı.
+
+### Neden plugin, neden REST değil?
+
+- Auth Figma desktop session'ında zaten var — ayrı token yönetimi, secret rotation yok.
+- Mutasyon **insan-tetikli**. Claude `run` edemez → CI'dan kazara design mutasyonu mümkün değil.
+- Figma undo/history plugin mutasyonlarını kapsar; rollback ucuz.
+- Publish (library bump) ayrı ve manuel bir adım — yayınlanmamış bir mutasyon tüketicileri etkilemez.
+
+### Script guardrails
+
+Claude-authored her Figma plugin script'i şu kalıba uyar:
+
+- **Dry-run default.** Mutasyon yapmadan önce script başında `CONFIRM = false` → neyi değiştireceğini `figma.notify` ile özetle. Kullanıcı `CONFIRM = true` yapıp tekrar çalıştırana kadar yazmaz.
+- **Scope dar.** Task'ın istediği node/variable/component dışına çıkmaz.
+- **Network yok.** `manifest.json` `networkAccess.allowedDomains: ["none"]`. Harici veriye ihtiyaç varsa script start'ta durur, kullanıcıdan ister.
+- **Her zaman `figma.closePlugin()`.** Error path dahil. Ve `figma.notify` ile sonuç özeti bas.
+
+### Handoff back to code
+
+Plugin mutasyonu Figma'da biter; değişikliğin kod tarafına yansıması için ayrı adımlar:
+
+- **Token değişti** → token generator (ayrı issue) JSON'u yeniden üretir; generator yokken kullanıcı Figma Tokens plugin'iyle manuel export eder.
+- **Component değişti** → Chromatic design-code diff bir sonraki build'de drift'i işaretler (bkz. [docs/chromatic.md](chromatic.md)), follow-up kod PR'ı açılır.
+- **Yeni primitive çizildi** → Storybook Rule devreye girer: primitive'in story'si aynı kod PR'ında yazılır (bkz. [docs/storybook.md](storybook.md)).
+
+Skill ve plugin loop'u _kendisi_ kapatmaz — önerir ve devretir.
+
 ## Follow-up işler (bu issue kapsamı dışı)
 
 | Konu                                             | Durum                                                           |
@@ -151,6 +187,7 @@ Detaylar [docs/chromatic.md](chromatic.md#figma-entegrasyonu)'daki "Figma entegr
 | Figma MCP `.mcp.json` entry                      | OAuth başarılı olunca küçük PR                                  |
 | Chromatic ⇄ Figma design-code diff               | #53                                                             |
 | Figma branching + design review Slack bot        | ayrı issue                                                      |
+| REST `file:write` scope değerlendirmesi          | plugin akışı yetersiz kalırsa ayrı issue                        |
 
 ## Sorun giderme
 
