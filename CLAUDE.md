@@ -110,6 +110,15 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - Prop or variant additions to an existing component must update the corresponding stories in the same PR.
 - Details and conventions: [docs/storybook.md](docs/storybook.md).
 
+## E2E Smoke Rule (MANDATORY)
+
+- Every feature PR must ship at least one Playwright happy-path smoke test. No smoke, no merge. Same weight as the Storybook Rule.
+- Web smokes live in `apps/web-e2e/tests/<feature>.spec.ts`. Mobile E2E is a separate runner and is scoped to its own future issue.
+- Minimum per feature: one user-visible flow end-to-end — render, act, observe a user-visible result. Don't assert implementation details (internal state, private APIs).
+- Tag canary smokes with `@smoke`; only `@smoke` tests run on every PR. Broader flows tag with `@extended` and run nightly or on-demand.
+- Real HA calls are forbidden in E2E — use `page.route()` to mock the HA backend. Details in [docs/testing.md](docs/testing.md).
+- Accessibility lint is already covered by Storybook `addon-a11y`. Playwright E2E focuses on behavior, not axe rules.
+
 ## Commits
 
 - Conventional Commits style (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `perf:`, `ci:`, `build:`, `style:`).
