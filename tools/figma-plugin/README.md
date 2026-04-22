@@ -6,7 +6,7 @@ Detaylı workflow ve kurallar: [docs/figma.md](../../docs/figma.md#claude-author
 
 ## Dosyalar
 
-- `manifest.json` — Figma Plugin manifest (API 1.0). Network access kapalı; dynamic-page access açık (büyük dosyalarda page-by-page yükler).
+- `manifest.json` — Figma Plugin manifest (API 1.0). `editorType` hem `"figma"` hem `"dev"` içerir, yani plugin Design Mode ve Dev Mode'da import edilebilir. Network access kapalı; dynamic-page access açık (büyük dosyalarda page-by-page yükler).
 - `code.js` — plugin entry. Scaffold hali sadece notification gösterip kapanır. Her task için Claude bu dosyanın içeriğini yeniden yazar; commit etmeyiz, lokal kullanılır ve `git restore` ile scaffold'a dönülür.
 - `brand-design` skill (`.claude/skills/brand-design/SKILL.md`) — plugin script'i üretirken Claude'un uymak zorunda olduğu guardrail'leri tanımlar (dry-run default, `CONFIRM` flag, no network, notify+closePlugin).
 
@@ -51,5 +51,6 @@ REST write scope'u Phase 0 kapsamında değil. Plugin akışı yetersiz kaldığ
 
 - **"This file doesn't have an 'id' field"** → manifest'teki `id` zorunlu; local dev için herhangi bir unique string yeter.
 - **`figma is not defined`** → browser'da çalıştırmaya çalıştın; desktop app gerekli.
-- **Plugin listede görünmüyor** → manifest'te `editorType` içinde `"figma"` var mı, `main` path'i doğru mu? Desktop'ta Plugins → Development → **Open console** ile hata görülebilir.
+- **Plugin listede görünmüyor** → manifest'te `editorType` içinde aktif Figma mode'una uygun değer var mı (`"figma"` veya `"dev"`), `main` path'i doğru mu? Desktop'ta Plugins → Development → **Open console** ile hata görülebilir.
+- **`editorType does not include dev`** → Import sırasında Figma Dev Mode açıkken alınır. Manifest güncel halinde `["figma", "dev"]` içerir; bu hatayı görüyorsan eski bir commit'tesin, `git pull` yap.
 - **Mutasyon yaptı ama publish etmedim** → Figma "Assets publish" akışı manuel; plugin library'yi otomatik publish etmez.

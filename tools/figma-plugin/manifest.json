@@ -3,7 +3,7 @@
   "id": "glaon-design-bridge",
   "api": "1.0.0",
   "main": "code.js",
-  "editorType": ["figma"],
+  "editorType": ["figma", "dev"],
   "documentAccess": "dynamic-page",
   "capabilities": [],
   "enableProposedApi": false,
