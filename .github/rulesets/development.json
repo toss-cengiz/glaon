@@ -30,6 +30,7 @@
           { "context": "type-check · lint · audit" },
           { "context": "conventional-commits" },
           { "context": "gitleaks" },
+          { "context": "review" },
           { "context": "visual regression" }
         ]
       }

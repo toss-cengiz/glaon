@@ -54,6 +54,7 @@ Development'a merge olacak her PR'ın aşağıdaki check'leri yeşil olmalı:
 - `type-check · lint · audit` — TS + ESLint + `pnpm audit --audit-level high`
 - `conventional-commits` — commitlint, PR commit'leri için
 - `gitleaks` — secret tarama
+- `review` — [Dependency review](#dependency-review), PR'da eklenmekte olan bağımlılıkları tarar
 - `visual regression` — Chromatic
 
 `main`'deki liste aynı, sadece `conventional-commits` yok (main'e sadece release-please PR'ı ulaşır; commitlint PR-only event'lerde koşar, main direct push zaten yasak).
@@ -64,6 +65,23 @@ Yeni bir required check eklemek istersen:
 2. İlgili JSON'daki `required_status_checks` listesine `{ "context": "<job adı>" }` ekle.
 3. `scripts/apply-rulesets.sh` çalıştır.
 4. Değişikliği PR ile commit et — UI'den değil.
+
+## Dependency review
+
+[`.github/workflows/dependency-review.yml`](../.github/workflows/dependency-review.yml) her PR'da çalışır ve `pnpm-lock.yaml` diff'ini inceler: o PR'la birlikte eklenen (veya major bump yapılan) bağımlılıklarda bilinen bir advisory varsa job fail olur.
+
+`pnpm audit` ile ne farkı var:
+
+- `pnpm audit` CI'ın `type-check · lint · audit` job'unda çalışır ve lockfile'ın **tamamını** tarar — "şu an repo'da savunmasız bir dep var mı?" sorusuna cevap verir. Sorun mevcutsa merge'i bloklar, ama sorunu kimin eklediğini söylemez ve Renovate bir fix sunana kadar PR'ları stale yapar.
+- `Dependency review` action sadece o PR'ın **getirdiği değişikliği** tarar. Yeni bir zayıf dep PR ile repo'ya girmeye çalışırsa merge zaten olamaz; geri kalan zamanlarda job gürültüsüzdür. Renovate advisory bump'larıyla da uyumlu (bump'ı kendisi blocklaayacak ufak bir pencere olsa da Renovate otomatik merge eden patch'leri hızla getirir).
+
+İki katman birbirinin yerini tutmaz, üst üste biner: "şu an temiz mi?" (`audit`) + "bu PR durumu kötüleştiriyor mu?" (`review`).
+
+Konfigürasyon:
+
+- `fail-on-severity: high` — audit ile aynı eşik.
+- `comment-summary-in-pr: always` — lockfile değişen her PR'a özet yorum bırakılır.
+- `deny-licenses` şu an boş — lisans politikası ayrı bir karar (bkz. #92'nin "Out of scope" notu).
 
 ## Third-party GitHub Actions — SHA pinning
 
@@ -176,4 +194,4 @@ Done.
 - [CODEOWNERS syntax](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners).
 - [pinact](https://github.com/suzuki-shunsuke/pinact) — GitHub Action SHA pinning aracı.
 - [OpenSSF Scorecard — Pinned-Dependencies](https://github.com/ossf/scorecard/blob/main/docs/checks.md#pinned-dependencies) — SHA pinning kontrolünün gerekçesi.
-- İlgili issue: #69 (initial setup), #75 (merge method policy), #94 (SHA pinning).
+- İlgili issue: #69 (initial setup), #75 (merge method policy), #92 (dependency review), #94 (SHA pinning).

@@ -29,6 +29,7 @@
         "required_status_checks": [
           { "context": "type-check · lint · audit" },
           { "context": "gitleaks" },
+          { "context": "review" },
           { "context": "visual regression" }
         ]
       }
