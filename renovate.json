@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:best-practices", ":semanticCommits"],
-  "baseBranches": ["development"],
+  "baseBranchPatterns": ["development"],
   "timezone": "Europe/Istanbul",
   "schedule": ["before 9am on monday"],
   "prConcurrentLimit": 5,
@@ -36,15 +36,29 @@
       "dependencyDashboardApproval": true
     },
     {
-      "matchPackageNames": ["storybook", "@storybook/**", "storybook-dark-mode"],
+      "matchPackageNames": [
+        "storybook",
+        "@storybook/**",
+        "storybook-dark-mode"
+      ],
       "groupName": "storybook"
     },
     {
-      "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"],
+      "matchPackageNames": [
+        "react",
+        "react-dom",
+        "@types/react",
+        "@types/react-dom"
+      ],
       "groupName": "react 19"
     },
     {
-      "matchPackageNames": ["react-native", "react-native-web", "expo", "expo-**"],
+      "matchPackageNames": [
+        "react-native",
+        "react-native-web",
+        "expo",
+        "expo-**"
+      ],
       "groupName": "react native + expo"
     },
     {
@@ -71,7 +85,12 @@
       "groupName": "chromatic"
     },
     {
-      "matchPackageNames": ["@commitlint/**", "commitlint", "husky", "lint-staged"],
+      "matchPackageNames": [
+        "@commitlint/**",
+        "commitlint",
+        "husky",
+        "lint-staged"
+      ],
       "groupName": "commit hooks"
     },
     {
