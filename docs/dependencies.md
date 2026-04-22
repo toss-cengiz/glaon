@@ -147,6 +147,7 @@ Her carve-out `knip.json`'da workspace bazlı listelenir. Gerekçeler:
 - **`@vitest/coverage-v8`** (`apps/web`) — Vitest'in coverage provider'ı runtime'da implicit yükleniyor; direkt import yok.
 - **`eslint` binary** — `@glaon/config` paketi üzerinden transitive geliyor; her workspace'in `lint` script'i `eslint .` çağrıyor ama binary'nin kendisi workspace'in `package.json`'unda yok. pnpm hoisting bunu çözüyor.
 - **`tools/figma-plugin/code.js`** — Figma tarafından yüklenen plugin dosyası; npm graph'ının dışında. Root `ignore`.
+- **`.lighthouserc.cjs`, `.lighthouserc.mobile.cjs`** — `lhci autorun --config=<file>` tarafından okunan config'ler; TS/JS import graph'ının içinde değil. Root `ignore`.
 
 ### Yeni istisna nasıl eklenir
 

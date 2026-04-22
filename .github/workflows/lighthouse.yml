@@ -1,0 +1,92 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main, development]
+    paths:
+      - 'apps/web/**'
+      - 'packages/ui/**'
+      - '.lighthouserc.cjs'
+      - '.lighthouserc.mobile.cjs'
+      - '.github/workflows/lighthouse.yml'
+  pull_request:
+    paths:
+      - 'apps/web/**'
+      - 'packages/ui/**'
+      - '.lighthouserc.cjs'
+      - '.lighthouserc.mobile.cjs'
+      - '.github/workflows/lighthouse.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    name: lighthouse (${{ matrix.preset }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - preset: desktop
+            config: .lighthouserc.cjs
+          - preset: mobile
+            config: .lighthouserc.mobile.cjs
+    env:
+      # Dummy value so Vite's prod-build guard passes. Sentry runtime
+      # plugin stays off (needs SENTRY_AUTH_TOKEN + ORG + PROJECT); these
+      # build artifacts never leave the runner.
+      VITE_SENTRY_DSN: lighthouse-dummy
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.4.0
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web
+        run: pnpm --filter @glaon/web build
+
+      - name: Run Lighthouse CI (${{ matrix.preset }})
+        run: pnpm lhci:${{ matrix.preset }}
+
+      - name: Publish report summary
+        if: always()
+        run: |
+          {
+            echo "### Lighthouse CI — ${{ matrix.preset }}"
+            echo
+            if [ -d .lighthouseci ]; then
+              for manifest in .lighthouseci/manifest.json; do
+                if [ -f "$manifest" ]; then
+                  echo "Report manifest:"
+                  echo '```json'
+                  cat "$manifest"
+                  echo '```'
+                fi
+              done
+              for link_file in .lighthouseci/links.json; do
+                if [ -f "$link_file" ]; then
+                  echo
+                  echo "Uploaded reports (temporary-public-storage):"
+                  echo '```json'
+                  cat "$link_file"
+                  echo '```'
+                fi
+              done
+            else
+              echo "_No .lighthouseci artifacts found — the collect step may have failed before any report was produced._"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

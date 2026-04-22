@@ -74,13 +74,93 @@ Bir dep upgrade'i "istemeden" bütçeyi aştığında çözüm bütçeyi yüksel
 3. Baseline + 1.5–2x headroom ile başla; öncesinde 1-2 haftalık gerçek kullanımda sabitle.
 4. Bu dökümanın tablosuna satır ekle, "Neden bu değer" listesine gerekçe.
 
-## İlişkili kontrolller
+## Render-time budget (Lighthouse CI)
 
-- **Lighthouse CI** (#102) — performance/perceived metrics (LCP, TBT). size-limit'i tamamlar: byte-size vs render-time.
+[Lighthouse CI](https://github.com/GoogleChrome/lighthouse-ci) size-limit'i byte-size tarafında bıraktığı yeri tamamlıyor: aynı bundle farklı runtime davranışı verebilir (parse cost, hydration, main-thread block). LCP/TBT/CLS + Performance skoru bu eksende ölçülüyor.
+
+### Preset'ler ve bütçeler
+
+İki ayrı config + iki ayrı CI job (matrix):
+
+| Preset      | Config                     | Perf skor | LCP     | TBT      | CLS   | Throttling                             |
+| ----------- | -------------------------- | --------- | ------- | -------- | ----- | -------------------------------------- |
+| **desktop** | `.lighthouserc.cjs`        | ≥ 0.9     | < 2.5 s | < 200 ms | < 0.1 | Lighthouse `desktop` preset            |
+| **mobile**  | `.lighthouserc.mobile.cjs` | ≥ 0.8     | < 2.5 s | < 200 ms | < 0.1 | Lighthouse default (Slow 4G + Moto G4) |
+
+Perf skoru desktop'ta daha sıkı çünkü runtime ucuzluğu orada tam kontrol altında; mobile sim-throttled testte 0.8 "good" endüstri standardı.
+
+Metric eşikleri ([Web Vitals](https://web.dev/articles/vitals) "good" bantlarını takip eder):
+
+- **LCP < 2.5s** — "largest contentful paint", kullanıcının içeriğin yüklendiğine inandığı an.
+- **TBT < 200ms** — total blocking time, etkileşim gecikmesinin proxy'si.
+- **CLS < 0.1** — cumulative layout shift, görsel kararlılık.
+
+### Çalışma mantığı
+
+LHCI autorun:
+
+1. `startServerCommand` → `pnpm --filter @glaon/web preview -- --port 4173 --strictPort` ile Vite preview kalkar.
+2. Chrome headless (CI'da `--no-sandbox --headless=new`) 3 kez (`numberOfRuns: 3`) sayfayı ziyaret eder; medyan raporu alınır.
+3. Assertion listesi medyan rapora karşı çalıştırılır; eşikler aşılırsa job fail.
+4. Raporlar `upload.target: temporary-public-storage` ile Google CDN'e yüklenir (geçici, ~7 gün). Link'ler `$GITHUB_STEP_SUMMARY`'ye basılır.
+
+### Yerel çalıştırma
+
+Önce `apps/web/dist/` hazır olmalı. Lokalde Chrome kurulu olmadan çalışmaz — LHCI healthcheck "Chrome installation not found" ile fail eder. CI hedefli bir check.
+
+```bash
+# Build'i tazele:
+VITE_SENTRY_DSN="lhci-dummy" pnpm --filter @glaon/web build
+
+# Tek preset:
+pnpm lhci:desktop
+pnpm lhci:mobile
+
+# Her ikisi:
+pnpm lhci
+```
+
+Chrome için: [Google Chrome indir](https://www.google.com/chrome/) ya da `brew install --cask google-chrome`. LHCI `chrome-launcher` ile kurulu binary'yi otomatik bulur.
+
+### CI entegrasyonu
+
+`.github/workflows/lighthouse.yml` — `ci.yml`'dan ayrı bir workflow. Sebep: Lighthouse her run ~2-3 dakika × 2 preset ≈ 5-6 dk; her PR'da koşturmak CI bütçesini şişirir. Path filter'lı yaklaşım:
+
+```yaml
+paths:
+  - 'apps/web/**'
+  - 'packages/ui/**'
+  - '.lighthouserc.cjs'
+  - '.lighthouserc.mobile.cjs'
+  - '.github/workflows/lighthouse.yml'
+```
+
+Yani docs-only PR'lar veya `packages/core`/`@glaon/config`/mobile-only değişiklikler Lighthouse'ı tetiklemez. İlgili path'e değen her PR'da desktop + mobile paralel (matrix `fail-fast: false`) koşar.
+
+`VITE_SENTRY_DSN=lighthouse-dummy` job-level env ile Vite prod-build guard'ı geçirilir; Sentry vite plugin'i `SENTRY_AUTH_TOKEN + ORG + PROJECT` olmadan yüklenmiyor.
+
+### Bütçe değişiklik kuralı
+
+size-limit ile aynı felsefe:
+
+- **Yeni feature** bütçeyi zorluyorsa — issue'da byte + render cost tartışılır, kabul edilen feature için bütçe tune edilir.
+- **Regresyon** — önce kaynak değişim aranır (yeni dep? yeni main-thread iş? hydration sorunu?); bütçe en son yükseltilir.
+- **Flake** — LHCI CI runner'lardaki varyanstan ötürü nadiren flake olabilir. `numberOfRuns: 3` median çoğu varyansı kapatır; persistent flake varsa fix önce (tests/config), bütçe gevşetme değil.
+
+### Baseline notu
+
+Bu PR açıldığında `apps/web` boş bir React scaffold — real content yok. Score'lar doğal olarak 99-100 civarı olacak. **Bütçe anlamlı sinyal için tune edilecek** feature landing'leri başladıkça: ilk HA integration + Untitled UI primitive'leri inerken baseline gerçek olur, bütçe o zaman (ayrı issue ile) daraltılır.
+
+## İlişkili kontroller
+
+- **size-limit** (bu doküman, yukarıda) — byte-size tarafı, statik ölçüm.
 - **Vite build warnings** — `pnpm --filter @glaon/web build` zaten her chunk için gzipped boyutu yazar; size-limit bu rapora policy ekler.
 
 ## Referanslar
 
 - size-limit config: [apps/web/.size-limit.json](../apps/web/.size-limit.json)
-- CI job: [.github/workflows/ci.yml](../.github/workflows/ci.yml) `size-check`
-- İlgili issue: #93 (size-limit), #102 (Lighthouse CI planned).
+- LHCI desktop config: [.lighthouserc.cjs](../.lighthouserc.cjs)
+- LHCI mobile config: [.lighthouserc.mobile.cjs](../.lighthouserc.mobile.cjs)
+- size-check CI job: [.github/workflows/ci.yml](../.github/workflows/ci.yml)
+- Lighthouse CI workflow: [.github/workflows/lighthouse.yml](../.github/workflows/lighthouse.yml)
+- İlgili issue: #93 (size-limit), #102 (Lighthouse CI).
