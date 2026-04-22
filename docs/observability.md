@@ -46,7 +46,7 @@ Yeni bir hassas alan eklemek için `SENSITIVE_URL_PARAMS`, `SENSITIVE_HEADER_NAM
 
 ### Prod build gate
 
-[apps/web/vite.config.ts](../apps/web/vite.config.ts) production build'lerde `VITE_SENTRY_DSN` yoksa hata fırlatır. Amaç: DSN'siz prod artifact deploy etme olasılığını CI-time'da kapatmak.
+[apps/web/vite.config.ts](../apps/web/vite.config.ts) production build'lerde (`command === 'build' && mode === 'production'`) `VITE_SENTRY_DSN` yoksa hata fırlatır. Amaç: DSN'siz prod artifact deploy etme olasılığını CI-time'da kapatmak. `vite preview` ve dev server gate'i tetiklemez — preview zaten önceden üretilmiş dist'i servis eder, yeni artifact üretmez.
 
 Bu gate CI'daki E2E workflow'unu etkiler — [`.github/workflows/e2e.yml`](../.github/workflows/e2e.yml) Build web app adımında placeholder bir DSN (`https://public@sentry.invalid/0`) set eder. Event'ler hiçbir yere gitmez; E2E zaten Sentry trafiğine assert etmez.
 

@@ -3,12 +3,13 @@ import react from '@vitejs/plugin-react';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import type { PluginOption } from 'vite';
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const isProd = mode === 'production';
+  const isBuild = command === 'build';
   const dsn = env.VITE_SENTRY_DSN;
 
-  if (isProd && !dsn) {
+  if (isBuild && isProd && !dsn) {
     throw new Error(
       '[glaon/web] VITE_SENTRY_DSN is required for production builds. ' +
         'Set it in the build environment (e.g. repo secret for the deploy workflow) or build with --mode development.',
@@ -21,7 +22,7 @@ export default defineConfig(({ mode }) => {
   const org = env.SENTRY_ORG;
   const project = env.SENTRY_PROJECT;
 
-  if (isProd && authToken && org && project) {
+  if (isBuild && isProd && authToken && org && project) {
     const releaseOpts = env.VITE_SENTRY_RELEASE
       ? { release: { name: env.VITE_SENTRY_RELEASE } }
       : {};
