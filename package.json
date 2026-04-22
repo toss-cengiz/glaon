@@ -1,7 +1,7 @@
 {
   "name": "glaon",
   "description": "Glaon — a secure, custom frontend for Home Assistant (web, wall tablet, mobile).",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
     "@lhci/cli": "^0.15.1",
