@@ -32,7 +32,7 @@ Out of scope (route elsewhere):
 
 ## Brand inputs
 
-Glaon's Design System Figma file is the canonical source. When the file is populated, the tokens and primitives land there first; this skill references them via the naming convention in `docs/figma.md`.
+Glaon's Brand Guideline Figma file is the canonical source for brand decisions — color rationale, typography scale, spacing/radii/shadow, logo usage, component personality. The Design System Figma file consumes those decisions later as published token primitives. Both files are tabled in [docs/figma.md](../../../docs/figma.md#dosya-yapısı).
 
 ### Color palette
 

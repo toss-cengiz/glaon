@@ -12,18 +12,24 @@ Bu sayfa:
 
 ## Dosya yapısı
 
-Üç ayrı Figma dosyası (aynı takım / workspace altında):
+Dört ayrı Figma dosyası (aynı takım / workspace altında):
 
-| Dosya             | İçerik                                                                               | URL                                                                 |
-| ----------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
-| **Design System** | Primitive'ler, color palette, type scale, spacing, radii, shadow — published library | <https://www.figma.com/design/KP0SVNxQEjT0gotajwc9I0/Design-System> |
-| **Components**    | Design System'i tüketen composite component'ler (Card, Dialog, DeviceTile…)          | <https://www.figma.com/design/auyB12SfWNs3eUho4UpI2k/Components>    |
-| **Screens**       | Web + mobile ekran mockup'ları (dashboard, detail, settings…)                        | <https://www.figma.com/design/JdUxahXzXwVAsjkgzIjIT9/Screens>       |
+| Dosya               | İçerik                                                                                                       | Faz      | URL                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------------------------ | -------- | ------------------------------------------------------------------- |
+| **Brand Guideline** | Color rationale, typography, spacing/radii/shadow, logo usage, do/don't — brand kararlarının kanonik kaynağı | phase-1  | <https://www.figma.com/design/JLbLmCMDdhxOisbVYiAo5C/Glaon>         |
+| **Design System**   | Primitive'ler, color palette, type scale, spacing, radii, shadow — published library                         | phase-3+ | <https://www.figma.com/design/KP0SVNxQEjT0gotajwc9I0/Design-System> |
+| **Components**      | Design System'i tüketen composite component'ler (Card, Dialog, DeviceTile…)                                  | phase-3+ | <https://www.figma.com/design/auyB12SfWNs3eUho4UpI2k/Components>    |
+| **Screens**         | Web + mobile ekran mockup'ları (dashboard, detail, settings…)                                                | phase-3+ | <https://www.figma.com/design/JdUxahXzXwVAsjkgzIjIT9/Screens>       |
 
-Tüm takım üyeleri üçüne de en az "can view" seviyesinde erişime sahip olur.
+Tüm takım üyeleri dördüne de en az "can view" seviyesinde erişime sahip olur.
 
-### Neden üç dosya?
+### Faz eşlemesi
 
+Brand Guideline **phase-1**'de aktif olarak kullanılır; Glaon'un brand kararlarının (renk rationale'ı, tipografi, spacing/radii/shadow, logo kullanımı, do/don't) kanonik kaynağıdır. Design System library bu kararları token primitive'leri olarak **phase-3 ve sonrasında** yayınlar; Components ve Screens aynı fazlarda onu tüketir. Yani brand decisions önce Brand Guideline'da karara bağlanır, sonra Design System library'ye düşer — tek yönlü bir akış.
+
+### Neden dört dosya?
+
+- **Rationale vs published library**: Brand Guideline brand kararlarının ve do/don't'ların yaşadığı dosya; Design System bu kararları tüketen published token + primitive library. Rationale curated ve seyrek değişir; library versiyonlanır ve token değişiklikleri consumer dosyalara yayılır. Tek dosyada "rationale'ı neden değiştirmiyoruz?" ile "library'yi neden bump'lıyoruz?" aynı branch'te karışır.
 - **Library vs consumer ayrımı**: Design System published library olduğunda, Components ve Screens dosyaları onu tüketir (version pinning, instance override trace'i). Tek dosyada karışık olsa branch publish karmaşık hale gelir.
 - **Scope-based review**: Token değişikliği Design System PR'ında, yeni composite Components dosyasında, ekran mockup'ı Screens dosyasında tartışılır.
 - **Chromatic-Figma uyumu** (#53): Chromatic Figma plugin'i bir Storybook component'ini bir Figma component'ine map ederken, Design System dosyasındaki kanonik olanı işaret eder.
