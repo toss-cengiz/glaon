@@ -33,6 +33,7 @@ body:
         - area:mobile
         - area:core
         - area:ui
+        - area:design
         - area:addon
         - area:ci
         - area:security
