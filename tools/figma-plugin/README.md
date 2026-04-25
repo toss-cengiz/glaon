@@ -7,7 +7,8 @@ Detaylı workflow ve kurallar: [docs/figma.md](../../docs/figma.md#claude-author
 ## Dosyalar
 
 - `manifest.json` — Figma Plugin manifest (API 1.0). `editorType` hem `"figma"` hem `"dev"` içerir, yani plugin Design Mode ve Dev Mode'da import edilebilir. Network access kapalı; dynamic-page access açık (büyük dosyalarda page-by-page yükler).
-- `code.js` — plugin entry. Scaffold hali sadece notification gösterip kapanır. Her task için Claude bu dosyanın içeriğini yeniden yazar; commit etmeyiz, lokal kullanılır ve `git restore` ile scaffold'a dönülür.
+- `code.js` — plugin entry. Scaffold hali sadece notification gösterip kapanır. Her task için bu dosyanın içeriği yeniden yazılır; ad-hoc task'larda commit etmeyiz, lokal kullanılır ve `git restore` ile scaffold'a dönülür.
+- `scripts/` — yeniden kullanılabilir, commit'li script kütüphanesi. Bootstrap operasyonları (Variables yaratma, text styles ekleme, primitive re-skin) bu dizinde yaşar; per-task çalıştırmak için içeriği `code.js`'e kopyalanır.
 - `brand-design` skill (`.claude/skills/brand-design/SKILL.md`) — plugin script'i üretirken Claude'un uymak zorunda olduğu guardrail'leri tanımlar (dry-run default, `CONFIRM` flag, no network, notify+closePlugin).
 
 ## Figma'ya nasıl yüklenir?
@@ -22,12 +23,31 @@ Detaylı workflow ve kurallar: [docs/figma.md](../../docs/figma.md#claude-author
 
 ## Task akışı (Claude-authored script)
 
-1. İhtiyaç doğar: "bu variable'ları yeniden adlandır", "bu renk palette'ini ekle", vb.
+İki kanal var: `scripts/` altındaki yeniden kullanılabilir script'ler ve ad-hoc per-task script'ler. İkisi de aynı `code.js` entry'si üzerinden çalışır.
+
+### Scripts/ ile çalışmak (yeniden kullanılabilir)
+
+`scripts/` dizininde commit edilmiş bootstrap operasyonları için:
+
+1. İlgili dosyayı seç (örn. `scripts/01-variables-bootstrap.js`).
+2. Tüm içeriğini `tools/figma-plugin/code.js`'in üzerine kopyala.
+3. Figma desktop'ta hedef dosyayı aç → Plugins → Development → Glaon → çalıştır.
+4. Default `CONFIRM = false` → dry-run özeti `figma.notify` ile görünür, mutasyon yok.
+5. Özeti onayladıysan script'in başındaki `CONFIRM = true` flag'ini elle aç → tekrar çalıştır.
+6. Figma'da değişiklikleri review et → memnunsan library'yi publish et; değilse `Ctrl+Z`.
+7. `code.js`'i scaffold haline döndür: `git restore tools/figma-plugin/code.js`.
+
+`scripts/` dosyaları idempotent yazılır — yeniden çalıştırmak güvenlidir; var olan node'ları yeniden yaratmaz, eksikleri ekler.
+
+### Ad-hoc per-task script
+
+Yeniden kullanım planı olmayan tek-seferlik operasyonlar için:
+
+1. İhtiyaç doğar: "bu variable'ları yeniden adlandır", "bu rengi şu node'a ata", vb.
 2. Claude görevi `brand-design` skill'i üzerinden analiz eder ve `code.js`'e uygun script'i yazar.
-3. Script default **dry-run**: mutasyon yerine ne değişeceğinin özetini `figma.notify` ile gösterir.
-4. Dry-run çıktısını doğruladıktan sonra script'in başındaki `CONFIRM = true` flag'ini elle aç ve yeniden çalıştır.
-5. Figma'da değişiklikleri review et → tatmin ediciyse Design System dosyasını **publish** et (library bump); değilse `Ctrl+Z` / Figma history ile geri al.
-6. `code.js`'i scaffold haline döndür (`git restore tools/figma-plugin/code.js`) — task'a özel script'ler repo'ya commit edilmez. Yeniden kullanılabilir bir operasyon çıkarsa ayrı issue + düzgün bir script modülü olarak eklenir.
+3. Script default **dry-run**, `CONFIRM = true` ile mutasyona geçer.
+4. Figma'da review + publish veya undo.
+5. `code.js`'i scaffold haline döndür (`git restore tools/figma-plugin/code.js`) — ad-hoc script'ler repo'ya commit edilmez. Yeniden kullanılabilir olduğu ortaya çıkarsa ayrı issue açılıp `scripts/` altına taşınır.
 
 ## Neden plugin, neden REST değil?
 

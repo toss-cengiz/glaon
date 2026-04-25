@@ -97,10 +97,14 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 ## Design Source of Truth (MANDATORY)
 
 - Figma is the canonical source for Glaon's design: colors, spacing, typography, shadow, component visuals, and screen mockups all live there. Code **references** this source — it does not invent parallel values.
+- Three canonical Figma files (always reachable; pinned here so they never drift out of context):
+  - **Brand Guideline** — color rationale, typography, spacing/radii/shadow, logo, do/don't. Brand decisions live here. <https://www.figma.com/design/JLbLmCMDdhxOisbVYiAo5C/Brand-Guidelines>
+  - **Design System** — Glaon's published primitive library. Variables + text styles + re-skinned primitives. <https://www.figma.com/design/KP0SVNxQEjT0gotajwc9I0/Design-System>
+  - **Untitled UI** — licensed third-party kit. Used as the source we **detach + re-skin** primitives from; never consumed directly by Components/Screens. <https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/UntitledUI>
 - Design tokens are not hand-typed. They are exported from Figma Variables via the Figma Tokens plugin, committed as JSON, and transformed by Style Dictionary into per-platform outputs. Hex codes and raw spacing numbers don't appear in component code; token references do.
 - New primitives are designed in Figma first. A code-only primitive without a Figma counterpart is not mergeable — design review gate applies before the Storybook story is written.
 - Figma component descriptions carry the Storybook component ID in the form `storybook-id: <kebab-case>`. This is the contract that Chromatic's Figma plugin (#53) relies on; don't change the format without coordinating that integration.
-- Setup and workflow details: [docs/figma.md](docs/figma.md).
+- Setup and workflow details: [docs/figma.md](docs/figma.md). Design System bootstrap spec: [docs/design-system-bootstrap.md](docs/design-system-bootstrap.md).
 
 ## Storybook Rule (MANDATORY)
 

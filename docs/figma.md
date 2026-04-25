@@ -25,7 +25,7 @@ Tüm takım üyeleri dördüne de en az "can view" seviyesinde erişime sahip ol
 
 ### Faz eşlemesi
 
-Brand Guideline **phase-1**'de aktif olarak kullanılır; Glaon'un brand kararlarının (renk rationale'ı, tipografi, spacing/radii/shadow, logo kullanımı, do/don't) kanonik kaynağıdır. Design System library bu kararları token primitive'leri olarak **phase-3 ve sonrasında** yayınlar; Components ve Screens aynı fazlarda onu tüketir. Yani brand decisions önce Brand Guideline'da karara bağlanır, sonra Design System library'ye düşer — tek yönlü bir akış.
+Brand Guideline **phase-1**'de aktif olarak kullanılır; Glaon'un brand kararlarının (renk rationale'ı, tipografi, spacing/radii/shadow, logo kullanımı, do/don't) kanonik kaynağıdır. Design System library'nin foundation çalışması (Variables koleksiyonları, text styles, ilk primitive set) **phase-0** altında — bkz. [docs/design-system-bootstrap.md](design-system-bootstrap.md) ve epic #141. Components ve Screens dosyaları phase-3 ve sonrasında bu library'yi tüketir. Yani brand decisions önce Brand Guideline'da karara bağlanır, sonra Design System library'ye düşer, sonra Components/Screens onu tüketir — tek yönlü bir akış.
 
 ### Neden dört dosya?
 
