@@ -95,9 +95,11 @@ const SEMANTIC_BINDINGS = {
     const primitiveVarsByName = new Map();
     for (const [name, value] of Object.entries(BRAND_REF)) {
       let v = allVars.find(
-        (x) => x.name === name && x.variableCollectionId === (primitivesCol?.id ?? null),
+        (x) =>
+          x.name === name &&
+          x.variableCollectionId === (primitivesCol ? primitivesCol.id : null),
       );
-      const concreteValue = value ?? PLACEHOLDER;
+      const concreteValue = value !== null && value !== undefined ? value : PLACEHOLDER;
       if (!v) {
         if (CONFIRM && primitivesCol) {
           v = figma.variables.createVariable(name, primitivesCol, 'COLOR');
@@ -120,7 +122,9 @@ const SEMANTIC_BINDINGS = {
     // --- Semantic variables ---
     for (const [semanticName, primitiveName] of Object.entries(SEMANTIC_BINDINGS)) {
       let v = allVars.find(
-        (x) => x.name === semanticName && x.variableCollectionId === (semanticCol?.id ?? null),
+        (x) =>
+          x.name === semanticName &&
+          x.variableCollectionId === (semanticCol ? semanticCol.id : null),
       );
       if (!v) {
         if (CONFIRM && semanticCol) {
@@ -179,5 +183,8 @@ function ensureThemeModes(collection, confirm, created) {
     }
     created.push(`mode: ${collection.name}/Dark`);
   }
-  return { light: lightMode?.modeId, dark: darkMode?.modeId };
+  return {
+    light: lightMode ? lightMode.modeId : undefined,
+    dark: darkMode ? darkMode.modeId : undefined,
+  };
 }
