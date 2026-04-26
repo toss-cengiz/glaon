@@ -135,7 +135,7 @@ const PADDING = 32;
       legacy.name = `${legacy.name} ${LEGACY_SUFFIX}`.trim();
     }
 
-    const page = legacy?.parent ?? figma.currentPage;
+    const page = legacy && legacy.parent ? legacy.parent : figma.currentPage;
     let newFrame = page.children.find(
       (n) => n.type === 'FRAME' && n.name === NEW_FRAME_NAME,
     );
