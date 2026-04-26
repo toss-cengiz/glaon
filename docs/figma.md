@@ -72,36 +72,38 @@ Token isimlendirmesi: `color.brand.primary`, `space.4`, `radius.md`, `shadow.car
 
 ## Figma Remote MCP
 
-Claude Code ve diğer agent'lar Figma Remote MCP üzerinden tasarım dosyalarını okur (component listesi, frame'ler, variable'lar). Lokal Figma desktop app'inin MCP server'ı (dev-mode) ayrı bir kanaldır; Glaon için remote MCP kullanılır çünkü takımın tümü aynı endpoint'e bağlanır.
+Claude Code ve diğer agent'lar Figma Remote MCP üzerinden tasarım dosyalarını okur (component listesi, frame'ler, variable'lar). Lokal Figma desktop app'inin MCP server'ı (dev-mode) ayrı bir kanaldır; Glaon için **hosted Remote MCP** (`https://mcp.figma.com/mcp`) kullanılır çünkü takımın tümü aynı endpoint'e bağlanır.
 
-### Kurulum
+### Konfigürasyon
 
-1. Figma hesabı ile giriş yap → Team'de **Dev mode** ve MCP enabled.
-2. Claude Code → Figma MCP authenticate tool'u tetikle; browser OAuth flow'u açılır.
-3. Onaylanan scope: file read (component, variable, frame metadata). **Write scope istenmez.**
-4. Repo kökündeki [`.mcp.json`](../.mcp.json)'a Figma entry'si eklenir (_yazma sırası: OAuth başarıyla döndükten sonra, ayrı commit_). Beklenen şekil:
+Repo-scoped: [`.mcp.json`](../.mcp.json)'da `figma` server'ı tanımlı. Header gerekmiyor — auth OAuth ile out-of-band yürüyor; token Figma tarafında "Connected apps" altında, Claude Code tarafında ise kullanıcı config'inde (lokal, repo'ya yazılmaz) tutulur.
 
-   ```jsonc
-   {
-     "mcpServers": {
-       "chromatic": { "...mevcut...": true },
-       "figma": {
-         "type": "http",
-         "url": "https://<figma-remote-endpoint>",
-         "headers": { "...auth metadata...": "" },
-       },
-     },
-   }
-   ```
+```jsonc
+{
+  "mcpServers": {
+    "figma": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp",
+    },
+  },
+}
+```
 
-   > Gerçek URL ve auth header'lar Figma tarafından OAuth callback'inde sağlanır; şu an placeholder. `.mcp.json` güncellemesi OAuth başarıyla tamamlanana kadar ertelenir.
+### Per-developer kurulum
 
-5. `claude mcp list` → `figma` status **connected**.
+Repo entry'si paylaşılan, ama OAuth her makinede ayrı yürür. Yeni geliştirici:
+
+1. Figma hesabı ile giriş yap → Team'de **Dev mode** + MCP enabled (admin ayarı).
+2. Claude Code session'ında `/mcp` slash command'ını çalıştır → server listesinde `figma` görünür, status **needs authentication**.
+3. `figma` üzerinde **Authenticate** seçeneğini tetikle → tarayıcıda Figma OAuth ekranı açılır.
+4. Onaylanan scope: file read (component, variable, frame metadata). **Write scope istenmez.**
+5. Onay → Claude Code'a geri dön → `claude mcp list` → `figma` status **connected**.
 
 ### Kullanım sınırları
 
-- Read-only. Agent Figma'da değişiklik yapmaz; tasarım değişiklikleri insan aksiyonudur.
+- Read-only. Agent Figma'da değişiklik yapmaz; tasarım değişiklikleri insan aksiyonudur (bkz. `tools/figma-plugin/`).
 - Büyük dosyalarda frame sayısı MCP response boyutunu şişirir; spesifik component/page sorgula.
+- CI'da Figma MCP bağlanmaz — interactive OAuth flow CI'da çalışmaz, ihtiyaç da yok (CI Storybook + Chromatic üzerinden gidiyor).
 
 ## Naming convention (Figma ⇄ kod)
 
@@ -190,7 +192,7 @@ Skill ve plugin loop'u _kendisi_ kapatmaz — önerir ve devretir.
 | Konu                                             | Durum                                                           |
 | ------------------------------------------------ | --------------------------------------------------------------- |
 | Figma Tokens plugin + Style Dictionary generator | ayrı issue açılacak (dosyalar + ilk token set'i olduktan sonra) |
-| Figma MCP `.mcp.json` entry                      | OAuth başarılı olunca küçük PR                                  |
+| Figma MCP `.mcp.json` entry                      | #156 ile eklendi                                                |
 | Chromatic ⇄ Figma design-code diff               | #53                                                             |
 | Figma branching + design review Slack bot        | ayrı issue                                                      |
 | REST `file:write` scope değerlendirmesi          | plugin akışı yetersiz kalırsa ayrı issue                        |

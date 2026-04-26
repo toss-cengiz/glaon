@@ -6,6 +6,10 @@
       "headers": {
         "X-Client-Id": "cdf3737dff9d485485968e50b63fd8b4"
       }
+    },
+    "figma": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp"
     }
   }
 }
