@@ -36,11 +36,41 @@ Glaon's Brand Guideline Figma file is the canonical source for brand decisions �
 
 ### Color palette
 
-_TBD — first pass lands when Design System Figma gets its color variables. Until then, defer color questions to Figma._ Rationale captured here once published:
+Glaon's color system is split into two Figma Variable collections (see [`docs/design-system-bootstrap.md`](../../../docs/design-system-bootstrap.md#variables--koleksiyonlar-ve-modes)):
 
-- Base palette + semantic roles (brand, surface, text, state).
-- Light/dark mode mapping (Figma Variables `Theme` mode).
-- Accessibility contrast floors per role.
+- **Primitives** — the raw palette inherited from the Brand Guideline (neutrals, brand hue, accents). Components never reference these directly.
+- **Semantics** — the contract components consume. Each semantic binds to a primitive via `Theme: light` / `Theme: dark` modes.
+
+Two non-negotiable rules:
+
+- Components reference semantics, never primitives. A swap of the brand hue must cascade through one rebinding, not a codebase sweep.
+- Light and dark are designed together, not retrofitted. Until #140 lands, dark bindings fall back to the Light primitive but the binding slot exists from day one — semantic _names_ are stable forever; only the values move.
+
+Semantic roles, with what each one means and when to reach for it:
+
+- **`surface/default`** — the canvas a screen sits on. Most layouts default to this. Calm, low chrome.
+- **`surface/muted`** — a recessed surface inside `surface/default`: form rows, list groups, secondary panels. Signals "still part of the page, but a step back".
+- **`surface/raised`** — an elevated surface above the canvas: cards, popovers, modals. Pairs with shadow tokens; never carry depth in color alone. Final binding lands with #139.
+- **`text/primary`** — body and heading text on `surface/default` / `surface/muted`. Must clear WCAG AA 4.5:1 against both.
+- **`text/muted`** — secondary text: captions, helper, timestamps. Same 4.5:1 floor — `muted` is a hue/weight choice, not a contrast escape hatch.
+- **`text/inverse`** — text on dark or saturated surfaces (e.g. label on `brand/primary`). "Inverse" is relative to the surface beneath it, not a literal theme inversion.
+- **`border/subtle`** — quiet dividers, inputs at rest, list separators. 3:1 against the adjacent surface (non-text UI floor).
+- **`border/strong`** — focus rings, selected state, emphatic dividers. 3:1 minimum; design intent typically clears it comfortably.
+- **`brand/primary`** — primary CTAs and the few places Glaon "speaks" with brand color. Use sparingly: density of brand color is inversely proportional to the trust it conveys.
+- **`brand/hover` / `brand/pressed`** — interactive shifts on `brand/primary`. Don't invent ad-hoc darkening; the tokens encode the brand's preferred curve. Lands with #138.
+- **`state/success`** — confirmation, healthy device. Greenish but inherits the brand's temperature; we don't ship a generic semaphore green.
+- **`state/warning`** — caution, non-blocking attention. Amber/yellow family; always paired with a glyph because hue alone fails colorblind users.
+- **`state/danger`** — destructive affirmation, fault state. The most restrained role on the list — overuse desensitizes, so it's reserved for actions or states that genuinely cannot be undone or ignored. Hue locked in #137.
+
+Light/dark mapping lives in Figma Variables `Theme` mode. Both modes share the same semantic name and diverge only in which primitive they bind to — that's what lets a component written against `text/primary` swap automatically when the theme flips, with no per-component dark variant.
+
+Accessibility floors (record per role; don't ask the developer to recompute):
+
+- Text on its surface — WCAG AA 4.5:1 minimum; aim for AAA 7:1 on body text in long-session contexts (wall tablet) where eye fatigue compounds.
+- Non-text UI (borders, focus rings, state glyphs) — 3:1 against the adjacent surface.
+- Brand color is not exempt: `brand/primary` over `surface/default` must clear 3:1 as a UI element, and 4.5:1 if text rides on it.
+
+Hex values, gradients, and exact alpha stops live in the Brand Guideline Figma file and the published Design System library. Don't restate them here — the skill points; Figma defines.
 
 ### Typography
 
