@@ -28,7 +28,7 @@ const PLACEHOLDER = { r: 1, g: 0, b: 1, a: 1 };
 // Format: { r, g, b, a } with 0..1 channels, OR null.
 const BRAND_REF = {
   // Neutrals
-  'color/kirli-beyaz': null, // off-white surface base
+  'color/dirty-white': null, // off-white surface base
   'color/sand-100': null,
   'color/sand-300': null,
   'color/night-blue-500': null, // primary text
@@ -47,12 +47,12 @@ const BRAND_REF = {
 // they bind to (per spec). If the primitive is missing, the semantic gets
 // a placeholder fallback so consumers can still wire up.
 const SEMANTIC_BINDINGS = {
-  'surface/default': 'color/kirli-beyaz',
+  'surface/default': 'color/dirty-white',
   'surface/muted': 'color/sand-100',
-  'surface/raised': 'color/kirli-beyaz', // #139 follow-up may shift
+  'surface/raised': 'color/dirty-white', // #139 follow-up may shift
   'text/primary': 'color/night-blue-500',
   'text/muted': 'color/night-blue-700',
-  'text/inverse': 'color/kirli-beyaz',
+  'text/inverse': 'color/dirty-white',
   'border/subtle': 'color/sand-300',
   'border/strong': 'color/night-blue-500',
   'brand/primary': 'color/brand-primary',

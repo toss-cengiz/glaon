@@ -40,7 +40,7 @@ const NEW_FRAME_NAME = 'Color Palette';
 const PLACEHOLDER = { r: 1, g: 0, b: 1 };
 
 const PRIMITIVES = [
-  { name: 'kirli-beyaz', note: 'off-white surface base' },
+  { name: 'dirty-white', note: 'off-white surface base' },
   { name: 'sand-100', note: 'lighter neutral' },
   { name: 'sand-300', note: 'mid neutral border' },
   { name: 'night-blue-500', note: 'primary text / strong border' },
@@ -54,12 +54,12 @@ const PRIMITIVES = [
 ];
 
 const SEMANTICS = [
-  { name: 'surface/default', binding: 'kirli-beyaz' },
+  { name: 'surface/default', binding: 'dirty-white' },
   { name: 'surface/muted', binding: 'sand-100' },
-  { name: 'surface/raised', binding: 'kirli-beyaz' },
+  { name: 'surface/raised', binding: 'dirty-white' },
   { name: 'text/primary', binding: 'night-blue-500' },
   { name: 'text/muted', binding: 'night-blue-700' },
-  { name: 'text/inverse', binding: 'kirli-beyaz' },
+  { name: 'text/inverse', binding: 'dirty-white' },
   { name: 'border/subtle', binding: 'sand-300' },
   { name: 'border/strong', binding: 'night-blue-500' },
   { name: 'brand/primary', binding: 'brand-primary' },
