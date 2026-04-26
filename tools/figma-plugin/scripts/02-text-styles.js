@@ -28,10 +28,16 @@ const FONT = {
     family: 'Inter',
     regular: 'Regular',
     medium: 'Medium',
-    semibold: 'SemiBold',
+    semibold: 'Semi Bold',
     bold: 'Bold',
   },
-  rn: { family: 'Inter', regular: 'Regular', medium: 'Medium', semibold: 'SemiBold', bold: 'Bold' },
+  rn: {
+    family: 'Inter',
+    regular: 'Regular',
+    medium: 'Medium',
+    semibold: 'Semi Bold',
+    bold: 'Bold',
+  },
 };
 
 // Scale (px / line-height multiplier / weight). Mirrors a typical 1.25

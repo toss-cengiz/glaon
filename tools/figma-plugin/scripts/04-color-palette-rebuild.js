@@ -129,7 +129,7 @@ const PADDING = 32;
     }
 
     await figma.loadFontAsync({ family: 'Inter', style: 'Regular' });
-    await figma.loadFontAsync({ family: 'Inter', style: 'SemiBold' });
+    await figma.loadFontAsync({ family: 'Inter', style: 'Semi Bold' });
 
     if (legacy && legacy.type === 'FRAME' && !legacy.name.includes('legacy')) {
       legacy.name = `${legacy.name} ${LEGACY_SUFFIX}`.trim();
@@ -209,7 +209,7 @@ function buildSection(title, swatchNodes) {
 
   const heading = figma.createText();
   heading.name = `heading/${title.toLowerCase()}`;
-  heading.fontName = { family: 'Inter', style: 'SemiBold' };
+  heading.fontName = { family: 'Inter', style: 'Semi Bold' };
   heading.fontSize = 24;
   heading.characters = title;
   section.appendChild(heading);
@@ -258,7 +258,7 @@ function buildSwatch({ label, sub, variable }) {
 
   const labelNode = figma.createText();
   labelNode.name = `label/${label}`;
-  labelNode.fontName = { family: 'Inter', style: 'SemiBold' };
+  labelNode.fontName = { family: 'Inter', style: 'Semi Bold' };
   labelNode.fontSize = 12;
   labelNode.characters = label;
   wrapper.appendChild(labelNode);
