@@ -18,5 +18,6 @@ export * from './components/Select';
 export * from './components/Spinner';
 export * from './components/Stat';
 export * from './components/Switch';
+export * from './components/Tabs';
 export * from './components/Textarea';
 export * from './theme';
