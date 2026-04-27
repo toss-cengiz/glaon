@@ -57,6 +57,7 @@ Deprecated durumu, kararı yapılacak işin dışına çıkarttığımızda kull
 | 0008 | [Chromatic tek görsel regresyon aracı](0008-chromatic-visual-regression.md)             | Accepted | 2026-04-21 |
 | 0009 | [HA Add-on + Ingress teslim kanalı](0009-ha-addon-ingress-delivery.md)                  | Accepted | 2026-04-20 |
 | 0010 | [Figma tasarım kaynağı + plugin bridge](0010-figma-source-of-truth.md)                  | Accepted | 2026-04-22 |
+| 0011 | [Untitled UI React kit + CLI source-based delivery](0011-untitled-ui-react-kit.md)      | Accepted | 2026-04-27 |
 
 ## Konvansiyonlar
 
