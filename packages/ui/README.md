@@ -64,7 +64,6 @@ Brand Guideline Cover sayfasında da aynı paragraf release süresince güncel t
 
 ## Untitled UI Remote MCP
 
-
 Yayıncının resmi Remote MCP server'ı (`https://www.untitledui.com/react/api/mcp`) Claude Code session'larına component metadata + search exposure sunar — primitive ekleme öncesi spec'e bakmak, prop kombinasyonu doğrulamak, varyant inceleme. Repo-scoped `.mcp.json`'da `untitledui` server'ı tanımlı; auth tarafı per-developer.
 
 Yeni geliştirici:
@@ -75,6 +74,33 @@ Yeni geliştirici:
 4. Onay sonrası `claude mcp list` → `untitledui` status **connected**.
 
 CLI'nın `untitledui login` auth state'i ile bu MCP auth ayrı kanaldır; MCP browser flow OAuth, CLI ya `--license` flag ya stored config kullanır. CI'da MCP bağlanmaz (interactive flow) — Storybook + Chromatic CI yolundan ilerler.
+
+## Theme tüketimi
+
+`@glaon/ui` light/dark için `ThemeProvider` + `useTheme()` API'sini export eder. Tasarım token'ları F2 (Style Dictionary) tarafından `dist/tokens/{web.css,rn.ts}`'ye üretilir ve consumer'lar provider'a explicit olarak geçer:
+
+```tsx
+import { tokens } from '@glaon/ui/dist/tokens/rn';
+import { ThemeProvider, useTheme } from '@glaon/ui';
+
+function App() {
+  return (
+    <ThemeProvider tokens={tokens}>
+      <Root />
+    </ThemeProvider>
+  );
+}
+
+function Root() {
+  const { name, tokens } = useTheme<typeof import('@glaon/ui/dist/tokens/rn').tokens>();
+  // name: 'light' | 'dark'; tokens: typed nested object
+  return null;
+}
+```
+
+Web tarafı ek olarak `dist/tokens/web.css`'yi root entry'sinde import eder (`<html data-theme="light|dark">` attribute'una bağlı CSS variables). RN tarafı yalnızca `useTheme()` üzerinden tokens'ı tüketir.
+
+**Şu anda dark mode görsel fark etmez**: kaynak Variables collection'ı + Theme: Dark mode'ları Figma'da henüz yok (#140 takibi). API forward-compatible — Variables eklendiğinde F2 `[data-theme='dark']` CSS override + dark RN tokens emit edecek, mevcut consumer kodu değişmeden ve dark görünümler otomatik aktif olacak.
 
 ## Komutlar
 

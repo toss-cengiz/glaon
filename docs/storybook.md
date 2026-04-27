@@ -117,6 +117,14 @@ Her component için en az:
 
 `@storybook/addon-a11y` aktif ve `preview.ts` içinde `a11y.test: 'error'` set edilmiş. Bir story açıldığında a11y panelinde kırmızı uyarı varsa story merge edilmez — component'i düzelt veya story'de farklı bir senaryo kur.
 
+### Theme switch (light / dark)
+
+`@storybook/addon-themes`'in `withThemeByDataAttribute` decorator'ı `<html>` etiketine `data-theme="light"` veya `data-theme="dark"` set ediyor; aynı zamanda Storybook root'u `<ThemeProvider tokens={tokens}>` içine sarılıp RN tarafına da geçiyor. Toolbar'daki "Theme" toggle ile light/dark arasında geçiş yapılır.
+
+`build:tokens` script'i story başlatma + Storybook build + Vitest browser tests öncesinde çalışır (`pnpm storybook` / `pnpm build-storybook` / `pnpm test:stories`); generate edilen `dist/tokens/web.css` `:root` altına yüklenir, `dist/tokens/rn.ts` ise context value olarak provider'a verilir. Component'ler doğrudan `tokens` import etmek yerine `useTheme()` üzerinden tüketir — token modülü `dist/`'te `rootDir` boundary'sinin dışında olduğu için provider'a explicit prop ile geçer.
+
+Şu anda kaynak token dosyaları single-mode (Variables collection'ı + Theme: Dark binding'leri henüz Figma'da yok — #140 takibi). Dark toggle'a basıldığında `data-theme` attribute'u değişir ama CSS override block'u yok ve RN tarafı aynı `tokens` objesini sunar; bu yüzden dark mode görsel fark etmez. Altyapı F2 dark binding'leri ekleyince `[data-theme='dark']` override ve `Theme.dark` tokens otomatik devreye girer.
+
 ### Kategori yapısı (title)
 
 `title` alanı Storybook sidebar'ında hiyerarşiyi belirler. Mevcut konvansiyon:

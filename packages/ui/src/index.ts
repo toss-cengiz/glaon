@@ -4,3 +4,4 @@
 
 export * from './components/Button';
 export * from './components/PressableButton';
+export * from './theme';
