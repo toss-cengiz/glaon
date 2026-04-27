@@ -45,20 +45,21 @@ Deprecated durumu, kararı yapılacak işin dışına çıkarttığımızda kull
 
 ## Index
 
-| #    | Başlık                                                                                  | Durum    | Tarih      |
-| ---- | --------------------------------------------------------------------------------------- | -------- | ---------- |
-| 0001 | [Turborepo + pnpm workspaces](0001-turborepo-pnpm-workspaces.md)                        | Accepted | 2026-04-20 |
-| 0002 | [Vite + React 19 (web)](0002-vite-react-19-web.md)                                      | Accepted | 2026-04-20 |
-| 0003 | [Expo SDK + new architecture (mobile)](0003-expo-new-architecture-mobile.md)            | Accepted | 2026-04-20 |
-| 0004 | [`@glaon/core` platform-agnostic paylaşım paketi](0004-glaon-core-platform-agnostic.md) | Accepted | 2026-04-20 |
-| 0005 | [OAuth2 Authorization Code + PKCE (tek auth yöntemi)](0005-oauth2-pkce-only-auth.md)    | Accepted | 2026-04-20 |
-| 0006 | [Token storage — in-memory + httpOnly / SecureStore](0006-token-storage.md)             | Accepted | 2026-04-20 |
-| 0007 | [Sentry observability backend olarak](0007-sentry-observability.md)                     | Accepted | 2026-04-20 |
-| 0008 | [Chromatic tek görsel regresyon aracı](0008-chromatic-visual-regression.md)             | Accepted | 2026-04-21 |
-| 0009 | [HA Add-on + Ingress teslim kanalı](0009-ha-addon-ingress-delivery.md)                  | Accepted | 2026-04-20 |
-| 0010 | [Figma tasarım kaynağı + plugin bridge](0010-figma-source-of-truth.md)                  | Accepted | 2026-04-22 |
-| 0011 | [Untitled UI React kit + CLI source-based delivery](0011-untitled-ui-react-kit.md)      | Accepted | 2026-04-27 |
-| 0012 | [Tailwind CSS for `@glaon/ui`](0012-tailwind-css-for-glaon-ui.md)                       | Accepted | 2026-04-27 |
+| #    | Başlık                                                                                  | Durum              | Tarih      |
+| ---- | --------------------------------------------------------------------------------------- | ------------------ | ---------- |
+| 0001 | [Turborepo + pnpm workspaces](0001-turborepo-pnpm-workspaces.md)                        | Accepted           | 2026-04-20 |
+| 0002 | [Vite + React 19 (web)](0002-vite-react-19-web.md)                                      | Accepted           | 2026-04-20 |
+| 0003 | [Expo SDK + new architecture (mobile)](0003-expo-new-architecture-mobile.md)            | Accepted           | 2026-04-20 |
+| 0004 | [`@glaon/core` platform-agnostic paylaşım paketi](0004-glaon-core-platform-agnostic.md) | Accepted           | 2026-04-20 |
+| 0005 | [OAuth2 Authorization Code + PKCE (tek auth yöntemi)](0005-oauth2-pkce-only-auth.md)    | Accepted           | 2026-04-20 |
+| 0006 | [Token storage — in-memory + httpOnly / SecureStore](0006-token-storage.md)             | Accepted           | 2026-04-20 |
+| 0007 | [Sentry observability backend olarak](0007-sentry-observability.md)                     | Accepted           | 2026-04-20 |
+| 0008 | [Chromatic tek görsel regresyon aracı](0008-chromatic-visual-regression.md)             | Accepted           | 2026-04-21 |
+| 0009 | [HA Add-on + Ingress teslim kanalı](0009-ha-addon-ingress-delivery.md)                  | Accepted           | 2026-04-20 |
+| 0010 | [Figma tasarım kaynağı + plugin bridge](0010-figma-source-of-truth.md)                  | Accepted           | 2026-04-22 |
+| 0011 | [Untitled UI React kit + CLI source-based delivery](0011-untitled-ui-react-kit.md)      | Accepted           | 2026-04-27 |
+| 0012 | [Tailwind CSS for `@glaon/ui`](0012-tailwind-css-for-glaon-ui.md)                       | Superseded by 0013 | 2026-04-27 |
+| 0013 | [Tailwind v4 + Untitled UI theme.css](0013-tailwind-v4-uui-theme.md)                    | Accepted           | 2026-04-27 |
 
 ## Konvansiyonlar
 

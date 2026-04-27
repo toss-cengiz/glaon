@@ -1,6 +1,6 @@
 # ADR 0012 — Tailwind CSS'i `@glaon/ui` paketinde benimse
 
-- **Durum:** Accepted
+- **Durum:** Superseded by [ADR 0013](0013-tailwind-v4-uui-theme.md)
 - **Karar tarihi:** 2026-04-27
 - **Karar verenler:** @cengizdoyran
 - **İlgili konular:** issue #216, issue #215, [ADR 0011](0011-untitled-ui-react-kit.md), [packages/ui/README.md](../../packages/ui/README.md)

@@ -1,3 +1,4 @@
+import tailwindcss from '@tailwindcss/vite';
 import { defineMain } from '@storybook/react-native-web-vite/node';
 
 export default defineMain({
@@ -23,5 +24,9 @@ export default defineMain({
   typescript: {
     check: false,
     reactDocgen: 'react-docgen-typescript',
+  },
+  viteFinal: async (config) => {
+    config.plugins = [...(config.plugins ?? []), tailwindcss()];
+    return config;
   },
 });
