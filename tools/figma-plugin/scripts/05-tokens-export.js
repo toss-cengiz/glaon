@@ -1,110 +1,90 @@
 // Glaon — 05 Tokens Export
 //
-// Reads the `Primitives` and `Semantic` Variables collections (Theme:
-// Light/Dark modes) from the current Figma file and emits Style
-// Dictionary–compatible JSON for `packages/ui/tokens/`. Read-only:
-// no mutation, no network. Idempotent — same Figma state, same output.
+// Reads ALL local Variables collections from the current Figma file
+// and emits one Style Dictionary–compatible JSON per (collection,
+// mode). Read-only: no mutation, no network. Idempotent — same Figma
+// state, same output.
 //
-// Output (3 files via the iframe UI):
-//   - primitives.json        — raw scales (color/space/radius/shadow);
-//                              uses Light mode for primitives that have
-//                              a Theme axis (most do not).
-//   - semantic.light.json    — Semantic role bindings in Light mode.
-//                              Each value is either a `{primitive.path}`
-//                              reference or a literal.
-//   - semantic.dark.json     — Same structure, Dark mode bindings.
+// Filename rule:
+//   - Single-mode collection → `<collection>.json`
+//   - Multi-mode collection  → `<collection>.<mode>.json`
+//   Names are kebab-cased (`Brand Primitives` → `brand-primitives`).
+//
+// Schema (Style Dictionary v3-compatible plain shape — not DTCG):
+//   { "<seg1>": { "<seg2>": { "value": "...", "type": "color" } } }
+//   Aliases resolve to `{<target.collection>.<path>}` references with
+//   the target collection prefix so cross-collection references stay
+//   unambiguous when Style Dictionary loads multiple files together.
 //
 // Usage:
 //   1. Copy this file's contents into tools/figma-plugin/code.js.
 //   2. Open the Design System Figma file (variables source-of-truth).
 //   3. Run plugin: Plugins → Development → Glaon.
-//   4. Iframe opens: per file, click `Copy` (paste into the matching
-//      packages/ui/tokens/<name>.json) or `Download`.
-//   5. Commit the 3 files. F2 (Style Dictionary build) consumes them.
-//   6. `git restore tools/figma-plugin/code.js` to scaffold.
-//
-// Schema (Style Dictionary v3-compatible, plain shape — not DTCG):
-//   { "<seg1>": { "<seg2>": { "value": "...", "type": "color" } } }
-// Variable name "color/sand-100" → path color.sand-100 → key chain
-//   color.sand-100. Aliases serialize as `{<target.path>}`.
+//   4. Iframe lists every collection × mode found, with file body and
+//      Copy + Download buttons. Save the relevant files into
+//      `packages/ui/tokens/` and commit them.
+//   5. `git restore tools/figma-plugin/code.js` to scaffold.
 
 (async () => {
   try {
     const collections = await figma.variables.getLocalVariableCollectionsAsync();
-    const primitivesCol = collections.find((c) => c.name === 'Primitives');
-    const semanticCol = collections.find((c) => c.name === 'Semantic');
-
-    if (!primitivesCol || !semanticCol) {
-      throw new Error(
-        'Missing Primitives and/or Semantic collection. Run 01-variables-bootstrap.js first.',
-      );
+    if (!collections.length) {
+      throw new Error('No local Variable collections in this file.');
     }
 
-    const lightOf = (col) => {
-      const m = col.modes.find((x) => /light/i.test(x.name));
-      return m ? m.modeId : null;
-    };
-    const darkOf = (col) => {
-      const m = col.modes.find((x) => /dark/i.test(x.name));
-      return m ? m.modeId : null;
-    };
-
-    const primLight = lightOf(primitivesCol);
-    const primDark = darkOf(primitivesCol);
-    const semLight = lightOf(semanticCol);
-    const semDark = darkOf(semanticCol);
-
-    if (!primLight || !semLight) {
-      throw new Error('Missing `Light` mode in Primitives or Semantic collection.');
-    }
-
-    // Cache resolved Variables by id so alias lookups are O(1) and async-safe.
+    // Cache every variable across every collection so alias targets
+    // (which may live in another collection) resolve cleanly.
     const byId = new Map();
-    const collectIds = [...primitivesCol.variableIds, ...semanticCol.variableIds];
-    for (const id of collectIds) {
-      const v = await figma.variables.getVariableByIdAsync(id);
-      if (v) byId.set(id, v);
+    const collectionByVarId = new Map();
+    for (const col of collections) {
+      for (const id of col.variableIds) {
+        const v = await figma.variables.getVariableByIdAsync(id);
+        if (!v) continue;
+        byId.set(id, v);
+        collectionByVarId.set(id, col);
+      }
     }
 
-    const primitivesJson = {};
-    for (const id of primitivesCol.variableIds) {
-      const v = byId.get(id);
-      if (!v) continue;
-      const value = v.valuesByMode[primLight];
-      const tokenValue = await renderTokenValue(value, v.resolvedType);
-      setPath(primitivesJson, v.name, {
-        value: tokenValue,
-        type: mapType(v.resolvedType),
+    const files = [];
+    const inventory = [];
+
+    for (const col of collections) {
+      const modes = col.modes;
+      const colSlug = kebab(col.name);
+      const multiMode = modes.length > 1;
+
+      inventory.push({
+        collection: col.name,
+        slug: colSlug,
+        modes: modes.map((m) => m.name),
+        variableCount: col.variableIds.length,
       });
+
+      for (const mode of modes) {
+        const doc = {};
+        for (const id of col.variableIds) {
+          const v = byId.get(id);
+          if (!v) continue;
+          const value = v.valuesByMode[mode.modeId];
+          const tokenValue = renderTokenValue(value, v.resolvedType, byId, collectionByVarId);
+          setPath(doc, v.name, { value: tokenValue, type: mapType(v.resolvedType) });
+        }
+        const fileName = multiMode ? `${colSlug}.${kebab(mode.name)}.json` : `${colSlug}.json`;
+        files.push({
+          name: fileName,
+          collection: col.name,
+          mode: mode.name,
+          variableCount: col.variableIds.length,
+          body: JSON.stringify(doc, null, 2) + '\n',
+        });
+        // Single-mode collection: only emit once.
+        if (!multiMode) break;
+      }
     }
 
-    const semanticLightJson = buildSemanticDoc(semanticCol, byId, semLight);
-    const semanticDarkJson = semDark
-      ? buildSemanticDoc(semanticCol, byId, semDark)
-      : { __note: 'Dark mode missing on Semantic collection — nothing to emit.' };
-
-    const files = [
-      {
-        name: 'primitives.json',
-        body: JSON.stringify(primitivesJson, null, 2) + '\n',
-      },
-      {
-        name: 'semantic.light.json',
-        body: JSON.stringify(semanticLightJson, null, 2) + '\n',
-      },
-      {
-        name: 'semantic.dark.json',
-        body: JSON.stringify(semanticDarkJson, null, 2) + '\n',
-      },
-    ];
-
-    const stats = `primitives: ${Object.keys(primitivesJson).length} top-level · semantic.light: ${
-      Object.keys(semanticLightJson).length
-    } · semantic.dark: ${Object.keys(semanticDarkJson).length}`;
-
-    figma.showUI(buildUiHtml(files, stats), {
-      width: 720,
-      height: 580,
+    figma.showUI(buildUiHtml(files, inventory), {
+      width: 760,
+      height: 600,
       themeColors: true,
       title: 'Glaon — Tokens Export',
     });
@@ -118,35 +98,13 @@
   }
 })();
 
-function buildSemanticDoc(col, byId, modeId) {
-  const out = {};
-  for (const id of col.variableIds) {
-    const v = byId.get(id);
-    if (!v) continue;
-    const value = v.valuesByMode[modeId];
-    const tokenValue = renderTokenValueSync(value, v.resolvedType, byId);
-    setPath(out, v.name, { value: tokenValue, type: mapType(v.resolvedType) });
-  }
-  return out;
-}
-
-async function renderTokenValue(value, figmaType) {
-  // Async path used for primitives — alias lookup may need an extra fetch.
-  if (value && typeof value === 'object' && value.type === 'VARIABLE_ALIAS') {
-    const target = await figma.variables.getVariableByIdAsync(value.id);
-    if (!target) return null;
-    return `{${target.name.replace(/\//g, '.')}}`;
-  }
-  if (figmaType === 'COLOR') return rgbaToHex(value);
-  return value;
-}
-
-function renderTokenValueSync(value, figmaType, byId) {
-  // Semantic doc uses the cached map; targets are guaranteed loaded.
+function renderTokenValue(value, figmaType, byId, collectionByVarId) {
   if (value && typeof value === 'object' && value.type === 'VARIABLE_ALIAS') {
     const target = byId.get(value.id);
     if (!target) return null;
-    return `{${target.name.replace(/\//g, '.')}}`;
+    const targetCol = collectionByVarId.get(value.id);
+    const colPrefix = targetCol ? `${kebab(targetCol.name)}.` : '';
+    return `{${colPrefix}${target.name.replace(/\//g, '.')}}`;
   }
   if (figmaType === 'COLOR') return rgbaToHex(value);
   return value;
@@ -191,13 +149,33 @@ function setPath(obj, path, leaf) {
   cur[parts[parts.length - 1]] = leaf;
 }
 
-function buildUiHtml(files, stats) {
+function kebab(s) {
+  return String(s)
+    .normalize('NFKD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .toLowerCase();
+}
+
+function buildUiHtml(files, inventory) {
+  const inventoryRows = inventory
+    .map(
+      (i) =>
+        `<tr><td>${escapeHtml(i.collection)}</td><td>${escapeHtml(
+          i.modes.join(', '),
+        )}</td><td>${i.variableCount}</td></tr>`,
+    )
+    .join('');
+
   const sections = files
     .map(
       (f, i) => `
     <section>
       <header>
-        <h2>${f.name}</h2>
+        <h2>${escapeHtml(f.name)}</h2>
+        <div class="meta">${escapeHtml(f.collection)} · ${escapeHtml(f.mode)} · ${f.variableCount} vars</div>
         <div class="actions">
           <button data-copy="${i}">Copy</button>
           <button data-download="${i}">Download</button>
@@ -207,21 +185,33 @@ function buildUiHtml(files, stats) {
     </section>`,
     )
     .join('');
+
   const filesJson = JSON.stringify(files);
   return `<!doctype html><html><head><meta charset="utf-8"><style>
     body { font-family: 'Inter', system-ui, sans-serif; margin: 0; padding: 12px; background: #f5f5f5; color: #111; font-size: 12px; }
-    .stats { padding: 6px 10px; background: #fff; border: 1px solid #e5e5e5; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #525252; }
+    .inventory { background: #fff; border: 1px solid #e5e5e5; border-radius: 6px; margin-bottom: 12px; padding: 8px 12px; }
+    .inventory h3 { margin: 0 0 6px; font-size: 12px; font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #f0f0f0; }
+    th { color: #525252; font-weight: 500; }
     section { background: #fff; border: 1px solid #e5e5e5; border-radius: 6px; margin-bottom: 12px; overflow: hidden; }
-    header { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #fafafa; border-bottom: 1px solid #e5e5e5; }
-    header h2 { margin: 0; font-size: 13px; font-weight: 600; }
+    header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fafafa; border-bottom: 1px solid #e5e5e5; }
+    header h2 { margin: 0; font-size: 13px; font-weight: 600; flex: 0 0 auto; }
+    header .meta { flex: 1; font-size: 11px; color: #525252; }
     .actions { display: flex; gap: 6px; }
     button { font-family: inherit; font-size: 11px; border: 1px solid #d4d4d4; background: #fff; border-radius: 4px; padding: 4px 10px; cursor: pointer; }
     button:hover { background: #f0f0f0; }
-    pre { margin: 0; padding: 12px; max-height: 180px; overflow: auto; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 11px; line-height: 1.5; white-space: pre; }
+    pre { margin: 0; padding: 12px; max-height: 200px; overflow: auto; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 11px; line-height: 1.5; white-space: pre; }
     .footer { padding: 8px 0 0; text-align: right; }
     .close { background: #18181b; color: #fff; border-color: #18181b; }
   </style></head><body>
-    <div class="stats">${escapeHtml(stats)}</div>
+    <div class="inventory">
+      <h3>Discovered collections (${inventory.length})</h3>
+      <table>
+        <thead><tr><th>Collection</th><th>Modes</th><th>Variables</th></tr></thead>
+        <tbody>${inventoryRows}</tbody>
+      </table>
+    </div>
     ${sections}
     <div class="footer"><button class="close" id="close">Close</button></div>
     <script>
