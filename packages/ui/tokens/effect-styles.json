@@ -1,0 +1,472 @@
+{
+  "shadows": {
+    "shadow-xs": {
+      "value": {
+        "inset": false,
+        "x": 0,
+        "y": 1,
+        "blur": 2,
+        "spread": 0,
+        "color": "#0000000d"
+      },
+      "type": "shadow"
+    },
+    "shadow-xs-skeuomorphic": {
+      "value": [
+        {
+          "inset": false,
+          "x": 0,
+          "y": 1,
+          "blur": 2,
+          "spread": 0,
+          "color": "#0000000d"
+        },
+        {
+          "inset": true,
+          "x": 0,
+          "y": -2,
+          "blur": 0,
+          "spread": 0,
+          "color": "#0000000d"
+        },
+        {
+          "inset": true,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 1,
+          "color": "#0000002e"
+        }
+      ],
+      "type": "shadow"
+    },
+    "shadow-sm": {
+      "value": [
+        {
+          "inset": false,
+          "x": 0,
+          "y": 1,
+          "blur": 2,
+          "spread": -1,
+          "color": "#0000001a"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 1,
+          "blur": 3,
+          "spread": 0,
+          "color": "#0000001a"
+        }
+      ],
+      "type": "shadow"
+    },
+    "shadow-md": {
+      "value": [
+        {
+          "inset": false,
+          "x": 0,
+          "y": 2,
+          "blur": 4,
+          "spread": -2,
+          "color": "#0000000f"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 4,
+          "blur": 6,
+          "spread": -1,
+          "color": "#0000001a"
+        }
+      ],
+      "type": "shadow"
+    },
+    "shadow-lg": {
+      "value": [
+        {
+          "inset": false,
+          "x": 0,
+          "y": 2,
+          "blur": 2,
+          "spread": -1,
+          "color": "#0000000a"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 4,
+          "blur": 6,
+          "spread": -2,
+          "color": "#00000008"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 12,
+          "blur": 16,
+          "spread": -4,
+          "color": "#00000014"
+        }
+      ],
+      "type": "shadow"
+    },
+    "shadow-xl": {
+      "value": [
+        {
+          "inset": false,
+          "x": 0,
+          "y": 3,
+          "blur": 3,
+          "spread": -1.5,
+          "color": "#0000000a"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 8,
+          "blur": 8,
+          "spread": -4,
+          "color": "#00000008"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 20,
+          "blur": 24,
+          "spread": -4,
+          "color": "#00000014"
+        }
+      ],
+      "type": "shadow"
+    },
+    "shadow-2xl": {
+      "value": [
+        {
+          "inset": false,
+          "x": 0,
+          "y": 4,
+          "blur": 4,
+          "spread": -2,
+          "color": "#0000000a"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 24,
+          "blur": 48,
+          "spread": -12,
+          "color": "#0000002e"
+        }
+      ],
+      "type": "shadow"
+    },
+    "shadow-3xl": {
+      "value": [
+        {
+          "inset": false,
+          "x": 0,
+          "y": 5,
+          "blur": 5,
+          "spread": -2.5,
+          "color": "#0a0d120a"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 32,
+          "blur": 64,
+          "spread": -12,
+          "color": "#0a0d1224"
+        }
+      ],
+      "type": "shadow"
+    },
+    "portfolio-mockups": {
+      "shadow-main-centre-md": {
+        "value": {
+          "inset": false,
+          "x": 0,
+          "y": 75,
+          "blur": 150,
+          "spread": 0,
+          "color": "#00000024"
+        },
+        "type": "shadow"
+      },
+      "shadow-main-centre-lg": {
+        "value": {
+          "inset": false,
+          "x": 0,
+          "y": 100,
+          "blur": 200,
+          "spread": 0,
+          "color": "#0000002e"
+        },
+        "type": "shadow"
+      },
+      "shadow-overlay-right-lg": {
+        "value": {
+          "inset": false,
+          "x": -100,
+          "y": 100,
+          "blur": 150,
+          "spread": 0,
+          "color": "#0000001f"
+        },
+        "type": "shadow"
+      },
+      "shadow-overlay-left-lg": {
+        "value": {
+          "inset": false,
+          "x": 100,
+          "y": 100,
+          "blur": 150,
+          "spread": 0,
+          "color": "#0000001f"
+        },
+        "type": "shadow"
+      },
+      "shadow-grid-md": {
+        "value": {
+          "inset": false,
+          "x": 32,
+          "y": 32,
+          "blur": 64,
+          "spread": 0,
+          "color": "#00000014"
+        },
+        "type": "shadow"
+      }
+    }
+  },
+  "focus-rings": {
+    "focus-ring": {
+      "value": [
+        {
+          "inset": false,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 4,
+          "color": "#9e77ed"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 2,
+          "color": "#ffffff"
+        }
+      ],
+      "type": "shadow"
+    },
+    "focus-ring-shadow-xs": {
+      "value": [
+        {
+          "inset": false,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 4,
+          "color": "#9e77ed"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 2,
+          "color": "#ffffff"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 1,
+          "blur": 2,
+          "spread": 0,
+          "color": "#0000000d"
+        }
+      ],
+      "type": "shadow"
+    },
+    "focus-ring-shadow-xs-skeuomorphic": {
+      "value": [
+        {
+          "inset": false,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 4,
+          "color": "#9e77ed"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 2,
+          "color": "#ffffff"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 1,
+          "blur": 2,
+          "spread": 0,
+          "color": "#0000000d"
+        },
+        {
+          "inset": true,
+          "x": 0,
+          "y": -2,
+          "blur": 0,
+          "spread": 0,
+          "color": "#0000000d"
+        },
+        {
+          "inset": true,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 1,
+          "color": "#0000002e"
+        }
+      ],
+      "type": "shadow"
+    },
+    "focus-ring-shadow-sm": {
+      "value": [
+        {
+          "inset": false,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 4,
+          "color": "#9e77ed"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 2,
+          "color": "#ffffff"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 1,
+          "blur": 2,
+          "spread": 0,
+          "color": "#0000000f"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 1,
+          "blur": 3,
+          "spread": 0,
+          "color": "#0000001a"
+        }
+      ],
+      "type": "shadow"
+    },
+    "focus-ring-error": {
+      "value": [
+        {
+          "inset": false,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 4,
+          "color": "#ef4444"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 2,
+          "color": "#ffffff"
+        }
+      ],
+      "type": "shadow"
+    },
+    "focus-ring-error-shadow-xs": {
+      "value": [
+        {
+          "inset": false,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 4,
+          "color": "#ef4444"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 2,
+          "color": "#ffffff"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 1,
+          "blur": 2,
+          "spread": 0,
+          "color": "#0000000d"
+        }
+      ],
+      "type": "shadow"
+    },
+    "focus-ring-error-shadow-xs-skeuomorphic": {
+      "value": [
+        {
+          "inset": false,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 4,
+          "color": "#ef4444"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 2,
+          "color": "#ffffff"
+        },
+        {
+          "inset": false,
+          "x": 0,
+          "y": 1,
+          "blur": 2,
+          "spread": 0,
+          "color": "#0000000d"
+        },
+        {
+          "inset": true,
+          "x": 0,
+          "y": -2,
+          "blur": 0,
+          "spread": 0,
+          "color": "#0000000d"
+        },
+        {
+          "inset": true,
+          "x": 0,
+          "y": 0,
+          "blur": 0,
+          "spread": 1,
+          "color": "#0000002e"
+        }
+      ],
+      "type": "shadow"
+    }
+  }
+}
