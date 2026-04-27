@@ -6,6 +6,7 @@ export default defineMain({
   addons: [
     '@storybook/addon-a11y',
     '@storybook/addon-designs',
+    '@storybook/addon-themes',
     '@storybook/addon-vitest',
     'storybook-dark-mode',
     {
