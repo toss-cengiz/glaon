@@ -19,6 +19,14 @@ export default tseslint.config(
       '**/vite.config.ts',
       '**/.storybook/**',
       '**/storybook-static/**',
+      // Untitled UI kit source pulled via `npx untitledui add`. The kit
+      // ships pre-formatted but does not pass our strict rules; rather
+      // than fork files, we let `untitledui upgrade` overwrite them
+      // freely. Glaon's wrap layer (sibling files outside these globs)
+      // stays under the strict ruleset.
+      '**/src/components/base/**',
+      '**/src/utils/cx.ts',
+      '**/src/utils/is-react-component.ts',
     ],
   },
   js.configs.recommended,

@@ -1,0 +1,35 @@
+/* Glaon brand override — pipes F2's design tokens (`dist/tokens/web.css`)
+ * into UUI's `theme.css` semantic layer. Loaded after `theme.css` so the
+ * UUI defaults are replaced by Glaon brand values without forking the
+ * scaffold file.
+ *
+ * F2 emits `--brand-*`, `--neutral-*`, `--red-*`, `--base-*` in the
+ * Glaon palette; UUI's kit components reference `--color-brand-*`,
+ * `--color-neutral-*`, etc. from `theme.css`. The mapping below keeps the
+ * UUI semantic class names intact while pointing them at Glaon's hex
+ * scale, so kit primitives render in Glaon brand the moment `theme.css`
+ * is loaded.
+ *
+ * When F2 emits a `[data-theme='dark']` block (#140 follow-up), the
+ * `var(--brand-500)` values automatically swap and so do the UUI
+ * semantic colors. No code change needed here.
+ */
+
+@layer base {
+  :root {
+    /* Brand scale — Glaon deep-blue palette overrides UUI's default
+     * purple. Kit class names like `bg-brand-solid`, `outline-brand`,
+     * and `text-fg-brand-primary` resolve through these. */
+    --color-brand-50: var(--brand-50);
+    --color-brand-100: var(--brand-100);
+    --color-brand-200: var(--brand-200);
+    --color-brand-300: var(--brand-300);
+    --color-brand-400: var(--brand-400);
+    --color-brand-500: var(--brand-500);
+    --color-brand-600: var(--brand-600);
+    --color-brand-700: var(--brand-700);
+    --color-brand-800: var(--brand-800);
+    --color-brand-900: var(--brand-900);
+    --color-brand-950: var(--brand-950);
+  }
+}
