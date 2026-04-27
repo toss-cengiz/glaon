@@ -2,6 +2,16 @@
 // UUI kit source — pulled via `npx untitledui add`. Suppress
 // type-check so `untitledui upgrade` stays a clean replace operation.
 // Re-apply after every kit upgrade until UUI tightens types.
+//
+// GLAON PATCH (re-apply on upgrade): the upstream `MultiSelectRoot`
+// reads `selectedKeys` from its props to compute the trigger label
+// ("3 selected"). When the consumer doesn't pass a controlled
+// `selectedKeys` + `onSelectionChange` pair, the inner `<ListBox>`
+// still toggles its own internal selection — but the trigger's count
+// never updates because `selectedKeys` stays `undefined`. We fall back
+// to a `useState` pair when neither prop is set, so uncontrolled
+// usage works out of the box. Track upstream fix; once the kit fixes
+// this, drop the patch.
 "use client";
 
 import type { ReactNode, RefAttributes } from "react";
@@ -196,7 +206,25 @@ const MultiSelectRoot = ({
         setPopoverWidth(rect.width + "px");
     }, []);
 
-    const selectedCount = selectedKeys instanceof Set ? selectedKeys.size : selectedKeys === "all" ? (items?.length ?? 0) : 0;
+    // GLAON PATCH: fall back to internal state when neither
+    // `selectedKeys` nor `onSelectionChange` is provided so the
+    // trigger label updates on click in uncontrolled usage.
+    const isControlled = selectedKeys !== undefined;
+    const [internalKeys, setInternalKeys] = useState<Selection>(defaultSelectedKeys ?? new Set());
+    const effectiveSelectedKeys = isControlled ? selectedKeys : internalKeys;
+    const effectiveOnSelectionChange = isControlled
+        ? onSelectionChange
+        : (keys: Selection) => {
+              setInternalKeys(keys);
+              onSelectionChange?.(keys);
+          };
+
+    const selectedCount =
+        effectiveSelectedKeys instanceof Set
+            ? effectiveSelectedKeys.size
+            : effectiveSelectedKeys === "all"
+              ? (items?.length ?? 0)
+              : 0;
     const hasSelection = selectedCount > 0;
 
     const handleClearSearch = useCallback(() => {
@@ -289,9 +317,11 @@ const MultiSelectRoot = ({
                                     aria-label={label || "Options"}
                                     items={items}
                                     selectionMode="multiple"
-                                    selectedKeys={selectedKeys}
-                                    defaultSelectedKeys={defaultSelectedKeys}
-                                    onSelectionChange={onSelectionChange}
+                                    // GLAON PATCH: use the effective state so the ListBox
+                                    // is fully controlled by the kit's internal fallback
+                                    // when no external state is supplied.
+                                    selectedKeys={effectiveSelectedKeys}
+                                    onSelectionChange={effectiveOnSelectionChange}
                                     renderEmptyState={() => (
                                         <MultiSelectEmptyState
                                             title={emptyStateTitle}
