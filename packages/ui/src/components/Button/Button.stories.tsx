@@ -117,13 +117,7 @@ export const LoadingWithText: Story = {
 };
 
 export const WithLeadingIcon: Story = {
-  args: {
-    iconLeading: 'search',
-    children: 'Add item',
-    iconTrailing: 'upload',
-    routerOptions: {},
-    slot: {},
-  },
+  args: { iconLeading: storybookIcons.plus, children: 'Add item' },
 };
 
 export const WithTrailingIcon: Story = {
