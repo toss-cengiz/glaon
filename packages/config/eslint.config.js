@@ -27,6 +27,7 @@ export default tseslint.config(
       '**/src/components/base/**',
       '**/src/components/application/**',
       '**/src/components/foundations/**',
+      '**/src/components/shared-assets/**',
       '**/src/utils/cx.ts',
       '**/src/utils/is-react-component.ts',
     ],

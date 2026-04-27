@@ -50,7 +50,11 @@
     "packages/ui": {
       "entry": ["src/**/*.stories.@(ts|tsx)"],
       "project": ["src/**/*.{ts,tsx}", ".storybook/**/*.{ts,tsx}"],
-      "ignore": ["src/components/base/**", "src/utils/is-react-component.ts"],
+      "ignore": [
+        "src/components/base/**",
+        "src/components/shared-assets/**",
+        "src/utils/is-react-component.ts"
+      ],
       "ignoreDependencies": [
         "@glaon/config",
         "tailwindcss",
