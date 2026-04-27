@@ -1,63 +1,14 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+// Glaon Button — thin wrap around the Untitled UI kit `Button` source under
+// `packages/ui/src/components/base/buttons/button.tsx`. Per CLAUDE.md's UUI
+// Source Rule, the structural HTML/CSS + variant matrix come from the kit;
+// Glaon's contribution is the wrap layer (token override via theme.css +
+// `glaon-overrides.css`, prop API consistency, Figma `parameters.design`
+// mapping in the story).
+//
+// We re-export the kit primitive verbatim so its full prop surface (`size`,
+// `color`, `iconLeading`, `iconTrailing`, `isDisabled`, `isLoading`,
+// `showTextWhileLoading`, `noTextPadding`, link variants via `href`) is
+// exposed to consumers as `Button` from `@glaon/ui`.
 
-export type ButtonVariant = 'primary' | 'secondary';
-export type ButtonSize = 'sm' | 'md' | 'lg';
-
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  children: ReactNode;
-}
-
-const baseStyle: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  border: '1px solid transparent',
-  borderRadius: 6,
-  fontWeight: 600,
-  cursor: 'pointer',
-  transition: 'background-color 120ms ease, border-color 120ms ease',
-};
-
-const variantStyle: Record<ButtonVariant, React.CSSProperties> = {
-  primary: {
-    backgroundColor: '#2563eb',
-    color: '#ffffff',
-  },
-  secondary: {
-    backgroundColor: '#ffffff',
-    color: '#111827',
-    borderColor: '#d1d5db',
-  },
-};
-
-const sizeStyle: Record<ButtonSize, React.CSSProperties> = {
-  sm: { padding: '4px 10px', fontSize: 13 },
-  md: { padding: '8px 14px', fontSize: 14 },
-  lg: { padding: '12px 20px', fontSize: 16 },
-};
-
-export function Button({
-  variant = 'primary',
-  size = 'md',
-  disabled,
-  style,
-  children,
-  ...rest
-}: ButtonProps) {
-  const composedStyle: React.CSSProperties = {
-    ...baseStyle,
-    ...variantStyle[variant],
-    ...sizeStyle[size],
-    opacity: disabled === true ? 0.5 : 1,
-    cursor: disabled === true ? 'not-allowed' : 'pointer',
-    ...style,
-  };
-
-  return (
-    <button type="button" disabled={disabled} style={composedStyle} {...rest}>
-      {children}
-    </button>
-  );
-}
+export { Button } from '../base/buttons/button';
+export type { ButtonProps } from '../base/buttons/button';

@@ -48,12 +48,11 @@
       "ignoreDependencies": ["@glaon/config"]
     },
     "packages/ui": {
-      "entry": ["src/**/*.stories.@(ts|tsx)", "src/**/*.test.{ts,tsx}"],
+      "entry": ["src/**/*.stories.@(ts|tsx)"],
       "project": ["src/**/*.{ts,tsx}", ".storybook/**/*.{ts,tsx}"],
+      "ignore": ["src/components/base/**", "src/utils/is-react-component.ts"],
       "ignoreDependencies": [
         "@glaon/config",
-        "react-aria-components",
-        "tailwind-merge",
         "tailwindcss",
         "@tailwindcss/typography",
         "tailwindcss-animate",
