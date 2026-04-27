@@ -263,6 +263,9 @@ importers:
       chromatic:
         specifier: ^16.3.0
         version: 16.3.0
+      glob:
+        specifier: ^13.0.6
+        version: 13.0.6
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1
@@ -272,6 +275,9 @@ importers:
       react:
         specifier: ^19.2.5
         version: 19.2.5
+      react-docgen-typescript:
+        specifier: ^2.4.0
+        version: 2.4.0(typescript@5.7.3)
       react-dom:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)

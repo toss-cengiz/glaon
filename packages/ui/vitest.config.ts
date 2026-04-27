@@ -13,6 +13,12 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(dirname, './src'),
+      // F6 prop-coverage test imports both web and RN stories; rerouting
+      // `react-native` → `react-native-web` lets the jsdom unit project
+      // load `PressableButton.stories.tsx` without choking on RN's Flow
+      // entry (`node_modules/react-native/index.js` ships unparsed Flow
+      // syntax that Vitest's transformer can't handle).
+      'react-native': 'react-native-web',
     },
   },
   test: {

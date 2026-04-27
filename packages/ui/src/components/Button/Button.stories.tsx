@@ -89,6 +89,18 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// Props on the kit Button that are reachable through type-checking but
+// have no useful Storybook control surface. The F6 prop-coverage gate
+// (`src/__tests__/prop-coverage.test.ts`) reads this list to satisfy
+// the "every prop covered" rule without polluting the controls panel.
+export const excludeFromArgs = [
+  // react-aria-components slot binding; only meaningful in `slots`-aware
+  // composites, not as a Storybook knob.
+  'slot',
+  // Forwarded only when the link variant (`href`) is used; not a knob.
+  'routerOptions',
+];
+
 export const Primary: Story = {
   args: {
     color: 'tertiary',
