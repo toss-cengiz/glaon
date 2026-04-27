@@ -2,6 +2,13 @@
 // UUI kit source — pulled via `npx untitledui add progress-indicators`.
 // Suppress type-check so `untitledui upgrade` stays a clean replace
 // operation. Re-apply after every kit upgrade until UUI tightens types.
+//
+// GLAON PATCH (re-apply on upgrade): the upstream `ProgressBarBase`
+// renders `role="progressbar"` without forwarding `aria-label` /
+// `aria-labelledby`, so axe `aria-progressbar-name` fires on every
+// instance. We add two optional props and forward them to the host
+// `<div>`. Track upstream fix; once the kit ships native a11y label
+// support, drop this patch.
 "use client";
 
 import { cx } from "@/utils/cx";
@@ -34,12 +41,30 @@ export interface ProgressBarProps {
      * It receives the raw value and the calculated percentage.
      */
     valueFormatter?: (value: number, valueInPercentage: number) => string | number;
+    /**
+     * GLAON PATCH: Accessible name for the progressbar element. Required by
+     * axe `aria-progressbar-name` whenever no `aria-labelledby` is set.
+     */
+    "aria-label"?: string;
+    /**
+     * GLAON PATCH: ID(s) of the element(s) labelling the progressbar.
+     * Alternative to `aria-label`.
+     */
+    "aria-labelledby"?: string;
 }
 
 /**
  * A basic progress bar component.
  */
-export const ProgressBarBase = ({ value, min = 0, max = 100, className, progressClassName }: ProgressBarProps) => {
+export const ProgressBarBase = ({
+    value,
+    min = 0,
+    max = 100,
+    className,
+    progressClassName,
+    "aria-label": ariaLabel,
+    "aria-labelledby": ariaLabelledBy,
+}: ProgressBarProps) => {
     const percentage = ((value - min) * 100) / (max - min);
 
     return (
@@ -48,6 +73,8 @@ export const ProgressBarBase = ({ value, min = 0, max = 100, className, progress
             aria-valuenow={value}
             aria-valuemin={min}
             aria-valuemax={max}
+            aria-label={ariaLabel}
+            aria-labelledby={ariaLabelledBy}
             className={cx("h-2 w-full overflow-hidden rounded-md bg-quaternary", className)}
         >
             <div
@@ -75,11 +102,31 @@ export interface ProgressIndicatorWithTextProps extends ProgressBarProps {
 /**
  * A progress bar component that displays the value text in various configurable layouts.
  */
-export const ProgressBar = ({ value, min = 0, max = 100, valueFormatter, labelPosition, className, progressClassName }: ProgressIndicatorWithTextProps) => {
+export const ProgressBar = ({
+    value,
+    min = 0,
+    max = 100,
+    valueFormatter,
+    labelPosition,
+    className,
+    progressClassName,
+    "aria-label": ariaLabel,
+    "aria-labelledby": ariaLabelledBy,
+}: ProgressIndicatorWithTextProps) => {
     const percentage = ((value - min) * 100) / (max - min);
     const formattedValue = valueFormatter ? valueFormatter(value, percentage) : `${percentage.toFixed(0)}%`; // Default to rounded percentage
 
-    const baseProgressBar = <ProgressBarBase min={min} max={max} value={value} className={className} progressClassName={progressClassName} />;
+    const baseProgressBar = (
+        <ProgressBarBase
+            min={min}
+            max={max}
+            value={value}
+            className={className}
+            progressClassName={progressClassName}
+            aria-label={ariaLabel}
+            aria-labelledby={ariaLabelledBy}
+        />
+    );
 
     switch (labelPosition) {
         case "right":

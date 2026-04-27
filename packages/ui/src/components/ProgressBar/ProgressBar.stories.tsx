@@ -21,6 +21,11 @@ const meta: Meta<typeof ProgressBar> = {
     min: 0,
     max: 100,
     labelPosition: 'right',
+    // Default accessible name. axe `aria-progressbar-name` requires every
+    // `role="progressbar"` element to expose a name; the kit doesn't
+    // imply one from sibling label text. Stories override per-context
+    // when a more specific label fits.
+    'aria-label': 'Progress',
   },
   argTypes: {
     value: { control: { type: 'number', min: 0, max: 100, step: 1 } },
@@ -33,6 +38,8 @@ const meta: Meta<typeof ProgressBar> = {
     valueFormatter: { control: false, action: 'format' },
     className: { control: false, table: { disable: true } },
     progressClassName: { control: false, table: { disable: true } },
+    'aria-label': { control: 'text' },
+    'aria-labelledby': { control: 'text' },
   },
   decorators: [
     (Story) => (
