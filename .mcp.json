@@ -10,6 +10,10 @@
     "figma": {
       "type": "http",
       "url": "https://mcp.figma.com/mcp"
+    },
+    "untitledui": {
+      "type": "http",
+      "url": "https://www.untitledui.com/react/api/mcp"
     }
   }
 }
