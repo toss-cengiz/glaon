@@ -90,6 +90,13 @@ export interface SideNavFooterProps {
 
 const CollapsedContext = createContext(false);
 
+// Marks the descendant tree as being inside a `<ul>` (set by
+// `SideNav.Group`). `SideNav.Item` reads it to decide whether to
+// render a `<li>` wrapper — wrapping is required for `listitem`
+// semantics inside `<ul>`, but a bare `<li>` outside a list trips
+// axe `listitem` rule. Footer leaves this context as `false`.
+const InListContext = createContext(false);
+
 function joinClasses(...parts: (string | undefined | false)[]): string {
   return parts.filter((p): p is string => Boolean(p)).join(' ');
 }
@@ -126,13 +133,17 @@ function SideNavGroup({ label, className, children }: SideNavGroupProps) {
           {label}
         </p>
       ) : null}
-      <ul className="flex flex-col gap-px">{children}</ul>
+      <InListContext.Provider value>
+        <ul className="flex flex-col gap-px">{children}</ul>
+      </InListContext.Provider>
     </div>
   );
 }
 
 function SideNavItem({ label, href, icon, badge, current, onClick }: SideNavItemProps) {
   const collapsed = useContext(CollapsedContext);
+  const inList = useContext(InListContext);
+
   // `NavItemBase` declares its optional props without `| undefined`,
   // so under `exactOptionalPropertyTypes` we have to omit-not-pass-
   // undefined for each one we don't have. Spread only what's defined.
@@ -140,32 +151,38 @@ function SideNavItem({ label, href, icon, badge, current, onClick }: SideNavItem
   // our wider `IconComponent` (`FC<any>`) is assignment-safe at
   // runtime — cast at the boundary rather than tightening every
   // story's icon prop.
-  return (
-    // `list-none` keeps the marker bullet from showing when an Item
-    // is rendered outside a styled list (e.g. inside `SideNav.Footer`,
-    // which is a `<div>` because the slot also supports non-item
-    // content like the user-card in WithFooterUserSection). Inside
-    // `SideNav.Group`'s `<ul>` the suppression is redundant but
-    // harmless.
-    <li className="list-none py-px">
-      <NavItemBase
-        type="link"
-        truncate={!collapsed}
-        {...(href !== undefined ? { href } : {})}
-        {...(icon !== undefined
-          ? {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- IconComponent → kit's narrower FC<HTMLAttributes>; safe at runtime
-              icon: icon as FC<any>,
-            }
-          : {})}
-        {...(current !== undefined ? { current } : {})}
-        {...(onClick !== undefined ? { onClick } : {})}
-        {...(!collapsed && badge !== undefined ? { badge } : {})}
-      >
-        {collapsed ? null : label}
-      </NavItemBase>
-    </li>
+  //
+  // In collapsed mode the visible label is hidden so the icon stands
+  // alone; render the label as `sr-only` text so screen readers and
+  // axe `link-name` still see an accessible name on the `<a>`.
+  const itemNode = (
+    <NavItemBase
+      type="link"
+      truncate={!collapsed}
+      {...(href !== undefined ? { href } : {})}
+      {...(icon !== undefined
+        ? {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- IconComponent → kit's narrower FC<HTMLAttributes>; safe at runtime
+            icon: icon as FC<any>,
+          }
+        : {})}
+      {...(current !== undefined ? { current } : {})}
+      {...(onClick !== undefined ? { onClick } : {})}
+      {...(!collapsed && badge !== undefined ? { badge } : {})}
+    >
+      {collapsed ? <span className="sr-only">{label}</span> : label}
+    </NavItemBase>
   );
+
+  // Inside `SideNav.Group`'s `<ul>` the item must be wrapped in
+  // `<li>` for `listitem` semantics. Outside a list (e.g. directly
+  // under `SideNav.Footer`'s `<div>`), wrapping in `<li>` would trip
+  // axe `listitem` ("must be in `<ul>` / `<ol>`") and render a
+  // browser-default bullet marker. Skip the wrapper in that case.
+  if (inList) {
+    return <li className="py-px">{itemNode}</li>;
+  }
+  return <div className="py-px">{itemNode}</div>;
 }
 
 function SideNavFooter({ className, children }: SideNavFooterProps) {
