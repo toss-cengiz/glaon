@@ -29,6 +29,7 @@ export default tseslint.config(
       '**/src/components/foundations/**',
       '**/src/components/shared-assets/**',
       '**/src/components/marketing/**',
+      '**/src/hooks/**',
       '**/src/utils/cx.ts',
       '**/src/utils/is-react-component.ts',
     ],

@@ -205,12 +205,21 @@ importers:
 
   packages/ui:
     dependencies:
+      '@react-types/shared':
+        specifier: ^3.34.0
+        version: 3.34.0(react@19.2.5)
       '@untitledui/icons':
         specifier: ^0.0.22
         version: 0.0.22(react@19.2.5)
+      react-aria:
+        specifier: ^3.48.0
+        version: 3.48.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       react-aria-components:
         specifier: ^1.17.0
         version: 1.17.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      react-stately:
+        specifier: ^3.46.0
+        version: 3.46.0(react@19.2.5)
     devDependencies:
       '@glaon/config':
         specifier: workspace:*
