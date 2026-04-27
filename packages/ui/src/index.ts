@@ -11,6 +11,7 @@ export * from './components/Button';
 export * from './components/Card';
 export * from './components/Checkbox';
 export * from './components/Input';
+export * from './components/Popover';
 export * from './components/PressableButton';
 export * from './components/ProgressBar';
 export * from './components/Radio';
