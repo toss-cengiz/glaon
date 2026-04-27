@@ -105,6 +105,15 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - Figma component descriptions carry the Storybook component ID in the form `storybook-id: <kebab-case>`. This is the contract that Chromatic's Figma plugin (#53) relies on; don't change the format without coordinating that integration.
 - Setup and workflow details: [docs/figma.md](docs/figma.md). Design System bootstrap spec: [docs/design-system-bootstrap.md](docs/design-system-bootstrap.md).
 
+## UUI Source Rule (MANDATORY)
+
+- Every base primitive in `@glaon/ui` (web side) **must wrap an Untitled UI source pulled via `npx untitledui add`**. Hand-rolling a primitive's structural HTML/CSS or rolling your own variant matrix from scratch is forbidden — Glaon's contribution is the wrap layer (token override, `<ThemeProvider>` integration, prop API consistency, Figma `parameters.design` mapping), not the kit's source itself.
+- Workflow: `npx untitledui add <component-name> --yes` to fetch the kit source into `packages/ui/src/components/...`, then write `<Name>.tsx` (Glaon wrap) that imports the kit Button/Input/etc. and re-exports under the Glaon prop contract. Token overrides land in `packages/ui/src/styles/` (UUI `theme.css` + Glaon F2 brand override layer), never inside individual component files.
+- Exceptions:
+  - **RN-side primitives** (e.g. `PressableButton`) when no UUI source ships for React Native — hand-roll is allowed but must mirror the web wrap's prop contract and consume tokens through `useTheme()`.
+  - **Application primitives** (Phase 2: `AppShell`, `DataTable`, `FormField`, …) compose multiple base primitives and may add orchestration logic. Their structural pieces still come from UUI when available.
+- Setup decisions: [ADR 0011](docs/adr/0011-untitled-ui-react-kit.md), [ADR 0013](docs/adr/0013-tailwind-v4-uui-theme.md). Per-developer + CI runbook: [packages/ui/README.md](packages/ui/README.md).
+
 ## Storybook Rule (MANDATORY)
 
 - Every new UI component (web or mobile) ships in the same PR with at least one Storybook story. No story, no merge.

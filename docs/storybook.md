@@ -73,16 +73,28 @@ pnpm --filter @glaon/ui exec vitest --project=storybook src/components/Button/Bu
 
 ## Story yazım kuralları
 
+### Yeni primitive nereden başlar
+
+Web tarafındaki her base primitive **Untitled UI source'undan başlar** — bkz. [CLAUDE.md "UUI Source Rule"](../CLAUDE.md#uui-source-rule-mandatory). Akış:
+
+1. `npx untitledui add <component> --yes` → kit source `packages/ui/src/components/...` altına yazılır.
+2. Glaon wrap'i (`<Name>.tsx`) kit primitive'ini import edip Glaon prop kontratı + `<ThemeProvider>` entegrasyonuyla yeniden export eder.
+3. Story dosyası kit'in expose ettiği tam variant matrix'i kullanır + `parameters.design` Figma URL'ini set eder.
+
+Hand-rolled primitive (sıfırdan elle yazma) yasak. RN-side primitive'leri için (`PressableButton` benzeri) UUI yoksa hand-roll yapılır; web wrap'inin prop kontratını yansıtmak zorunda.
+
 ### Dosya yerleşimi
 
 Her component kendi klasöründe ve story'siyle birlikte tutulur:
 
 ```
 packages/ui/src/components/Button/
-├── Button.tsx            # component
+├── Button.tsx            # Glaon wrap (kit'i import eder)
 ├── Button.stories.tsx    # story (zorunlu)
 └── index.ts              # barrel export
 ```
+
+Kit source dosyaları CLI'ın kendi default path'inde (`packages/ui/src/components/base/...`) yaşar — `untitledui upgrade` doğrudan oraya yazar; Glaon wrap onları import eder.
 
 ### CSF 3.0 format
 
