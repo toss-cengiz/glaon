@@ -64,6 +64,7 @@ Brand Guideline Cover sayfasında da aynı paragraf release süresince güncel t
 
 ## Untitled UI Remote MCP
 
+
 Yayıncının resmi Remote MCP server'ı (`https://www.untitledui.com/react/api/mcp`) Claude Code session'larına component metadata + search exposure sunar — primitive ekleme öncesi spec'e bakmak, prop kombinasyonu doğrulamak, varyant inceleme. Repo-scoped `.mcp.json`'da `untitledui` server'ı tanımlı; auth tarafı per-developer.
 
 Yeni geliştirici:

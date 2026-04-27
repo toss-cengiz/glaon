@@ -13,7 +13,10 @@
     },
     "untitledui": {
       "type": "http",
-      "url": "https://www.untitledui.com/react/api/mcp"
+      "url": "https://www.untitledui.com/react/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${UNTITLED_TOKEN}"
+      }
     }
   }
 }
