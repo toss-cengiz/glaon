@@ -53,6 +53,7 @@
       "ignore": [
         "src/components/base/**",
         "src/components/shared-assets/**",
+        "src/components/marketing/**",
         "src/utils/is-react-component.ts"
       ],
       "ignoreDependencies": [
