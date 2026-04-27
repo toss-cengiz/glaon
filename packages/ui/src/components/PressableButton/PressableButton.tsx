@@ -25,8 +25,6 @@ import {
   type ButtonSize,
 } from '../Button/Button.types';
 
-export type { ButtonIntent, ButtonSize, ButtonBaseProps } from '../Button/Button.types';
-
 export interface PressableButtonProps
   extends ButtonBaseProps, Omit<PressableProps, 'children' | 'style' | 'disabled'> {}
 
@@ -34,7 +32,7 @@ interface PaintTokens {
   base: { white: string };
   neutral: { '300': string; '900': string };
   brand: { '500': string };
-  red: { '500': string };
+  red: { '700': string };
 }
 
 interface IntentSurface {
@@ -65,8 +63,8 @@ function intentSurfaceFor(intent: ButtonIntent, tokens: PaintTokens): IntentSurf
       };
     case 'destructive':
       return {
-        background: tokens.red['500'],
-        border: tokens.red['500'],
+        background: tokens.red['700'],
+        border: tokens.red['700'],
         label: tokens.base.white,
       };
   }
@@ -120,7 +118,11 @@ export function PressableButton({
       {...rest}
     >
       {loading ? (
-        <ActivityIndicator size={sizing.spinner} color={surface.label} />
+        <ActivityIndicator
+          size={sizing.spinner}
+          color={surface.label}
+          accessibilityLabel="Loading"
+        />
       ) : leadingIcon !== undefined ? (
         <View accessibilityElementsHidden style={styles.icon}>
           {leadingIcon}

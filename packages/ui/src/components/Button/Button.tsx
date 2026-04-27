@@ -14,8 +14,6 @@ import type { ButtonHTMLAttributes, CSSProperties, MouseEvent } from 'react';
 
 import { DEFAULT_BUTTON_INTENT, DEFAULT_BUTTON_SIZE, type ButtonBaseProps } from './Button.types';
 
-export type { ButtonIntent, ButtonSize, ButtonBaseProps } from './Button.types';
-
 export interface ButtonProps
   extends ButtonBaseProps, Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'disabled'> {}
 
@@ -49,9 +47,9 @@ const intentStyle: Record<NonNullable<ButtonBaseProps['intent']>, CSSProperties>
     borderColor: 'transparent',
   },
   destructive: {
-    backgroundColor: 'var(--red-500)',
+    backgroundColor: 'var(--red-700)',
     color: 'var(--base-white)',
-    borderColor: 'var(--red-500)',
+    borderColor: 'var(--red-700)',
   },
 };
 
