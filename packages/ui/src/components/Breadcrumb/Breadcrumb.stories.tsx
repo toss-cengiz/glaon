@@ -143,16 +143,7 @@ export const SingleLevel: Story = {
   ),
 };
 
-export const Variants: Story = {
-  render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      {(['text', 'text-line', 'button'] as const).map((type) => (
-        <Breadcrumb key={type} type={type}>
-          <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
-          <Breadcrumb.Item href="/projects">Projects</Breadcrumb.Item>
-          <Breadcrumb.Item>{`type: ${type}`}</Breadcrumb.Item>
-        </Breadcrumb>
-      ))}
-    </div>
-  ),
-};
+// (No `Variants` gallery story — rendering three `<Breadcrumb>` side
+// by side puts three `<nav aria-label="Breadcrumbs">` landmarks on
+// the same page, which trips axe `landmark-unique`. Variants are
+// already covered individually by Default / TextLine / Button.)
