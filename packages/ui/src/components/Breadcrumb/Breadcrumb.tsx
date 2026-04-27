@@ -15,16 +15,24 @@
 // namespace exposes `Breadcrumb.Item` / `Breadcrumb.AccountItem` for
 // inline composition (Radix-style consumers expect this shape).
 
-import {
-  BreadcrumbAccountItem,
-  type BreadcrumbAccountItemData,
-} from '../application/breadcrumbs/breadcrumb-account-item';
-import { BreadcrumbItem } from '../application/breadcrumbs/breadcrumb-item';
+// Import order matters here: the kit's `breadcrumbs.tsx` and
+// `breadcrumb-account-item.tsx` form a circular dependency
+// (`breadcrumbs.tsx` imports `BreadcrumbAccountItem`; the
+// account-item file imports `BreadcrumbsContext` back). Hoisting the
+// `breadcrumbs.tsx` import first lets the runtime initialize the
+// context before the account-item module evaluates, avoiding a TDZ
+// `Cannot access 'BreadcrumbAccountItem' before initialization`
+// error in the storybook test runtime.
 import {
   Breadcrumbs as KitBreadcrumbs,
   BreadcrumbsContext,
   type BreadcrumbType,
 } from '../application/breadcrumbs/breadcrumbs';
+import {
+  BreadcrumbAccountItem,
+  type BreadcrumbAccountItemData,
+} from '../application/breadcrumbs/breadcrumb-account-item';
+import { BreadcrumbItem } from '../application/breadcrumbs/breadcrumb-item';
 
 // Direct re-exports for kit-aligned consumers.
 export {

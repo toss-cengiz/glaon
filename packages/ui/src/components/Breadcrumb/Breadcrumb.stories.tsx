@@ -31,14 +31,6 @@ const meta: Meta<typeof Breadcrumb> = {
     maxVisibleItems: { control: { type: 'number', min: 2, max: 10, step: 1 } },
     children: { control: false, table: { disable: true } },
     className: { control: false, table: { disable: true } },
-    // BreadcrumbItem-only props surfaced on the Breadcrumb namespace
-    // through the static-property pattern; consumers set these on
-    // `<Breadcrumb.Item …>`, not the root.
-    href: { control: false, table: { disable: true } },
-    icon: { control: false, table: { disable: true } },
-    isEllipsis: { control: false, table: { disable: true } },
-    avatarSrc: { control: false, table: { disable: true } },
-    onClick: { control: false, table: { disable: true } },
   },
   decorators: [
     (Story) => (
@@ -51,6 +43,26 @@ const meta: Meta<typeof Breadcrumb> = {
 
 export default meta;
 type Story = StoryObj<typeof Breadcrumb>;
+
+// `react-docgen-typescript` walks the static-property namespace
+// (`Breadcrumb.Item`, `Breadcrumb.AccountItem`) and surfaces those
+// sub-components' props on the merged root signature. Storybook's
+// `ArgTypes<BreadcrumbsProps>` type only allows root props, so we
+// can't add these to `argTypes`; surface them through the F6
+// `excludeFromArgs` allowlist instead — consumers set them on
+// `<Breadcrumb.Item …>`, not the root.
+export const excludeFromArgs = [
+  // BreadcrumbItem-only props.
+  'href',
+  'icon',
+  'isEllipsis',
+  'avatarSrc',
+  'onClick',
+  // BreadcrumbAccountItem-only props.
+  'items',
+  'selectedKey',
+  'onSelectionChange',
+];
 
 export const Default: Story = {
   render: (args) => (
