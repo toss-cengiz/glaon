@@ -30,6 +30,11 @@ android/
 .env.*
 !.env.example
 
+# Per-developer npm registry auth (GitHub Packages PAT) — token never commits.
+# Repo-scoped `.npmrc` (registry mapping only, no token) IS committed when needed.
+.npmrc
+!.npmrc.example
+
 # Claude Code local overrides (per-developer)
 .claude/settings.local.json
 
