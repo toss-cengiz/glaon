@@ -44,5 +44,10 @@ jobs:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           workingDir: packages/ui
           onlyChanged: true
-          exitZeroOnChanges: false
+          # Pull requests treat Chromatic as a signal — diffs publish to the
+          # Chromatic UI for review but don't block merge. Pushes to the
+          # base branches (`development`, `main`) keep the strict gate so
+          # nothing slips into the baseline without an opportunity to fail.
+          # See CLAUDE.md "Chromatic Visual Regression" for the full policy.
+          exitZeroOnChanges: ${{ github.event_name == 'pull_request' }}
           autoAcceptChanges: development

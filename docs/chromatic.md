@@ -1,6 +1,6 @@
 # Chromatic
 
-Chromatic, Glaon Storybook'unun görsel regresyon altyapısıdır. Her PR'da zorunlu check olarak çalışır, beklenmeyen piksel farkı olduğunda merge'i engeller. Ayrıca remote MCP endpoint sağlar — AI agent'lar takımın Chromatic'teki component kataloguna uzaktan erişebilir.
+Chromatic, Glaon Storybook'unun görsel regresyon altyapısıdır. Her PR'da zorunlu check olarak çalışır; PR'larda **signal**, `development`/`main` push'larında **strict** policy uygular. Ayrıca remote MCP endpoint sağlar — AI agent'lar takımın Chromatic'teki component kataloguna uzaktan erişebilir.
 
 ## Nasıl çalışır?
 
@@ -10,8 +10,9 @@ Chromatic, Glaon Storybook'unun görsel regresyon altyapısıdır. Her PR'da zor
    - Storybook'u build eder (`packages/ui` altında).
    - Snapshot'ları Chromatic'e upload eder.
    - Baseline ile diff alır.
-   - Piksel farkı varsa check **kırılır** (`exitZeroOnChanges: false`) → PR merge edilemez.
-   - `development` branch'te (baseline branch) otomatik accept: `autoAcceptChanges: development`.
+   - **PR event'inde** `exitZeroOnChanges: true` → check yeşil kalır, diff'ler Chromatic UI'da review için yayınlanır, PR merge engellenmez.
+   - **Push event'inde (`development`, `main`)** `exitZeroOnChanges: false` → kabul edilmemiş diff varsa check **kırılır**, push reverse edilir veya Chromatic UI'da accept gerekir.
+   - `development` branch'te `autoAcceptChanges: development` ile diff'ler otomatik baseline'a alınır; bu sayede strict gate yalnızca `development → main` release flow'unda gerçek anlamda bloklayıcı olur.
 4. Development server çalışırken Chromatic MCP endpoint'i `http://localhost:6006/mcp` (lokal, dev + docs tools). Uzak Chromatic MCP ise Chromatic cloud'da host edilir; agent bağlandığında sadece docs tools'a erişir.
 
 ## İlk kurulum (kullanıcı aksiyonları)
@@ -49,12 +50,14 @@ Chromatic, Glaon Storybook'unun görsel regresyon altyapısıdır. Her PR'da zor
 
 1. PR açılır. Chromatic workflow çalışır.
 2. **Hiç görsel değişiklik yok** → check yeşil ✅, merge serbest.
-3. **Kasıtsız görsel değişiklik** (regresyon) → check kırmızı ❌. Kodda düzelt, tekrar push.
-4. **Kasıtlı görsel değişiklik** → check kırmızı. Chromatic UI'da build'i aç → "Review changes" → piksel diff'lerine bak → "Accept" → check yeşile döner. Merge serbest.
+3. **Görsel değişiklik var (kasıtlı veya kasıtsız)** → check yeşil ✅ (PR'larda signal-only) ama Chromatic UI'da diff bekliyor. Reviewer Chromatic build'ini açar:
+   - Kasıtlı değişiklik → "Accept" → diff baseline'a yazılır.
+   - Kasıtsız regresyon → kodda düzelt, tekrar push.
+   - PR mergeable kalır (CI block yok), ama unaccepted diff'ler `development`'a aktığında oradaki strict check kırılır → reviewer Chromatic link'ini ihmal etmemeli.
 
-### Neden `exitZeroOnChanges: false`?
+### `exitZeroOnChanges` neden conditional?
 
-Default opsiyonu seçersek (change'ler exit 0 ile geçer), reviewer'lar görsel değişikliği kaçırabilir. Mandatory check olarak tutmak = her görsel değişikliğin insan gözünden geçmesini garantiler. Glaon CLAUDE.md'nin "Chromatic Visual Regression (MANDATORY)" kuralı bu kararı somutlaştırır.
+PR'larda strict tutum (`exitZeroOnChanges: false`) her ufak intentional değişiklikte reviewer'ı Chromatic UI'a göndermek + merge'i bloklamak demekti. Phase 1 boyunca bu pattern Glaon'un asıl iş hızını yavaşlattı (her primitive PR'ında manuel accept turu). Pull request'lerde signal-only (`exitZeroOnChanges: true`) reviewer'a Chromatic'i tarama özgürlüğü verir, `development`/`main` push'larında strict tutum kalan koruma katmanı olarak iş görür. Glaon CLAUDE.md'nin "Chromatic Visual Regression (MANDATORY)" kuralı bu split policy'yi açıkça yazar.
 
 ### `onlyChanged: true` (TurboSnap)
 
