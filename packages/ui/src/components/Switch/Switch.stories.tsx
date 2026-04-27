@@ -16,12 +16,18 @@ const meta: Meta<typeof Switch> = {
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-switch',
     },
   },
+  // RAC `<Switch>` switches into controlled mode the moment `isSelected`
+  // is present in the props (even when `false`). With Storybook's args
+  // panel passing that default but no matching `onChange` handler, the
+  // user can't toggle the switch at all. Keep `isSelected` in
+  // `argTypes` (so the controls panel still surfaces it as a boolean
+  // knob), but leave it out of `args` so RAC manages selection state
+  // internally.
   args: {
     label: 'Enable notifications',
     size: 'sm',
     slim: false,
     isDisabled: false,
-    isSelected: false,
   },
   argTypes: {
     label: { control: 'text' },

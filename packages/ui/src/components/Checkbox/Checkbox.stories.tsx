@@ -16,14 +16,18 @@ const meta: Meta<typeof Checkbox> = {
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-checkbox',
     },
   },
+  // RAC `<Checkbox>` switches into controlled mode the moment any of
+  // `isSelected` / `isIndeterminate` / `isReadOnly` / `isRequired` is
+  // present in the props (even when `false`). With Storybook's args
+  // panel passing those defaults but no matching `onChange` handler
+  // updating external state, the user can't toggle the checkbox at all.
+  // Keep these props in `argTypes` (so the controls panel still
+  // surfaces them as boolean knobs), but leave them out of `args` so
+  // RAC manages selection state internally.
   args: {
     label: 'I agree to the terms',
     size: 'sm',
     isDisabled: false,
-    isSelected: false,
-    isIndeterminate: false,
-    isReadOnly: false,
-    isRequired: false,
   },
   argTypes: {
     label: { control: 'text' },
