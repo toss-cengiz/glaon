@@ -33,8 +33,15 @@ const parser = withCustomConfig(join(packageRoot, 'tsconfig.json'), {
   },
 });
 
-const componentFiles = globSync('src/components/*/[A-Z]*.tsx', {
+// macOS APFS is case-insensitive by default, which lets `[A-Z]*` match
+// kebab-cased files like `dot-icon.tsx` when running locally. Constrain
+// both segments to require an uppercase first character so only Glaon
+// wrap files (`<PascalDir>/<PascalFile>.tsx`) get scanned, leaving the
+// kit-source tiers (`base/`, `application/`, `foundations/`) outside
+// the gate's reach.
+const componentFiles = globSync('src/components/[A-Z]*/[A-Z]*.tsx', {
   cwd: packageRoot,
+  nocase: false,
   ignore: ['**/*.stories.tsx', '**/*.test.tsx'],
 }).map((rel) => ({
   rel,
