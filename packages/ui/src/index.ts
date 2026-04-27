@@ -13,6 +13,7 @@ export * from './components/Input';
 export * from './components/PressableButton';
 export * from './components/ProgressBar';
 export * from './components/Radio';
+export * from './components/Select';
 export * from './components/Spinner';
 export * from './components/Stat';
 export * from './components/Switch';
