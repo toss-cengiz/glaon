@@ -30,6 +30,12 @@ export default defineConfig({
           environment: 'jsdom',
           setupFiles: ['./src/test/setup.ts'],
           include: ['src/**/*.test.{ts,tsx}'],
+          // F6 prop-coverage test parses every component file with
+          // `react-docgen-typescript`. RAC-derived primitives (Input,
+          // Textarea, Card) carry deep generic chains that take >5s to
+          // resolve on CI runners. Local runs finish in ~3s; bump the
+          // ceiling so CI doesn't trip the default 5s test timeout.
+          testTimeout: 30000,
           coverage: {
             provider: 'v8',
             reporter: ['text', 'html'],
