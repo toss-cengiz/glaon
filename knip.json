@@ -52,6 +52,7 @@
       "project": ["src/**/*.{ts,tsx}", ".storybook/**/*.{ts,tsx}"],
       "ignore": [
         "src/components/base/**",
+        "src/components/application/breadcrumbs/**",
         "src/components/shared-assets/**",
         "src/components/marketing/**",
         "src/utils/is-react-component.ts"
