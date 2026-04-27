@@ -1,19 +1,19 @@
 # Design System Bootstrap
 
-Glaon Design System Figma dosyasını ([KP0SVNxQEjT0gotajwc9I0/Design-System](https://www.figma.com/design/KP0SVNxQEjT0gotajwc9I0/Design-System)) ilk çalışır hâle getirecek teknik runbook. Brand kararları Brand Guideline'da yaşıyor, kod tarafı henüz token'ları tüketmiyor; bu doc o ikisinin arasındaki katmanı tanımlar.
+Glaon Design System Figma dosyasını ([cDLzPUkcsDJtvwqZLWRwrd/Design-System](https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System)) ilk çalışır hâle getirecek teknik runbook. Brand kararları Brand Guideline'da yaşıyor, kod tarafı henüz token'ları tüketmiyor; bu doc o ikisinin arasındaki katmanı tanımlar.
 
 Bu doc kanonik referans **rationale** değil — Brand-decision rationale'ı `.claude/skills/brand-design/SKILL.md` ve Brand Guideline Figma dosyasındadır. Burada **nasıl bootstrap'lenir** ve **dosya yapısı ne olmalı** sorularına cevap veriyoruz.
 
 ## Yapı genel bakış
 
-Üç Figma dosyası, tek yönlü akış:
+İki Figma dosyası, tek yönlü akış:
 
 ```
 Brand Guideline   →   Design System   →   Components / Screens / Code
 (decisions)           (this doc)           (consumers)
 ```
 
-Untitled UI ([cDLzPUkcsDJtvwqZLWRwrd/UntitledUI](https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/UntitledUI)) Design System'in **kaynak materyali** — primitive'leri oradan **detach + re-skin** ederek Glaon Semantic variable'larına bağlıyoruz. Untitled UI kendisi consumer'lar tarafından doğrudan referans edilmez.
+Primitive'ler doğrudan Design System dosyasında tasarlanır — ayrı bir kaynak library yok. Brand kararları Brand Guideline'dan Design System Variables'ına bağlanır; primitive'ler Glaon `Semantic` variable'larını tüketir.
 
 ## Sayfa yapısı
 
@@ -21,10 +21,10 @@ Design System dosyası şu altı sayfayı, bu sırayla içerir:
 
 | Sayfa           | İçerik                                                                                                                                                                                                                                   |
 | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Cover**       | Dosyanın rolü, sahibi, library publish durumu, Brand Guideline + Untitled UI dosyalarına link, Untitled UI lisans/attribution paragrafı, "nasıl tüketilir" not.                                                                          |
+| **Cover**       | Dosyanın rolü, sahibi, library publish durumu, Brand Guideline dosyasına link, "nasıl tüketilir" not.                                                                                                                                    |
 | **Variables**   | `Primitives` ve `Semantic` koleksiyonlarının kanonik gösterimi (swatch'ler, scale tabloları). Variables Figma'nın sol panelinde yaşar; bu sayfa görsel referans + dokümantasyondur.                                                      |
 | **Foundations** | Text styles (Display/Heading/Body/Caption × Web/RN), spacing/radii/shadow scale örnekleri, color usage do/don't.                                                                                                                         |
-| **Components**  | Detach edilmiş + re-skin edilmiş primitive'ler. Her primitive bir frame; variants/sizes/states matrisi yan yana. Component description'ında `storybook-id: <kebab-case>` zorunlu.                                                        |
+| **Components**  | Glaon primitive'leri. Her primitive bir frame; variants/sizes/states matrisi yan yana. Component description'ında `storybook-id: <kebab-case>` zorunlu.                                                                                  |
 | **Patterns**    | Birden çok primitive'in birlikte kullanıldığı kabul edilmiş örüntüler (form layout, card hierarchy, modal flow). Composite component değil — örnek, "böyle birleştirilebilir" demonstrasyonu. Composite'lar Components Figma dosyasında. |
 | **Changelog**   | Library publish'leri arası yapılan değişikliklerin manuel kaydı (Figma henüz bunu otomatikleştirmiyor). Her publish'te bir frame: tarih, değişen Variables/styles/components listesi, breaking change uyarısı.                           |
 
@@ -56,22 +56,17 @@ Bu liste sabittir; yeni semantic eklemek için Brand-decision issue gerekir (#13
 
 Eksik kalanlar (`brand/hover`, `brand/pressed`, `state/danger`, `surface/raised`) Brand-decision issue'ları kapanana kadar Light primitive'e geçici fallback ile bind'lenir. Semantic _isimleri_ değişmez — yalnız değerler güncellenir.
 
-## Untitled UI: detach + re-skin
+## Primitive yetiştirme akışı
 
-Karar: **detach + re-skin** (subscribe ya da reference değil).
+Primitive'ler Design System dosyasında doğrudan çizilir; ayrı bir kaynak library yok. Yeni bir primitive geldiğinde:
 
-### Akış
+1. **Çiz**: Design System'in Components sayfasında primitive frame'ini oluştur. Layout'u, variants matrisi'ni (`intent / size / state`) Brand Guideline'daki rationale'a göre kur.
+2. **Bağla**: Fill/stroke/text bağlamaları Glaon `Semantic` variable'larına. Hard-coded renk kalmaz; raw spacing/sayılar Glaon `Primitives` üzerinden ifade edilir.
+3. **Variants doğrula**: Eksik state varsa (default/hover/focus/disabled/loading vb.) primitive'in issue'sında not düşülür.
+4. **Tag'le**: Component description'a `storybook-id: web-primitives-<name>` ekle. Chromatic Figma plugin'i (#53) bu etiketi okuyor.
+5. **Publish**: Library publish manuel adım. Variables → Publish; Components → Publish. Kullanıcı tetikler.
 
-1. **Kopyala**: Untitled UI dosyasında ihtiyacımız olan primitive'i seç → Cmd/Ctrl+C → Design System Components sayfasına yapıştır.
-2. **Detach**: Yapıştırılan instance'ı `Detach instance` ile master link'inden ayır. Artık yerel component'tir; Untitled UI'nin sonraki güncellemelerinden bağımsız.
-3. **Re-skin**: Plugin script (#147 pattern'i) fill/stroke/text bağlamalarını Glaon `Semantic` variable'larına yeniden bağlar. Hard-coded renk kalmaz; raw spacing/sayılar Glaon `Primitives` üzerinden ifade edilir.
-4. **Variants doğrula**: `intent / size / state` matrisi Components sayfasına serilir. Eksik state varsa o primitive'in issue'sında not düşülür.
-5. **Tag'le**: Component description'a `storybook-id: web-primitives-<name>` ekle. Chromatic Figma plugin'i (#53) bu etiketi okuyor.
-6. **Publish**: Library publish manuel adım. Variables → Publish; Components → Publish. Kullanıcı tetikler.
-
-### Lisans / attribution
-
-Untitled UI ücretli bir kit; lisans koşulları her publish'te Cover sayfasında atıf paragrafıyla taşınır. Re-skin'in lisans gereksinimini karşıladığından emin olmak Glaon ekibinin sorumluluğunda; ilk publish öncesi lisans paragrafının doldurulmuş olması zorunlu (placeholder ile başlanır, ilk publish'te tamamlanır).
+Bu akış kod tarafında bir kit'e bağlı değil — `@glaon/ui` paketinin nasıl implement edileceği ayrı bir karardır (headless library + token-driven skin tercih edilebilir).
 
 ## Plugin script çalıştırma akışı
 
