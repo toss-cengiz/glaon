@@ -231,6 +231,43 @@ export const Primary: Story = {};
 - Mevcut component'e prop/variant eklenmişse story da güncellenir.
 - Bu kural [CLAUDE.md](../CLAUDE.md) içinde "Storybook Rule (MANDATORY)" başlığı altındadır.
 
+## Prop-coverage gate (F6)
+
+`packages/ui/src/__tests__/prop-coverage.test.ts` Vitest unit test her PR'da koşar; her Glaon wrap component'inin tüm prop'larının ya Storybook controls'ta ya da explicit `excludeFromArgs` listesinde olduğunu doğrular. Aynı test her stories dosyasının `parameters.design` Figma URL'i ile geldiğini de check eder.
+
+Test mekaniği:
+
+1. `glob src/components/*/[A-Z]*.tsx` ile her Glaon wrap'i bulur (kit base sources `src/components/base/...` hariç).
+2. `react-docgen-typescript` parser'ı paket `tsconfig.json`'una göre prop tip'lerini extract eder (`react-aria-components`, `react-native`, ve `node_modules/*` parent'lı prop'lar zaten filter'la dışlanır).
+3. Her wrap için sibling `*.stories.tsx`'i dynamic import eder, `meta.args` + `meta.argTypes` + named export `excludeFromArgs` set'ini topla.
+4. Karşılaştır → eksik prop varsa fail.
+
+Story dosyasının opt-out pattern'i:
+
+```ts
+export default meta;
+
+export const excludeFromArgs = [
+  'slot', // react-aria slot — control gerekmez
+  'routerOptions', // sadece link variant'ında — control gerekmez
+];
+```
+
+`parameters.design` her story meta'sında zorunlu:
+
+```ts
+const meta = {
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/design/.../?node-id=...',
+    },
+  },
+};
+```
+
+URL `https://www.figma.com/design/...` formatında olmalı. Geçici muafiyet için TODO marker veya separate follow-up issue açılır; gate kapatılmaz.
+
 ## MCP (AI agent entegrasyonu)
 
 `@storybook/addon-mcp` Storybook dev server'ı çalışırken `http://localhost:6006/mcp` adresinde bir MCP (Model Context Protocol) endpoint açar. Bu sayede Claude Code gibi AI agent'lar component'leri, prop'ları ve dokümanları programatik olarak keşfedebilir.
