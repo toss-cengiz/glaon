@@ -8,7 +8,7 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - Web: Vite + React 19 + TypeScript strict
 - Mobile: Expo SDK 54 + React 19 + React Native 0.81 (new architecture on)
 - Shared core: `@glaon/core` (platform-agnostic, no DOM / no RN imports)
-- UI: `@glaon/ui` wraps the licensed Untitled UI React kit (not committed)
+- UI: `@glaon/ui` wraps the licensed Untitled UI React kit on a Tailwind CSS + react-aria-components foundation (kit source not committed; see [ADR 0011](docs/adr/0011-untitled-ui-react-kit.md), [ADR 0012](docs/adr/0012-tailwind-css-for-glaon-ui.md))
 - Backend: Home Assistant, consumed via OAuth2 Authorization Code + PKCE and the WebSocket API
 - Delivery: `addon/` packages the web app as a HA Add-on served over Ingress
 

@@ -6,6 +6,7 @@ import { THEME_NAMES, DEFAULT_THEME, ThemeProvider } from '../src/theme';
 import { tokens } from '../dist/tokens/rn';
 
 import '../dist/tokens/web.css';
+import '../src/tailwind.css';
 
 const preview: Preview = {
   parameters: {
