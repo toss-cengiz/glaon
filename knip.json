@@ -50,7 +50,15 @@
     "packages/ui": {
       "entry": ["src/**/*.stories.@(ts|tsx)", "src/**/*.test.{ts,tsx}"],
       "project": ["src/**/*.{ts,tsx}", ".storybook/**/*.{ts,tsx}"],
-      "ignoreDependencies": ["@glaon/config", "react-aria-components", "tailwind-merge"]
+      "ignoreDependencies": [
+        "@glaon/config",
+        "react-aria-components",
+        "tailwind-merge",
+        "tailwindcss",
+        "@tailwindcss/typography",
+        "tailwindcss-animate",
+        "tailwindcss-react-aria-components"
+      ]
     },
     "packages/config": {
       "project": ["**/*.{js,ts}"]
