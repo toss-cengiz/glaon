@@ -132,6 +132,16 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - Real HA calls are forbidden in E2E — use `page.route()` to mock the HA backend. Details in [docs/testing.md](docs/testing.md).
 - Accessibility lint is already covered by Storybook `addon-a11y`. Playwright E2E focuses on behavior, not axe rules.
 
+## Component Data-Fetching Boundary (MANDATORY)
+
+UI components don't fetch data; data fetching lives in the feature/route layer and flows into components as props. This rule is required for the Storybook Rule to keep working — once base/app components fetch, every story needs an MSW handler and the Chromatic baseline turns brittle.
+
+- **`packages/ui/src/components/base/`** — UUI wrap layer is purely presentational. No `useQuery`, `useSWR`, `fetch`, WebSocket, or any other async data hook is allowed. Components only accept props and render them.
+- **`packages/ui/src/components/app/`** — Composition layer also doesn't fetch by default. Data flows in as props: `<DeviceList devices={...} isLoading={...} error={...} onSelect={...} />`. Suspense boundaries, when used, are wired up one level higher.
+- **`apps/<web|mobile>/src/features/<x>/`** — Data fetching lives here. `api.ts` defines the TanStack Query hooks (`useDevices`, `useDevice`); `<X>Page.tsx` (or the route component) calls the hook and passes the result to the app component as props.
+- **Shareable query layer** — When web and mobile consume the same endpoint, the fetcher and query key definitions move to `@glaon/core`; the hook wrapper (TanStack Query) still lives in the feature layer.
+- Exception — internal async behavior (callback injection): when a component owns its own async behavior (debounced search, pagination, optimistic UI), the trigger may live inside the component **but the fetch itself is always injected from the outside** — the component never knows the endpoint. Allowed: `<Combobox loadOptions={(q) => Promise<Option[]>} />`, `<InfiniteList fetchPage={(cursor) => Promise<Page>} />`. Forbidden: calling `useQuery(['devices'], …)` or `fetch('/api/...')` directly inside a component. The exception means "component triggers a fetch" not "component performs a fetch." Fix path on violation: lift the hook into the feature layer, refactor the component to take props, feed the story via `args`.
+
 ## Commits
 
 - Conventional Commits style (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `perf:`, `ci:`, `build:`, `style:`).
