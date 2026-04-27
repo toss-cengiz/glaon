@@ -25,6 +25,8 @@ export default tseslint.config(
       // freely. Glaon's wrap layer (sibling files outside these globs)
       // stays under the strict ruleset.
       '**/src/components/base/**',
+      '**/src/components/application/**',
+      '**/src/components/foundations/**',
       '**/src/utils/cx.ts',
       '**/src/utils/is-react-component.ts',
     ],

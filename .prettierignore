@@ -6,3 +6,13 @@ build
 coverage
 pnpm-lock.yaml
 .husky
+
+# Untitled UI kit source pulled via `npx untitledui add`. The kit ships
+# pre-formatted by the publisher; we let `untitledui upgrade` rewrite
+# these paths verbatim so prettier and eslint should leave them alone.
+# See ADR 0011 + ADR 0013.
+**/src/components/base/**
+**/src/components/application/**
+**/src/components/foundations/**
+**/src/utils/cx.ts
+**/src/utils/is-react-component.ts

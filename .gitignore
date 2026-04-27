@@ -32,6 +32,7 @@ android/
 
 # Claude Code local overrides (per-developer)
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 
 # Editor / OS
 .DS_Store

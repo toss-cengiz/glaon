@@ -2,6 +2,9 @@
 // Untitled UI is licensed and must be added manually; this package re-exports
 // and composes its primitives into Glaon-branded components.
 
+export * from './components/Badge';
 export * from './components/Button';
 export * from './components/PressableButton';
+export * from './components/ProgressBar';
+export * from './components/Spinner';
 export * from './theme';
