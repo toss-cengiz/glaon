@@ -17,7 +17,7 @@ Dört ayrı Figma dosyası (aynı takım / workspace altında):
 | Dosya               | İçerik                                                                                                       | Faz      | URL                                                                 |
 | ------------------- | ------------------------------------------------------------------------------------------------------------ | -------- | ------------------------------------------------------------------- |
 | **Brand Guideline** | Color rationale, typography, spacing/radii/shadow, logo usage, do/don't — brand kararlarının kanonik kaynağı | phase-1  | <https://www.figma.com/design/JLbLmCMDdhxOisbVYiAo5C/Glaon>         |
-| **Design System**   | Primitive'ler, color palette, type scale, spacing, radii, shadow — published library                         | phase-3+ | <https://www.figma.com/design/KP0SVNxQEjT0gotajwc9I0/Design-System> |
+| **Design System**   | Primitive'ler, color palette, type scale, spacing, radii, shadow — published library                         | phase-3+ | <https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System> |
 | **Components**      | Design System'i tüketen composite component'ler (Card, Dialog, DeviceTile…)                                  | phase-3+ | <https://www.figma.com/design/auyB12SfWNs3eUho4UpI2k/Components>    |
 | **Screens**         | Web + mobile ekran mockup'ları (dashboard, detail, settings…)                                                | phase-3+ | <https://www.figma.com/design/JdUxahXzXwVAsjkgzIjIT9/Screens>       |
 
