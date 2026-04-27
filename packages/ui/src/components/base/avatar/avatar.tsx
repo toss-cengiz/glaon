@@ -2,6 +2,13 @@
 // UUI kit source — pulled via `npx untitledui add`. Suppress
 // type-check so `untitledui upgrade` stays a clean replace operation.
 // Re-apply after every kit upgrade until UUI tightens types.
+//
+// GLAON PATCH (re-apply on upgrade): the upstream `Avatar` renders
+// initials with `text-quaternary` over a `bg-tertiary` surface. That
+// pair fails WCAG AA (axe `color-contrast` rule) — quaternary is too
+// light for a tertiary background. We swap to `text-secondary` which
+// passes AA at every avatar size. Track upstream fix; once the kit
+// ships a contrast-compliant default, drop this patch.
 "use client";
 
 import { type FC, type ReactNode, useState } from "react";
@@ -108,7 +115,8 @@ export const Avatar = ({
         }
 
         if (initials) {
-            return <span className={cx("text-quaternary", styles[size].initials)}>{initials}</span>;
+            // GLAON PATCH: text-quaternary → text-secondary (WCAG AA on bg-tertiary).
+            return <span className={cx("text-secondary", styles[size].initials)}>{initials}</span>;
         }
 
         if (PlaceholderIcon) {

@@ -72,10 +72,15 @@ const sizes: Record<StatSize, { value: string; label: string; delta: string; del
     },
   };
 
+// Use the `*-700` palette steps rather than `text-fg-*-primary` semantic
+// tokens — at small sizes (`text-xs` / `text-sm`) the `*-primary` family
+// in UUI's default palette doesn't pass WCAG AA contrast on the page
+// background. The `*-700` step is 4.5:1+ on the same surface, which is
+// what axe's `color-contrast` rule wants.
 const deltaColor: Record<StatDeltaDirection, string> = {
-  up: 'text-fg-success-primary',
-  down: 'text-fg-error-primary',
-  neutral: 'text-fg-tertiary',
+  up: 'text-success-700',
+  down: 'text-error-700',
+  neutral: 'text-secondary',
 };
 
 const deltaIcons: Record<StatDeltaDirection, IconComponent | null> = {
@@ -87,26 +92,34 @@ const deltaIcons: Record<StatDeltaDirection, IconComponent | null> = {
 export function Stat({ label, value, delta, prefix, size = 'md', className }: StatProps) {
   const sz = sizes[size];
 
-  const containerClass = 'flex flex-col gap-1';
+  // axe `definition-list` requires `<dt>` to precede `<dd>` in source
+  // order. We want the value (the `<dd>`) rendered ABOVE the label (the
+  // `<dt>`) visually, so we wrap the pair in a `<div>` with
+  // `flex-col-reverse` — same pattern as the kit's
+  // `metrics-card-gray-light` template. Direct `<div>` children of
+  // `<dl>` are explicitly allowed by HTML5 + axe.
+  const containerClass = 'flex flex-col-reverse gap-1';
   const DeltaIcon = delta ? deltaIcons[delta.direction] : null;
 
   return (
-    <dl className={className ? `${containerClass} ${className}` : containerClass}>
-      <dd className={`flex items-center gap-2 text-primary ${sz.value}`}>
-        {prefix !== undefined ? (
-          <span className="flex items-center text-fg-quaternary">{prefix}</span>
-        ) : null}
-        <span>{value}</span>
-        {delta ? (
-          <span
-            className={`ml-1 inline-flex items-center gap-0.5 ${sz.delta} ${deltaColor[delta.direction]}`}
-          >
-            {DeltaIcon ? <DeltaIcon aria-hidden="true" className={sz.deltaIcon} /> : null}
-            {delta.value}
-          </span>
-        ) : null}
-      </dd>
-      <dt className={sz.label}>{label}</dt>
+    <dl className={className}>
+      <div className={containerClass}>
+        <dt className={sz.label}>{label}</dt>
+        <dd className={`flex items-center gap-2 text-primary ${sz.value}`}>
+          {prefix !== undefined ? (
+            <span className="flex items-center text-fg-quaternary">{prefix}</span>
+          ) : null}
+          <span>{value}</span>
+          {delta ? (
+            <span
+              className={`ml-1 inline-flex items-center gap-0.5 ${sz.delta} ${deltaColor[delta.direction]}`}
+            >
+              {DeltaIcon ? <DeltaIcon aria-hidden="true" className={sz.deltaIcon} /> : null}
+              {delta.value}
+            </span>
+          ) : null}
+        </dd>
+      </div>
     </dl>
   );
 }
