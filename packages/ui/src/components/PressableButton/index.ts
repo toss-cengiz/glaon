@@ -1,6 +1,2 @@
 export { PressableButton } from './PressableButton';
-export type {
-  PressableButtonProps,
-  PressableButtonVariant,
-  PressableButtonSize,
-} from './PressableButton';
+export type { PressableButtonProps } from './PressableButton';

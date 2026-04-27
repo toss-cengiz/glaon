@@ -22,9 +22,16 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('type', 'button');
   });
 
-  it('switches background color for the secondary variant', () => {
-    render(<Button variant="secondary">Cancel</Button>);
+  it('switches background color token for the secondary intent', () => {
+    render(<Button intent="secondary">Cancel</Button>);
     const button = screen.getByRole('button', { name: 'Cancel' });
-    expect(button.style.backgroundColor).toBe('rgb(255, 255, 255)');
+    expect(button.style.backgroundColor).toBe('var(--base-white)');
+  });
+
+  it('marks itself busy and disables the click handler when loading', () => {
+    render(<Button loading>Saving</Button>);
+    const button = screen.getByRole('button', { name: /Saving/i });
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-busy', 'true');
   });
 });
