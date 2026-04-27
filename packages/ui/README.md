@@ -64,27 +64,17 @@ Brand Guideline Cover sayfasında da aynı paragraf release süresince güncel t
 
 ## Untitled UI Remote MCP
 
-Yayıncının resmi Remote MCP server'ı (`https://www.untitledui.com/react/api/mcp`) Claude Code session'larına component metadata + search exposure sunar — primitive ekleme öncesi spec'e bakmak, prop kombinasyonu doğrulamak, varyant inceleme. Repo-scoped `.mcp.json`'da `untitledui` server'ı tanımlı; header `Authorization: Bearer ${UNTITLED_TOKEN}` env interpolation kullanır.
 
-### Per-developer setup
+Yayıncının resmi Remote MCP server'ı (`https://www.untitledui.com/react/api/mcp`) Claude Code session'larına component metadata + search exposure sunar — primitive ekleme öncesi spec'e bakmak, prop kombinasyonu doğrulamak, varyant inceleme. Repo-scoped `.mcp.json`'da `untitledui` server'ı tanımlı; auth tarafı per-developer.
 
-1. **`UNTITLED_TOKEN` env var'ını ayarla**:
-   - Untitled UI Pro dashboard'undan API key edin.
-   - Repo root'unda `cp .env.example .env` → `UNTITLED_TOKEN=...` doldur.
-   - Shell rc'na ekle (`~/.zshrc` veya `~/.bashrc`) ve Claude Code'u o shell'den başlat:
-     ```bash
-     set -a; source /absolute/path/to/glaon/.env; set +a
-     ```
-   - `.env` gitignored, asla commit edilmez.
-2. **Doğrulama**: `claude mcp list` → `untitledui: ... ✓ Connected`. Bağlantı kurulamıyorsa env var Claude Code'un başlatıldığı shell'de export edilmiş mi kontrol et (Claude Code MCP env interpolation #6204 bug'ından etkilenebilir; export edildiğinden emin ol, gerekirse shell'i yeniden başlat).
+Yeni geliştirici:
 
-### CI tarafı
+1. Claude Code session'ında `/mcp` slash command → server listesinde `untitledui` görünür, status **needs authentication**.
+2. `untitledui` üzerinde **Authenticate** seçeneğini tetikle → tarayıcıda Untitled UI OAuth ekranı açılır.
+3. Onaylanan scope: free + Pro component metadata + search read access. **Write scope istenmez.**
+4. Onay sonrası `claude mcp list` → `untitledui` status **connected**.
 
-CI MCP server'a bağlanmaz — interactive auth flow CI'da çalışmaz, Storybook + Chromatic build yolu zaten yeterli. `UNTITLED_TOKEN`'ı CI secret olarak ekleme ihtiyacı yok.
-
-### CLI vs MCP auth
-
-CLI'nın `untitledui login` auth state'i ile bu MCP auth **ayrı kanaldır**. CLI stored config (`~/.config/untitledui/`) veya `--license` flag kullanır; MCP `${UNTITLED_TOKEN}` env interpolation üzerinden Bearer header. İkisi de aynı Pro hesap key'iyle besenebilir ama farklı yolda.
+CLI'nın `untitledui login` auth state'i ile bu MCP auth ayrı kanaldır; MCP browser flow OAuth, CLI ya `--license` flag ya stored config kullanır. CI'da MCP bağlanmaz (interactive flow) — Storybook + Chromatic CI yolundan ilerler.
 
 ## Komutlar
 
