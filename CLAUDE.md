@@ -51,10 +51,12 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 
 ## Chromatic Visual Regression (MANDATORY)
 
-- Every PR runs Chromatic as a required status check. The workflow is configured with `exitZeroOnChanges: false`, so any pixel-level change blocks merge until resolved.
-- When the check is red:
+- Every PR runs Chromatic as a required status check. The workflow uses `exitZeroOnChanges: ${{ github.event_name == 'pull_request' }}`, so PRs treat Chromatic as a **signal** (diffs publish to the Chromatic UI for review but don't block merge), while pushes to `development` and `main` stay strict — pixel-level regressions there fail the check until accepted in Chromatic.
+- When the PR check shows diffs:
+  - Open the Chromatic build, review the diff, accept anything intentional.
   - Unintended regression → fix in code, push again.
-  - Intentional visual change → open the Chromatic build, review the diff, click **Accept**. Never work around the check by tweaking `.github/workflows/chromatic.yml` or suppressing stories.
+  - The PR can still merge before the diffs are accepted, but unaccepted diffs flow into `development` and **will** fail the strict gate there. Reviewers should treat the Chromatic link as a required walkthrough, not optional.
+- Never work around the strict gate on `development`/`main` by tweaking `.github/workflows/chromatic.yml` or suppressing stories.
 - `development` is the baseline branch (`autoAcceptChanges: development`). Story changes merged into `development` become the new baseline automatically.
 - Skip list: `dependabot/**` and `release-please--**`. Other bot branches should not be added without discussion.
 - `CHROMATIC_PROJECT_TOKEN` secret is user-managed; see [docs/chromatic.md](docs/chromatic.md). Branch protection for `development` and `main` is codified as ruleset JSON — see [docs/governance.md](docs/governance.md).
