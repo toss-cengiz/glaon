@@ -141,7 +141,13 @@ function SideNavItem({ label, href, icon, badge, current, onClick }: SideNavItem
   // runtime — cast at the boundary rather than tightening every
   // story's icon prop.
   return (
-    <li className="py-px">
+    // `list-none` keeps the marker bullet from showing when an Item
+    // is rendered outside a styled list (e.g. inside `SideNav.Footer`,
+    // which is a `<div>` because the slot also supports non-item
+    // content like the user-card in WithFooterUserSection). Inside
+    // `SideNav.Group`'s `<ul>` the suppression is redundant but
+    // harmless.
+    <li className="list-none py-px">
       <NavItemBase
         type="link"
         truncate={!collapsed}
