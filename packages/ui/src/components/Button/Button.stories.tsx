@@ -1,37 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { storybookIcons } from '../../icons/storybook';
 import { Button } from './Button';
-
-// Placeholder icons used in stories until the Untitled UI icon set lands as
-// its own primitive PR. Once that issue ships, the `iconLeading` /
-// `iconTrailing` controls switch to a real picker keyed off the kit's icon
-// catalog.
-const PlusIcon = ({ className }: { className?: string }) => (
-  <svg
-    aria-hidden="true"
-    className={className}
-    viewBox="0 0 20 20"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-  >
-    <path d="M10 4v12M4 10h12" strokeLinecap="round" />
-  </svg>
-);
-const ArrowRightIcon = ({ className }: { className?: string }) => (
-  <svg
-    aria-hidden="true"
-    className={className}
-    viewBox="0 0 20 20"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-  >
-    <path d="M4 10h12M10 4l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-const ICONS = { none: undefined, plus: PlusIcon, arrowRight: ArrowRightIcon } as const;
 
 const meta = {
   title: 'Web Primitives/Button',
@@ -74,13 +44,13 @@ const meta = {
     noTextPadding: { control: 'boolean' },
     iconLeading: {
       control: 'select',
-      options: Object.keys(ICONS),
-      mapping: ICONS,
+      options: Object.keys(storybookIcons),
+      mapping: storybookIcons,
     },
     iconTrailing: {
       control: 'select',
-      options: Object.keys(ICONS),
-      mapping: ICONS,
+      options: Object.keys(storybookIcons),
+      mapping: storybookIcons,
     },
     onClick: { action: 'clicked' },
   },
@@ -147,11 +117,11 @@ export const LoadingWithText: Story = {
 };
 
 export const WithLeadingIcon: Story = {
-  args: { iconLeading: PlusIcon, children: 'Add item' },
+  args: { iconLeading: storybookIcons.plus, children: 'Add item' },
 };
 
 export const WithTrailingIcon: Story = {
-  args: { iconTrailing: ArrowRightIcon, children: 'Continue' },
+  args: { iconTrailing: storybookIcons.arrowRight, children: 'Continue' },
 };
 
 export const Sizes: Story = {

@@ -1,20 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
-import type { FC } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
+import { storybookIcons } from '../../icons/storybook';
 import { PressableButton } from './PressableButton';
-
-// Placeholder icons keep parity with the web Button stories until the
-// shared Untitled UI icon catalog lands as its own primitive PR.
-const PlusIcon: FC<{ color?: string; size?: number }> = ({ color = 'currentColor', size = 16 }) => (
-  <Text style={{ color, fontSize: size, lineHeight: size, fontWeight: '600' }}>＋</Text>
-);
-const ArrowRightIcon: FC<{ color?: string; size?: number }> = ({
-  color = 'currentColor',
-  size = 16,
-}) => <Text style={{ color, fontSize: size, lineHeight: size, fontWeight: '600' }}>→</Text>;
-
-const ICONS = { none: undefined, plus: PlusIcon, arrowRight: ArrowRightIcon } as const;
 
 const meta = {
   title: 'RN Primitives/PressableButton',
@@ -57,13 +45,13 @@ const meta = {
     noTextPadding: { control: 'boolean' },
     iconLeading: {
       control: 'select',
-      options: Object.keys(ICONS),
-      mapping: ICONS,
+      options: Object.keys(storybookIcons),
+      mapping: storybookIcons,
     },
     iconTrailing: {
       control: 'select',
-      options: Object.keys(ICONS),
-      mapping: ICONS,
+      options: Object.keys(storybookIcons),
+      mapping: storybookIcons,
     },
     onPress: { action: 'pressed' },
   },
@@ -111,11 +99,11 @@ export const LoadingWithText: Story = {
 };
 
 export const WithLeadingIcon: Story = {
-  args: { iconLeading: PlusIcon, children: 'Add item' },
+  args: { iconLeading: storybookIcons.plus, children: 'Add item' },
 };
 
 export const WithTrailingIcon: Story = {
-  args: { iconTrailing: ArrowRightIcon, children: 'Continue' },
+  args: { iconTrailing: storybookIcons.arrowRight, children: 'Continue' },
 };
 
 export const Sizes: Story = {

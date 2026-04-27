@@ -64,6 +64,7 @@
   "type": "module",
   "types": "./src/index.ts",
   "dependencies": {
+    "@untitledui/icons": "^0.0.22",
     "react-aria-components": "^1.17.0"
   }
 }

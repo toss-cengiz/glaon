@@ -10,7 +10,7 @@
 // tokens come from F2's `dist/tokens/rn.ts` build output, brand colors
 // override UUI defaults the same way the web glaon-overrides.css does.
 
-import { useMemo, type FC, type ReactNode } from 'react';
+import { useMemo, type ComponentType, type ReactNode, type SVGProps } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -35,6 +35,17 @@ export type PressableButtonColor =
 
 export type PressableButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
+// Mirrors `@untitledui/icons` Props (SVGProps widened with color/size).
+// PressableButton renders icons via `<Icon color={surface.label}
+// size={sizing.iconSize} />`, so any UUI icon — or a hand-rolled one
+// with the same shape — slots in.
+type IconLeadingComponent = ComponentType<
+  SVGProps<SVGSVGElement> & {
+    color?: string;
+    size?: number;
+  }
+>;
+
 export interface PressableButtonProps extends Omit<
   PressableProps,
   'children' | 'style' | 'disabled'
@@ -43,10 +54,11 @@ export interface PressableButtonProps extends Omit<
   color?: PressableButtonColor;
   /** Size variant — mirrors the kit web `Button` `size` prop. */
   size?: PressableButtonSize;
-  /** Icon component or element rendered before the label. */
-  iconLeading?: FC<{ color?: string; size?: number }> | ReactNode;
+  /** Icon component or element rendered before the label. Accepts the
+   * kit's `@untitledui/icons` shape (`SVGProps` + `color?` + `size?`). */
+  iconLeading?: IconLeadingComponent | ReactNode;
   /** Icon component or element rendered after the label. */
-  iconTrailing?: FC<{ color?: string; size?: number }> | ReactNode;
+  iconTrailing?: IconLeadingComponent | ReactNode;
   /** Disables the button and shows a disabled state. */
   isDisabled?: boolean;
   /** Shows a loading spinner and disables the button. */
@@ -202,9 +214,7 @@ const SIZE_SPECS: Record<PressableButtonSize, SizeSpec> = {
   },
 };
 
-function isComponent(
-  value: PressableButtonProps['iconLeading'],
-): value is FC<{ color?: string; size?: number }> {
+function isComponent(value: PressableButtonProps['iconLeading']): value is IconLeadingComponent {
   return typeof value === 'function';
 }
 
