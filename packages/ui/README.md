@@ -62,6 +62,19 @@ CI Storybook build, Chromatic, Vitest browser tests sırasında kit source'unu *
 
 Brand Guideline Cover sayfasında da aynı paragraf release süresince güncel tutulur (bkz. #166).
 
+## Untitled UI Remote MCP
+
+Yayıncının resmi Remote MCP server'ı (`https://www.untitledui.com/react/api/mcp`) Claude Code session'larına component metadata + search exposure sunar — primitive ekleme öncesi spec'e bakmak, prop kombinasyonu doğrulamak, varyant inceleme. Repo-scoped `.mcp.json`'da `untitledui` server'ı tanımlı; auth tarafı per-developer.
+
+Yeni geliştirici:
+
+1. Claude Code session'ında `/mcp` slash command → server listesinde `untitledui` görünür, status **needs authentication**.
+2. `untitledui` üzerinde **Authenticate** seçeneğini tetikle → tarayıcıda Untitled UI OAuth ekranı açılır.
+3. Onaylanan scope: free + Pro component metadata + search read access. **Write scope istenmez.**
+4. Onay sonrası `claude mcp list` → `untitledui` status **connected**.
+
+CLI'nın `untitledui login` auth state'i ile bu MCP auth ayrı kanaldır; MCP browser flow OAuth, CLI ya `--license` flag ya stored config kullanır. CI'da MCP bağlanmaz (interactive flow) — Storybook + Chromatic CI yolundan ilerler.
+
 ## Komutlar
 
 ```bash
@@ -90,4 +103,4 @@ pnpm --filter @glaon/ui lint
 - [docs/design-system-bootstrap.md](../../docs/design-system-bootstrap.md) — Figma file yapısı + primitive yetiştirme.
 - [packages/ui/tokens/README.md](tokens/README.md) — design token export + schema.
 - Untitled UI CLI: `npx untitledui --help`.
-- Untitled UI MCP: <https://www.untitledui.com/react/integrations/mcp> — issue #206 ile entegre edilecek.
+- Untitled UI MCP integration: <https://www.untitledui.com/react/integrations/mcp> — repo-scoped entry yukarıdaki "Untitled UI Remote MCP" bölümünde dokümante.
