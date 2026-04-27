@@ -89,7 +89,11 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Primary: Story = {};
+export const Primary: Story = {
+  args: {
+    color: 'tertiary',
+  },
+};
 
 export const Secondary: Story = {
   args: { color: 'secondary' },
@@ -116,7 +120,14 @@ export const Disabled: Story = {
 };
 
 export const Loading: Story = {
-  args: { isLoading: true, children: 'Saving' },
+  args: {
+    isLoading: true,
+    children: 'Saving',
+    // The kit hides the label visually while loading (only the spinner
+    // shows). Surface it to assistive tech via aria-label so axe's
+    // `button-name` rule still passes.
+    'aria-label': 'Saving',
+  },
 };
 
 export const LoadingWithText: Story = {
