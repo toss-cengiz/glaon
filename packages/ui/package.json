@@ -25,6 +25,7 @@
     "react-native-web": "^0.21.2",
     "storybook": "^10.3.5",
     "storybook-dark-mode": "^5.0.0",
+    "style-dictionary": "^5.4.0",
     "typescript": "^5.7.2",
     "vite": "^8.0.9",
     "vitest": "^4.1.5"
@@ -40,6 +41,7 @@
   "scripts": {
     "build": "tsc -b",
     "build-storybook": "storybook build",
+    "build:tokens": "style-dictionary build --config style-dictionary.config.js",
     "chromatic": "chromatic",
     "clean": "rm -rf dist .turbo storybook-static coverage",
     "lint": "eslint .",

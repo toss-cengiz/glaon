@@ -6,6 +6,10 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**", "build/**", ".next/**", "!.next/cache/**"]
     },
+    "build:tokens": {
+      "inputs": ["tokens/**", "style-dictionary.config.js"],
+      "outputs": ["dist/tokens/**"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
