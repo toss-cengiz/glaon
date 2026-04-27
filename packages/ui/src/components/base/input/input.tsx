@@ -146,6 +146,13 @@ export const InputBase = ({
             {tooltip && type !== "password" && (
                 <Tooltip title={tooltip} placement="top">
                     <TooltipTrigger
+                        // GLAON PATCH (re-apply on upgrade): the kit's
+                        // icon-only TooltipTrigger has no accessible name,
+                        // so axe `button-name` fires on every input that
+                        // surfaces a tooltip. Use the tooltip text itself
+                        // as the trigger's aria-label until the kit ships
+                        // a default.
+                        aria-label={tooltip}
                         className={cx(
                             "absolute cursor-pointer text-fg-quaternary transition duration-100 ease-linear group-invalid/input:hidden hover:text-fg-quaternary_hover focus:text-fg-quaternary_hover",
                             sizes[inputSize].iconTrailing,
