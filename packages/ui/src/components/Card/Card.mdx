@@ -1,0 +1,82 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as CardStories from './Card.stories';
+
+<Meta of={CardStories} />
+
+# Card
+
+Container surface that groups related content. Use Card to give a
+section a clear boundary, optional header / footer chrome, and an
+optional clickable affordance for whole-row interactions (device
+tiles, settings entries, navigation cards).
+
+## When to use
+
+- Dashboard tiles: KPI Stats, recent activity, quick actions.
+- Settings groups: a panel of related toggles + helper text.
+- Selectable / tappable items: device entries, scenes, automations
+  (use `interactive` so the entire card is keyboard-activatable).
+- Empty-state placeholders that need a chrome distinct from
+  surrounding content.
+
+## When NOT to use
+
+- **Page-level wrapper** → use the layout / page primitive, not Card.
+- **Inline metadata** → use [Badge](?path=/docs/web-primitives-badge--docs).
+- **Modal / dialog content** → wrap in [Modal](?path=/docs/web-primitives-modal--docs); Modal already provides the surface chrome.
+
+## Anatomy
+
+<Canvas of={CardStories.WithHeaderFooter} />
+
+Three composition slots, each is a thin layout helper:
+
+- **`Card.Header`** — top-of-card region with bottom border. Use for
+  titles, subtitle, supporting metadata.
+- **`Card.Body`** — main content area with default padding.
+- **`Card.Footer`** — bottom region with top border. Use for action
+  buttons or summary content.
+
+```tsx
+<Card variant="default" interactive onPress={handlePress}>
+  <Card.Header>
+    <h3 className="text-lg font-semibold text-primary">Project Glaon</h3>
+    <p className="text-sm text-tertiary">Updated 2 hours ago</p>
+  </Card.Header>
+  <Card.Body>…</Card.Body>
+  <Card.Footer>
+    <Button color="secondary" size="sm">Cancel</Button>
+    <Button color="primary" size="sm">Open</Button>
+  </Card.Footer>
+</Card>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- Static cards render as plain `<div>` — purely visual containers,
+  no role overrides.
+- `interactive` cards render the kit's react-aria-components
+  `<Button>` underneath so they're keyboard-activatable (Enter +
+  Space), expose `role="button"`, and inherit the focus-ring styles
+  from the design tokens.
+- Avoid placing additional interactive elements (links, buttons)
+  inside an `interactive` Card — that creates nested-interactive
+  controls which fail axe rules.
+- For hierarchical content, use semantic headings inside
+  `Card.Header` (e.g. `<h2>` / `<h3>`) so screen readers can navigate
+  the card structure.
+
+## Related components
+
+- [Modal](?path=/docs/web-primitives-modal--docs) / [Drawer](?path=/docs/web-primitives-drawer--docs) — overlay surfaces that already include chrome.
+- [List](?path=/docs/web-primitives-list--docs) — Card and List sometimes overlap; pick List for ordered / homogeneous items, Card for richer per-item layouts.
+- [Stat](?path=/docs/web-primitives-stat--docs) — fits naturally inside `Card.Body` for KPI dashboards.

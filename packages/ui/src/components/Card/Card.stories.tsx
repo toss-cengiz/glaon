@@ -1,32 +1,30 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { Button } from '../Button';
 import { Card } from './Card';
+import { cardControls, cardExcludeFromArgs } from './Card.controls';
+
+const { args, argTypes } = defineControls(cardControls);
 
 // Explicit `Meta<typeof Card>` annotation (rather than `satisfies`)
 // keeps storybook csf-internal types out of the exported `meta`
 // signature — `tsc --noEmit` runs with `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `Card.controls.ts`;
+// `tags: ['autodocs']` removed because `Card.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Card> = {
   title: 'Web Primitives/Card',
   component: Card,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-card',
     },
   },
-  args: {
-    variant: 'default',
-    interactive: false,
-  },
-  argTypes: {
-    variant: { control: 'inline-radio', options: ['default', 'elevated', 'muted'] },
-    interactive: { control: 'boolean' },
-    onPress: { control: false, action: 'pressed' },
-    children: { control: false, table: { disable: true } },
-    className: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div style={{ width: 480 }}>
@@ -38,6 +36,8 @@ const meta: Meta<typeof Card> = {
 
 export default meta;
 type Story = StoryObj<typeof Card>;
+
+export const excludeFromArgs = cardExcludeFromArgs;
 
 const sampleBody = (
   <Card.Body>
