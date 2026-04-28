@@ -1,0 +1,95 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as SideNavStories from './SideNav.stories';
+
+<Meta of={SideNavStories} />
+
+# SideNav
+
+Application-shell side navigation. Renders the secondary global
+navigation chrome along the left edge: brand on top, grouped nav
+items in the middle, footer items (settings, user card) anchored to
+the bottom.
+
+## When to use
+
+- Secondary global navigation in app-shell layouts (commonly paired
+  with [TopBar](?path=/docs/web-primitives-topbar--docs)). The
+  canonical pattern is "brand + horizontal TopBar across the top,
+  SideNav along the left, page content fills the rest."
+- Long, grouped IA: workspace-level groups separated by eyebrow
+  labels (Workspace / Activity / Account).
+- Dashboards with 5+ top-level destinations where horizontal
+  navigation would feel cramped.
+
+## When NOT to use
+
+- **Hierarchical context inside a single page** → use [Breadcrumb](?path=/docs/web-primitives-breadcrumb--docs); SideNav belongs in the global chrome, not in page content.
+- **Peer-view switching inside a page** → use [Tabs](?path=/docs/web-primitives-tabs--docs).
+- **Mobile / wall-tablet bottom nav** → out of scope for Phase 1; a mobile-shell BottomBar primitive is queued for Phase 2.
+- **Site-wide top nav alone** → use [TopBar](?path=/docs/web-primitives-topbar--docs); SideNav is the _secondary_ axis, not a replacement.
+
+## Anatomy
+
+<Canvas of={SideNavStories.WithGroups} />
+
+Four composition slots, top-to-bottom:
+
+- **`SideNav.Brand`** — logo / wordmark anchor. Hidden in
+  `collapsed` mode unless you provide a 1-character glyph (e.g.
+  "G").
+- **`SideNav.Group`** — optional `label` (uppercase eyebrow,
+  hidden in `collapsed` mode), wraps `<SideNav.Item>` rows in a
+  `<ul>` for `listitem` semantics.
+- **`SideNav.Item`** — `label`, optional `href`, `icon`, `badge`
+  (number / string / ReactNode), and `current` flag (drives
+  `aria-current="page"`).
+- **`SideNav.Footer`** — anchored to the bottom (`mt-auto`). Use
+  for Settings / Profile / a user card.
+
+```tsx
+<SideNav>
+  <SideNav.Brand>
+    <Logo />
+  </SideNav.Brand>
+  <SideNav.Group label="Workspace">
+    <SideNav.Item href="/devices" icon={Cpu01} current label="Devices" />
+    <SideNav.Item href="/scenes" icon={Sun} label="Scenes" />
+  </SideNav.Group>
+  <SideNav.Footer>
+    <SideNav.Item href="/settings" icon={Settings01} label="Settings" />
+  </SideNav.Footer>
+</SideNav>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The root renders `<aside>` containing `<nav aria-label="Sidebar">`
+  so the navigation region is announced distinctly from the TopBar's
+  `aria-label="Primary"` nav.
+- `SideNav.Item` with `current` forwards `aria-current="page"` —
+  screen readers announce the active route distinctly from peers.
+- `SideNav.Group` wraps items in `<ul>` for `listitem` semantics.
+  Items inside `SideNav.Footer` (no list wrapper) render as `<div>`
+  rows so axe doesn't flag a bare `<li>` outside a list.
+- In `collapsed` mode the visible label is hidden but the link
+  retains an `sr-only` accessible name — axe `link-name` stays
+  green and screen readers still announce each destination.
+- Keep one SideNav per page (multiple `aside` landmarks confuse
+  screen-reader rotor lists; the first is announced as
+  `complementary` by default).
+
+## Related components
+
+- [TopBar](?path=/docs/web-primitives-topbar--docs) — primary horizontal navigation chrome; commonly paired with SideNav in app shells.
+- [Breadcrumb](?path=/docs/web-primitives-breadcrumb--docs) — page-level hierarchy (sits inside the page content).
+- [Avatar](?path=/docs/web-primitives-avatar--docs) — fits naturally inside `SideNav.Footer` for a user card.
+- [Badge](?path=/docs/web-primitives-badge--docs) — `SideNav.Item.badge` accepts a Badge node directly when you need richer styling than the auto-rendered count chip.
