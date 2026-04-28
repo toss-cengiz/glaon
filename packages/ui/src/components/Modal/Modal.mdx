@@ -1,0 +1,110 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as ModalStories from './Modal.stories';
+
+<Meta of={ModalStories} />
+
+# Modal
+
+Focus-trapped, scroll-locked dialog overlay. Built on the kit's
+`application/modals/modal.tsx` (which wraps react-aria-components'
+`<ModalOverlay>` + `<Modal>` + `<Dialog>` chain) — backdrop
+animation, focus return on close, scroll lock, Escape dismiss, and
+`aria-labelledby` / `aria-describedby` wiring all come from the kit.
+Use Modal when the surrounding UI must be blocked while the user
+makes a decision.
+
+## When to use
+
+- Confirmation dialogs for destructive actions (delete project,
+  revoke API key).
+- Short multi-step flows where the user must complete the dialog
+  before returning to the page (pair device, invite member).
+- Forms that don't need their own page but still warrant focus —
+  rename, share-link, edit-metadata.
+- Required acknowledgements (Terms of Service, post-incident
+  notice) — combine with `Persistent` to disable click-outside +
+  Escape so the user must use a footer button.
+
+## When NOT to use
+
+- **Inline tweak / quick edit anchored to a trigger** → use [Popover](?path=/docs/web-primitives-popover--docs); Popovers don't trap focus, don't lock scroll, and feel less heavy.
+- **Side-anchored panel** (filter sheet, log details, settings) → use [Drawer](?path=/docs/web-primitives-drawer--docs).
+- **System-level notification** (save success, error toast) → use [Toast](?path=/docs/web-primitives-toast--docs).
+- **Single-line hint** → use [Tooltip](?path=/docs/web-primitives-tooltip--docs).
+- **Content-heavy edit experience** that warrants a full page → route to a dedicated screen instead — Modals shouldn't host long-form work.
+
+## Anatomy
+
+<Canvas of={ModalStories.WithForm} />
+
+Compose with these slots:
+
+- **`Modal.Trigger`** — focusable child that opens the dialog.
+- **`Modal.Content`** — the dialog surface itself. Owns `size`
+  (`sm` / `md` / `lg` / `full`) and the dismiss flags
+  (`isDismissable`, `isKeyboardDismissDisabled`).
+- **`Modal.Header`** — title + optional subtitle, with a bottom
+  border.
+- **`Modal.Body`** — main content area. Scrollable
+  (`overflow-y-auto`) so long forms / Terms of Service render an
+  internal scrollbar instead of pushing footer buttons off-screen.
+- **`Modal.Footer`** — action buttons aligned to the end. Order:
+  dismiss / cancel on the left, primary action on the right.
+
+```tsx
+<Modal>
+  <Modal.Trigger>
+    <Button>Open</Button>
+  </Modal.Trigger>
+  <Modal.Content size="md">
+    <Modal.Header>
+      <h2>Confirm</h2>
+    </Modal.Header>
+    <Modal.Body>…content…</Modal.Body>
+    <Modal.Footer>
+      <Button color="secondary">Cancel</Button>
+      <Button color="primary">Save</Button>
+    </Modal.Footer>
+  </Modal.Content>
+</Modal>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The kit forwards `role="dialog"` + `aria-modal="true"` on the
+  surface and wires `aria-expanded` / `aria-controls` between the
+  trigger and the dialog automatically — do not override the roles.
+- Focus traps inside the modal while open and returns to the
+  trigger on close (RAC `<DialogTrigger>` contract). Tab cycles
+  inside the dialog; Shift-Tab cycles in reverse.
+- Escape closes the dialog (unless `isKeyboardDismissDisabled` is
+  set on `Modal.Content`); click-outside dismisses (unless
+  `isDismissable={false}`).
+- The `Modal.Body` is `tabIndex={0}` so keyboard users can scroll
+  long content with arrow keys. Without this, axe
+  `scrollable-region-focusable` fails on every overflowing body.
+- Don't autofocus a destructive button — the initial focus should
+  land on the first focusable element (input, primary CTA), never
+  "Delete".
+- Provide a heading via `Modal.Header` (e.g. `<h2>`) — the kit
+  wires `aria-labelledby` to whichever element renders the title,
+  so screen readers announce it on open.
+- Avoid nested dialogs (`role="dialog"` inside `role="dialog"`).
+  For confirmation steps inside a modal flow, dismiss the parent
+  first or use a `Persistent` confirmation pattern instead.
+
+## Related components
+
+- [Popover](?path=/docs/web-primitives-popover--docs) — inline anchored overlay; no focus trap, no scroll lock.
+- [Drawer](?path=/docs/web-primitives-drawer--docs) — side-anchored panel for filters / settings.
+- [Toast](?path=/docs/web-primitives-toast--docs) — overlay notification with no required interaction.
+- [Tooltip](?path=/docs/web-primitives-tooltip--docs) — short hover/focus-revealed hint.
