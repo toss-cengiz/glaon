@@ -1,11 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { Button } from '../Button';
 import { Tooltip } from './Tooltip';
+import { tooltipControls, tooltipExcludeFromArgs } from './Tooltip.controls';
+
+const { args, argTypes } = defineControls(tooltipControls);
 
 // Explicit `Meta<typeof Tooltip>` annotation (rather than `satisfies`)
 // keeps the kit's deep RAC generic chains out of the exported `meta`
 // signature — `tsc --noEmit` runs with `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `Tooltip.controls.ts`;
+// `tags: ['autodocs']` removed because `Tooltip.mdx` replaces the
+// docs tab.
 //
 // IMPORTANT: don't wrap the trigger element inside the kit's
 // `<TooltipTrigger>` *and* a Glaon `<Button>` — kit `TooltipTrigger`
@@ -17,54 +25,14 @@ import { Tooltip } from './Tooltip';
 const meta: Meta<typeof Tooltip> = {
   title: 'Web Primitives/Tooltip',
   component: Tooltip,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-tooltip',
     },
   },
-  args: {
-    title: 'Tooltip text',
-    placement: 'top',
-    arrow: false,
-    delay: 300,
-    closeDelay: 0,
-    isDisabled: false,
-    defaultOpen: true,
-  },
-  argTypes: {
-    title: { control: 'text' },
-    description: { control: 'text' },
-    placement: {
-      control: 'select',
-      options: [
-        'top',
-        'top start',
-        'top end',
-        'bottom',
-        'bottom start',
-        'bottom end',
-        'left',
-        'left top',
-        'left bottom',
-        'right',
-        'right top',
-        'right bottom',
-      ],
-    },
-    arrow: { control: 'boolean' },
-    delay: { control: { type: 'number', min: 0, max: 2000, step: 100 } },
-    closeDelay: { control: { type: 'number', min: 0, max: 2000, step: 100 } },
-    isDisabled: { control: 'boolean' },
-    isOpen: { control: 'boolean' },
-    defaultOpen: { control: 'boolean' },
-    offset: { control: { type: 'number', min: 0, max: 40, step: 1 } },
-    crossOffset: { control: { type: 'number', min: -40, max: 40, step: 1 } },
-    trigger: { control: 'inline-radio', options: ['focus', undefined] },
-    onOpenChange: { control: false, action: 'open-changed' },
-    children: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div
@@ -85,20 +53,7 @@ const meta: Meta<typeof Tooltip> = {
 export default meta;
 type Story = StoryObj<typeof Tooltip>;
 
-// Kit-internal props that aren't useful as Storybook controls but
-// flow through type-checking; covered by the F6 prop-coverage gate.
-export const excludeFromArgs = [
-  'shouldFlip',
-  'arrowBoundaryOffset',
-  'containerPadding',
-  'shouldUpdatePosition',
-  'isEntering',
-  'isExiting',
-  'UNSAFE_className',
-  'UNSAFE_style',
-  'translate',
-  'slot',
-];
+export const excludeFromArgs = tooltipExcludeFromArgs;
 
 export const Default: Story = {
   render: (args) => (

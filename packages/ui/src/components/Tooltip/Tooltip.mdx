@@ -1,0 +1,82 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as TooltipStories from './Tooltip.stories';
+
+<Meta of={TooltipStories} />
+
+# Tooltip
+
+Short, hover/focus-revealed hint anchored to a trigger element.
+Built on react-aria-components — keyboard activation, focus
+propagation, portal positioning, and `aria-describedby` wiring all
+come from the kit. Use Tooltip for one-liner clarifications;
+anything richer belongs in [Popover](?path=/docs/web-primitives-popover--docs).
+
+## When to use
+
+- Icon-only buttons that need a label on hover / focus
+  (notifications bell, gear icon).
+- Truncated text where the full content needs to be reachable
+  on hover (table cells, long names).
+- Inline help next to a label (paired with the kit's tooltip-trigger
+  affordance).
+- Form-field hints that don't fit in the visible UI (use the
+  Input/Textarea `tooltip` prop, which renders this component
+  internally).
+
+## When NOT to use
+
+- **Multi-line / rich content** → use [Popover](?path=/docs/web-primitives-popover--docs); tooltips are for short single-line hints. The `LongContent` story illustrates the upper bound.
+- **Click-to-open menus** → use [Popover](?path=/docs/web-primitives-popover--docs).
+- **Persistent annotations** → render the text inline; tooltips disappear and aren't usable for required information.
+- **Touch-only screens** — touch users can't hover; tooltips that aren't reachable by focus or tap fail. Always wrap a focusable trigger so keyboard + screen reader access still works.
+
+## Anatomy
+
+<Canvas of={TooltipStories.Default} />
+
+A trigger element + a portal-rendered popover surface containing the
+`title` (and optional `description`). The kit handles placement,
+flipping, animations, and the `aria-describedby` link between them.
+
+```tsx
+<Tooltip title="Notifications" placement="top">
+  <Button color="tertiary" iconLeading={Bell} aria-label="Notifications" />
+</Tooltip>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The kit forwards `role="tooltip"` and wires `aria-describedby` from
+  the trigger to the popover surface automatically — **don't** add
+  `aria-describedby` manually.
+- Always wrap a focusable trigger (button, link, focusable
+  `tabIndex={0}` element). Tooltips that only show on hover are
+  unreachable by keyboard and touch users — axe and the kit will
+  flag this.
+- **Do not** wrap the trigger in another `<TooltipTrigger>` or kit
+  `<AriaButton>` — RAC `<TooltipTrigger>` already renders an
+  `<AriaButton>` and the combination produces nested-interactive
+  controls (`role="button"` inside `role="button"`), failing axe
+  `nested-interactive`.
+- Icon-only triggers MUST set `aria-label` — the tooltip text is
+  _supplementary_ description, not the accessible name. Without
+  `aria-label`, screen readers announce the trigger as
+  "button, no name".
+- Default `delay: 300ms` matches the kit recommendation; keep it
+  high enough that users don't trigger tooltips by accident, but
+  low enough that intentional hovers feel responsive.
+
+## Related components
+
+- [Popover](?path=/docs/web-primitives-popover--docs) — multi-line / rich-content overlay; click-to-open instead of hover/focus-to-show.
+- [Modal](?path=/docs/web-primitives-modal--docs) — full-surface dialog when the content needs focus trapping.
+- [Input](?path=/docs/web-primitives-input--docs) / [Textarea](?path=/docs/web-primitives-textarea--docs) — set the `tooltip` prop to render this component inline next to the label.
