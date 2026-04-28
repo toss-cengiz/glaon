@@ -23,6 +23,7 @@ export * from './components/SideNav';
 export * from './components/Spinner';
 export * from './components/Stat';
 export * from './components/Switch';
+export * from './components/Table';
 export * from './components/Tabs';
 export * from './components/Textarea';
 export * from './components/Toast';
