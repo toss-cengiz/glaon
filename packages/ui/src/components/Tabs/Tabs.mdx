@@ -1,0 +1,92 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as TabsStories from './Tabs.stories';
+
+<Meta of={TabsStories} />
+
+# Tabs
+
+Switch between sibling views that share the same surface. Built on
+react-aria-components — Glaon adds the visual variants (`underline`,
+`button-brand`, `button-gray`, `line`) and exposes a Radix-style
+namespace (`Tabs.List` / `Tabs.Trigger` / `Tabs.Content`) on top of
+the kit's `Tab` / `TabList` / `TabPanel` exports.
+
+## When to use
+
+- Switch between peer views inside a single page or section: profile
+  tabs (Overview / Settings / Billing), settings tab strips, log
+  level filters.
+- Sectioning content where only one view is relevant at a time and
+  navigating between them is fast (sub-second cognitive switch).
+- Date-range pickers (Day / Week / Month / Year) — the
+  `button-gray` variant is the canonical look for these.
+
+## When NOT to use
+
+- **Distinct top-level navigation** → use [SideNav](?path=/docs/web-primitives-sidenav--docs) or [TopBar](?path=/docs/web-primitives-topbar--docs); tabs imply peer views, not site navigation.
+- **More than ~7 options** → the row gets unscannable; use [Select](?path=/docs/web-primitives-select--docs) or refactor the IA.
+- **Wizards / multi-step forms** → use a Stepper pattern (Phase 2); tabs let users skip ahead in any order, which breaks step semantics.
+- **Mutually exclusive form options** → use [Radio](?path=/docs/web-primitives-radio--docs) inside the form; tabs change the visible surface, not the form value.
+
+## Anatomy
+
+<Canvas of={TabsStories.Default} />
+
+Compose with three slots:
+
+- **`Tabs.List`** — owns the visual variant (`type`), size, and
+  `fullWidth` flag. Houses one or more `<Tabs.Trigger>` rows.
+- **`Tabs.Trigger`** — clickable tab head. Accepts `id` (key),
+  `label`, optional `icon`, optional `badge`, optional `isDisabled`.
+- **`Tabs.Content`** — the panel rendered when the matching `id` is
+  selected. One per Trigger.
+
+```tsx
+<Tabs defaultSelectedKey="overview">
+  <Tabs.List type="button-brand">
+    <Tabs.Trigger id="overview" label="Overview" />
+    <Tabs.Trigger id="settings" label="Settings" />
+    <Tabs.Trigger id="billing" label="Billing" />
+  </Tabs.List>
+  <Tabs.Content id="overview">…</Tabs.Content>
+  <Tabs.Content id="settings">…</Tabs.Content>
+  <Tabs.Content id="billing">…</Tabs.Content>
+</Tabs>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The kit forwards `role="tablist"` / `role="tab"` / `role="tabpanel"`
+  and the `aria-controls` / `aria-labelledby` cross-references
+  automatically; do not override the roles.
+- Always set a label for the TabList — either a visible heading
+  above it or `aria-label` / `aria-labelledby` on the `<Tabs.List>`
+  itself. Without it, screen readers announce the group as "tab
+  list" with no context.
+- Default `keyboardActivation: 'manual'` — Arrow keys move focus
+  only; Space / Enter activates the focused tab. This is the WAI-ARIA
+  recommended pattern for screen-reader users (focusing a tab
+  shouldn't load its panel).
+- Use `keyboardActivation: 'automatic'` only when the panels are
+  cheap to switch between and don't carry side-effects — otherwise
+  keyboard users scrub through state unintentionally.
+- For vertical orientation, use Up/Down arrows to navigate (the kit
+  switches the arrow-key contract automatically).
+- `<Tabs.Trigger isDisabled>` keeps the tab focusable but
+  unactivatable — better than removing the trigger (so the IA stays
+  consistent across users).
+
+## Related components
+
+- [SideNav](?path=/docs/web-primitives-sidenav--docs) / [TopBar](?path=/docs/web-primitives-topbar--docs) — site-level navigation, not peer-view switching.
+- [Select](?path=/docs/web-primitives-select--docs) — when there are too many options for a tab strip.
+- [Breadcrumb](?path=/docs/web-primitives-breadcrumb--docs) — hierarchical context (parent/child); Tabs are peer relationships.
