@@ -1,31 +1,31 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { Button } from '../Button';
 import { Input } from '../Input';
 import { Popover } from './Popover';
+import { popoverControls, popoverExcludeFromArgs } from './Popover.controls';
+
+const { args, argTypes } = defineControls(popoverControls);
 
 // Explicit `Meta<typeof Popover>` annotation (rather than `satisfies`)
 // keeps the merged static-property type out of the exported `meta`
 // signature — `tsc --noEmit` runs with `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `Popover.controls.ts`;
+// `tags: ['autodocs']` removed because `Popover.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Popover> = {
   title: 'Web Primitives/Popover',
   component: Popover,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-popover',
     },
   },
-  args: {
-    defaultOpen: false,
-  },
-  argTypes: {
-    isOpen: { control: 'boolean' },
-    defaultOpen: { control: 'boolean' },
-    onOpenChange: { control: false, action: 'open-changed' },
-    children: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div
@@ -45,6 +45,8 @@ const meta: Meta<typeof Popover> = {
 
 export default meta;
 type Story = StoryObj<typeof Popover>;
+
+export const excludeFromArgs = popoverExcludeFromArgs;
 
 export const Default: Story = {
   render: (args) => (

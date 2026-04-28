@@ -1,0 +1,92 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as PopoverStories from './Popover.stories';
+
+<Meta of={PopoverStories} />
+
+# Popover
+
+Click-triggered, rich-content overlay. Built on react-aria-components
+(`<DialogTrigger>` + `<Popover>` + `<Dialog>`) — focus return on
+close, Escape dismiss, click-outside dismiss, and portal positioning
+all come from the kit. Use Popover when a Tooltip is too small and a
+Modal is too disruptive.
+
+## When to use
+
+- Inline editors anchored to a trigger: rename, quick-edit, filter
+  picker, colour swatch.
+- Menus that need richer content than plain text (icons, sub-labels,
+  shortcuts) but don't warrant a full Modal.
+- Helper UIs: keyboard shortcut cheat sheets, mini-forms (project
+  rename, share link), filter expanders.
+- Composite triggers like "Quick add" or "Reactions" where the user
+  picks one of several actions.
+
+## When NOT to use
+
+- **Single-line hint** → use [Tooltip](?path=/docs/web-primitives-tooltip--docs); it activates on hover/focus and is the WAI-ARIA tooltip pattern.
+- **Critical decision / form that should block the surrounding UI** → use [Modal](?path=/docs/web-primitives-modal--docs); Popovers don't block interaction with the page.
+- **Side-anchored panel** → use [Drawer](?path=/docs/web-primitives-drawer--docs).
+- **Toast / system notification** → use [Toast](?path=/docs/web-primitives-toast--docs).
+- **Site-wide menu (account picker, app launcher)** that should persist between routes → render an inline panel; popovers dismiss on click-outside which fights the use case.
+
+## Anatomy
+
+<Canvas of={PopoverStories.WithRichContent} />
+
+Two composition slots:
+
+- **`Popover.Trigger`** — a focusable child (Button, link, anything
+  that takes focus). RAC's `<DialogTrigger>` recognises whichever
+  focusable element is rendered first.
+- **`Popover.Content`** — the popover surface. `placement` /
+  `offset` / `crossOffset` (and the kit's flip / animation slots)
+  live here, not on the root.
+
+```tsx
+<Popover>
+  <Popover.Trigger>
+    <Button>Open menu</Button>
+  </Popover.Trigger>
+  <Popover.Content placement="bottom start">
+    <div className="p-4">…rich content…</div>
+  </Popover.Content>
+</Popover>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The kit forwards `role="dialog"` on the popover surface and
+  `aria-expanded` / `aria-controls` on the trigger automatically —
+  do not override the roles.
+- Focus traps inside the popover while open and returns to the
+  trigger on close (RAC `<DialogTrigger>` contract).
+- Escape closes the popover; click-outside closes the popover;
+  Tab cycles focus inside the surface (no automatic close on Tab —
+  unlike a menu).
+- The trigger is the only path to opening the popover. Keep the
+  trigger element keyboard-operable (a `<Button>`, `<a>`, or
+  `tabIndex={0}` element) — non-focusable triggers leave keyboard
+  users stranded.
+- Avoid placing additional dialogs inside a Popover (`role="dialog"`
+  inside `role="dialog"`). For nested affordances, dismiss the
+  popover first, then open the dialog.
+- Don't autofocus a destructive button inside the popover — the
+  initial focus should land on the first focusable element (input
+  or "primary" CTA), not "Delete".
+
+## Related components
+
+- [Tooltip](?path=/docs/web-primitives-tooltip--docs) — short, hover/focus-revealed hint; can't host buttons / inputs.
+- [Modal](?path=/docs/web-primitives-modal--docs) — full-surface dialog that blocks interaction with the page.
+- [Drawer](?path=/docs/web-primitives-drawer--docs) — side-anchored panel for filters / settings.
+- [Toast](?path=/docs/web-primitives-toast--docs) — overlay notification with no required interaction.
