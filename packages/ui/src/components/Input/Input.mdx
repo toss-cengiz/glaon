@@ -1,0 +1,81 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as InputStories from './Input.stories';
+
+<Meta of={InputStories} />
+
+# Input
+
+Single-line text field with built-in label, helper text, validation
+state, optional leading icon, and a kit-provided password show/hide
+toggle. The most common form primitive in the kit — every text-style
+field you can imagine starts here.
+
+## When to use
+
+- Any single-line text capture: email, phone, search, name, URL.
+- Password fields (the kit's `type="password"` ships its own
+  show/hide affordance — no extra wiring needed).
+- Inline filtering / search affordances inside toolbars (use
+  `size="sm"` and a leading `search` icon).
+- As the trigger element of a controlled select / autocomplete (when
+  paired with the upcoming Combobox primitive).
+
+## When NOT to use
+
+- **Multi-line content** → use [Textarea](?path=/docs/web-primitives-textarea--docs).
+- **Single yes/no toggle** → use [Switch](?path=/docs/web-primitives-switch--docs) or [Checkbox](?path=/docs/web-primitives-checkbox--docs).
+- **Free-form rich text** → out of scope for Phase 1; queue a Phase 2 RichText primitive.
+- **Numeric range** → use the upcoming Slider primitive (numeric Input is fine for free-form integers).
+
+## Anatomy
+
+<Canvas of={InputStories.WithHelper} />
+
+Top-to-bottom: optional `label` (with optional inline `tooltip` and
+required indicator), the input group (optional leading `icon`, native
+`<input>`, optional trailing `shortcut` hint), and an optional `hint`
+caption that re-styles to red when `isInvalid` is true.
+
+```tsx
+<Input
+  label="Email address"
+  type="email"
+  icon={MailIcon}
+  placeholder="olivia@untitledui.com"
+  hint="We will only use this address to send you order updates."
+  isRequired
+/>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- Always set `label`. Visible labels satisfy axe `label` and pair the
+  field with assistive tech automatically; placeholder-only labels
+  fail.
+- For visually hidden labels (e.g. an icon-only search field) use
+  `aria-label` on the wrapper instead of dropping the `label` prop.
+- `isRequired` forwards `aria-required="true"` even when the visual
+  marker is hidden via `hideRequiredIndicator` — keep the prop set so
+  the a11y contract holds on dense forms.
+- `isInvalid` re-styles the hint to red AND wires
+  `aria-invalid="true"` + `aria-describedby` to the hint node, so
+  screen readers announce the error along with the label.
+- Password fields render a kit-provided show/hide button with
+  `aria-pressed` toggling between "Show password" / "Hide password".
+- The leading `icon` is decorative — pair the field with a meaningful
+  `label` (or `aria-label`) so the icon's intent is conveyed in text.
+
+## Related components
+
+- [Textarea](?path=/docs/web-primitives-textarea--docs) — multi-line counterpart with the same label / hint / validation contract.
+- [Checkbox](?path=/docs/web-primitives-checkbox--docs) / [Radio](?path=/docs/web-primitives-radio--docs) / [Switch](?path=/docs/web-primitives-switch--docs) — boolean form controls when an Input would be overkill.
+- [Select](?path=/docs/web-primitives-select--docs) — when the value comes from a fixed set of options instead of free text.

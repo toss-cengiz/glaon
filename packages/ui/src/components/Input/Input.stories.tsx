@@ -2,8 +2,10 @@ import type { ComponentType, HTMLAttributes } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { storybookIcons } from '../../icons/storybook';
 import { Input } from './Input';
+import { inputControls, inputExcludeFromArgs } from './Input.controls';
 
 // The kit `Input` typed `icon` as `ComponentType<HTMLAttributes<...>>`
 // while our shared picker (`icons/storybook.ts`) is typed loosely as
@@ -12,65 +14,28 @@ import { Input } from './Input';
 type InputIcon = ComponentType<HTMLAttributes<HTMLOrSVGElement>>;
 const icon = (name: keyof typeof storybookIcons): InputIcon => storybookIcons[name] as InputIcon;
 
+const { args, argTypes } = defineControls(inputControls);
+
 // Explicit `Meta<typeof Input>` annotation (rather than `satisfies`)
 // keeps the kit's unexported deep prop shapes (RAC `TextFieldProps`)
 // out of the exported `meta` signature — `tsc --noEmit` runs with
 // `declaration: true` and trips TS4023 / TS2742 when the inferred
 // meta references types that aren't portably named.
+//
+// Phase 1.5: `args` + `argTypes` come from `Input.controls.ts`;
+// `tags: ['autodocs']` removed because `Input.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Input> = {
   title: 'Web Primitives/Input',
   component: Input,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-input',
     },
   },
-  args: {
-    label: 'Email address',
-    placeholder: 'olivia@untitledui.com',
-    size: 'md',
-    isDisabled: false,
-    isReadOnly: false,
-    isRequired: false,
-    type: 'text',
-  },
-  argTypes: {
-    label: { control: 'text' },
-    placeholder: { control: 'text' },
-    hint: { control: 'text' },
-    tooltip: { control: 'text' },
-    size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] },
-    type: {
-      control: 'inline-radio',
-      options: ['text', 'email', 'password', 'number', 'tel', 'url'],
-    },
-    isDisabled: { control: 'boolean' },
-    isReadOnly: { control: 'boolean' },
-    isRequired: { control: 'boolean' },
-    isInvalid: { control: 'boolean' },
-    hideRequiredIndicator: { control: 'boolean' },
-    icon: {
-      control: 'select',
-      options: Object.keys(storybookIcons),
-      mapping: storybookIcons,
-    },
-    shortcut: { control: 'text' },
-    value: { control: 'text' },
-    defaultValue: { control: 'text' },
-    name: { control: 'text' },
-    onChange: { control: false, action: 'changed' },
-    onBlur: { control: false, action: 'blurred' },
-    onFocus: { control: false, action: 'focused' },
-    className: { control: false, table: { disable: true } },
-    inputClassName: { control: false, table: { disable: true } },
-    iconClassName: { control: false, table: { disable: true } },
-    wrapperClassName: { control: false, table: { disable: true } },
-    tooltipClassName: { control: false, table: { disable: true } },
-    ref: { control: false, table: { disable: true } },
-    groupRef: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div style={{ width: 360 }}>
@@ -83,37 +48,7 @@ const meta: Meta<typeof Input> = {
 export default meta;
 type Story = StoryObj<typeof Input>;
 
-// react-aria-components forwards a number of props from RAC TextField
-// (`autoFocus`, `validate`, `validationBehavior`, …) that we don't
-// surface as Storybook controls; the F6 prop-coverage gate accepts
-// them via this allowlist instead.
-export const excludeFromArgs = [
-  'autoFocus',
-  'validate',
-  'validationBehavior',
-  'inputMode',
-  'minLength',
-  'maxLength',
-  'pattern',
-  'autoComplete',
-  'enterKeyHint',
-  'spellCheck',
-  'autoCorrect',
-  'autoCapitalize',
-  'form',
-  'isInvalid',
-  'translate',
-  // Forwarded internally to `<TextField>` slot when used inside RAC
-  // composite collections; not user-facing knobs.
-  'slot',
-  'children',
-  'aria-label',
-  'aria-labelledby',
-  'aria-describedby',
-  'aria-details',
-  'aria-errormessage',
-  'data-rac',
-];
+export const excludeFromArgs = inputExcludeFromArgs;
 
 export const Default: Story = {};
 
