@@ -1,32 +1,32 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { Button } from '../Button';
 import { Input } from '../Input';
 import { Textarea } from '../Textarea';
 import { Drawer } from './Drawer';
+import { drawerControls, drawerExcludeFromArgs } from './Drawer.controls';
+
+const { args, argTypes } = defineControls(drawerControls);
 
 // Explicit `Meta<typeof Drawer>` annotation (rather than `satisfies`)
 // keeps the merged static-property type out of the exported `meta`
 // signature — `tsc --noEmit` runs with `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `Drawer.controls.ts`;
+// `tags: ['autodocs']` removed because `Drawer.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Drawer> = {
   title: 'Web Primitives/Drawer',
   component: Drawer,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-drawer',
     },
   },
-  args: {
-    defaultOpen: false,
-  },
-  argTypes: {
-    isOpen: { control: 'boolean' },
-    defaultOpen: { control: 'boolean' },
-    onOpenChange: { control: false, action: 'open-changed' },
-    children: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div
@@ -46,6 +46,8 @@ const meta: Meta<typeof Drawer> = {
 
 export default meta;
 type Story = StoryObj<typeof Drawer>;
+
+export const excludeFromArgs = drawerExcludeFromArgs;
 
 const SampleHeader = () => (
   <>

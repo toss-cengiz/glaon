@@ -1,0 +1,112 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as DrawerStories from './Drawer.stories';
+
+<Meta of={DrawerStories} />
+
+# Drawer
+
+Edge-anchored, focus-trapped overlay panel. Slides in from one of
+four sides (`left` / `right` / `top` / `bottom`) and shares Modal's
+RAC foundation — focus trap, scroll lock, Escape dismiss,
+click-outside dismiss, and `aria-labelledby` / `aria-describedby`
+wiring all come for free. Use Drawer when the user needs side
+context from the page behind the panel; otherwise reach for Modal.
+
+## When to use
+
+- Filter / settings panels anchored to one edge so the user can see
+  the affected list behind: log filters, search facets, layer
+  controls.
+- Multi-step forms (pair device, configure integration) where the
+  back-of-page context still informs the workflow.
+- Detail / inspector views (record details, log line metadata,
+  device specs) anchored to `right` while the table stays visible.
+- Mobile-style sheet UI (use `side="bottom"`) for quick actions on
+  narrower viewports.
+
+## When NOT to use
+
+- **Center-anchored decision dialog** → use [Modal](?path=/docs/web-primitives-modal--docs); a Drawer pulls focus to one side and looks lopsided for confirmations.
+- **Inline tweak / quick edit anchored to a trigger** → use [Popover](?path=/docs/web-primitives-popover--docs); Popovers don't trap focus and feel less heavy.
+- **System-level notification** → use [Toast](?path=/docs/web-primitives-toast--docs).
+- **Full-page route** that warrants its own URL → route to a dedicated screen instead — the Drawer's content shouldn't be shareable in isolation.
+- **Persistent app-shell side nav** → use [SideNav](?path=/docs/web-primitives-sidenav--docs); SideNav is always-on chrome, Drawer is an on-demand overlay.
+
+## Anatomy
+
+<Canvas of={DrawerStories.WithForm} />
+
+Compose with these slots:
+
+- **`Drawer.Trigger`** — focusable child that opens the panel.
+- **`Drawer.Content`** — the panel surface itself. Owns `side`
+  (`left` / `right` (default) / `top` / `bottom`), `size` (`sm` /
+  `md` / `lg` / `full`), and the dismiss flags
+  (`isDismissable`, `isKeyboardDismissDisabled`).
+- **`Drawer.Header`** — title + optional subtitle, with a bottom
+  border.
+- **`Drawer.Body`** — main content area. Scrollable
+  (`overflow-y-auto`) so long forms render an internal scrollbar
+  instead of pushing footer buttons off-screen.
+- **`Drawer.Footer`** — action buttons aligned to the end. Order:
+  dismiss / cancel on the left, primary action on the right.
+
+```tsx
+<Drawer>
+  <Drawer.Trigger>
+    <Button>Open settings</Button>
+  </Drawer.Trigger>
+  <Drawer.Content side="right" size="md">
+    <Drawer.Header>
+      <h2>Settings</h2>
+    </Drawer.Header>
+    <Drawer.Body>…</Drawer.Body>
+    <Drawer.Footer>
+      <Button color="secondary">Cancel</Button>
+      <Button color="primary">Save</Button>
+    </Drawer.Footer>
+  </Drawer.Content>
+</Drawer>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The kit forwards `role="dialog"` + `aria-modal="true"` on the
+  panel surface and wires `aria-expanded` / `aria-controls` between
+  the trigger and the dialog automatically — do not override the
+  roles.
+- Focus traps inside the drawer while open and returns to the
+  trigger on close (RAC `<DialogTrigger>` contract). Tab cycles
+  inside the panel; Shift-Tab cycles in reverse.
+- Escape closes the panel (unless `isKeyboardDismissDisabled` is
+  set on `Drawer.Content`); click-outside dismisses (unless
+  `isDismissable={false}`).
+- `Drawer.Body` is `tabIndex={0}` so keyboard users can scroll
+  long content with arrow keys. Without this, axe
+  `scrollable-region-focusable` fails on every overflowing body.
+- Provide a heading via `Drawer.Header` (e.g. `<h2>`) — the kit
+  wires `aria-labelledby` to whichever element renders the title,
+  so screen readers announce it on open.
+- For `side="bottom"` (mobile sheet) use `size="sm"` or `md` so
+  the user can still see partial page context above; `full` should
+  be reserved for true takeover flows.
+- Avoid nested dialogs (`role="dialog"` inside `role="dialog"`).
+  For confirmation steps inside a drawer flow, use a `Persistent`
+  pattern (disable click-outside + Escape) on the drawer rather
+  than spawning a Modal on top.
+
+## Related components
+
+- [Modal](?path=/docs/web-primitives-modal--docs) — center-anchored dialog; better fit for confirmations / blocking decisions.
+- [Popover](?path=/docs/web-primitives-popover--docs) — inline anchored overlay; no focus trap, no scroll lock.
+- [SideNav](?path=/docs/web-primitives-sidenav--docs) — persistent app-shell side navigation chrome (always-on, not on-demand).
+- [Toast](?path=/docs/web-primitives-toast--docs) — overlay notification with no required interaction.
