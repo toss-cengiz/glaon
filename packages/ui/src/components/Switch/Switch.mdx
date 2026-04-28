@@ -1,0 +1,67 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as SwitchStories from './Switch.stories';
+
+<Meta of={SwitchStories} />
+
+# Switch
+
+Boolean toggle that takes effect immediately. Use Switch for settings
+where flipping the control changes the world right away — no Save
+step. Built on react-aria-components.
+
+## When to use
+
+- Settings that take effect on toggle: notifications on/off,
+  airplane mode, dark mode preference.
+- Quick-action toggles inside lists / cards: enable a device,
+  activate a scene.
+- Feature flags exposed in admin panels (with audit trails).
+
+## When NOT to use
+
+- **Boolean inside a form that has a Submit / Save step** → use [Checkbox](?path=/docs/web-primitives-checkbox--docs); the established pattern for "I agree" / "Subscribe to newsletter" is a checkbox, not a switch.
+- **Mutually exclusive choice from a small set** → use [Radio](?path=/docs/web-primitives-radio--docs).
+- **Setting that requires confirmation** → wrap a toggle in a [Modal](?path=/docs/web-primitives-modal--docs); a bare Switch implies "fires immediately" and surprises the user.
+
+## Anatomy
+
+<Canvas of={SwitchStories.On} />
+
+A horizontal track with a sliding knob (`sm` or `md`, optionally
+`slim` for tighter rows), paired with a `label` to the side and an
+optional `hint` caption beneath.
+
+```tsx
+<Switch label="Enable notifications" defaultSelected />
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- Always set `label`. Visible labels satisfy axe `label` and pair the
+  control with assistive tech automatically. For visually hidden
+  labels (rare) use `aria-label` instead.
+- Space toggles the switch; Enter never toggles it (the kit follows
+  RAC's keyboard contract — Enter is reserved for form submission).
+- The kit forwards `role="switch"` + `aria-checked` automatically; do
+  not override the role.
+- Avoid relying on track / knob colour alone to communicate state —
+  pair with the label and (when state is non-obvious) a `hint` like
+  "On" / "Off" inline.
+- Confirm destructive actions with a [Modal](?path=/docs/web-primitives-modal--docs). A Switch
+  implies "fires immediately" — if a flip needs a "are you sure?"
+  step, the toggle is not the right primitive.
+
+## Related components
+
+- [Checkbox](?path=/docs/web-primitives-checkbox--docs) — boolean inside a form with a Save step.
+- [Radio](?path=/docs/web-primitives-radio--docs) — single choice from a small set of options.
+- [Modal](?path=/docs/web-primitives-modal--docs) — wrap a Switch in a confirmation dialog when the toggle has destructive consequences.
