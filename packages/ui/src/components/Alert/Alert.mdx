@@ -1,0 +1,61 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as AlertStories from './Alert.stories';
+
+<Meta of={AlertStories} />
+
+# Alert
+
+Inline status message. Use Alert when the user needs to read, but
+not necessarily act on, contextual information that lives next to
+the content it relates to. Heavier than a Badge (P1), lower-stakes
+than a Toast (P16).
+
+## When to use
+
+- Above a form section, explaining a constraint ("Email + password
+  is required to sign in").
+- Inside a settings page, calling attention to the impact of a flag.
+- After a save, confirming the result inline ("Profile saved.")
+  when the user is still viewing the form.
+
+## When NOT to use
+
+- **Page-level announcement** that's not tied to a specific section
+  → use [Banner](?path=/docs/web-primitives-banner--docs).
+- **Transient feedback** that should disappear → use [Toast](?path=/docs/web-primitives-toast--docs).
+- **Single-word status** → use [Badge](?path=/docs/web-primitives-badge--docs).
+
+## Anatomy
+
+<Canvas of={AlertStories.Default} />
+
+Layout: leading icon (intent-based), title + optional description
+(stacked vertically on mobile, inline-with-gap on desktop), optional
+close button at the top-right.
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- Renders as `<div role="status">` so screen readers announce the
+  text on insert / change.
+- The intent icon is `aria-hidden`; the title + description carry
+  the meaningful content.
+- Color alone never conveys meaning — title text always describes
+  the state ("Saved", "Connection lost", "Update available").
+- The close button is a real `<button>` with the configurable
+  `dismissLabel` as `aria-label` — keyboard reachable, focus ring
+  via `outline-focus-ring`.
+
+## Related components
+
+- [Banner](?path=/docs/web-primitives-banner--docs) — page-level announcement with optional CTA.
+- [Toast](?path=/docs/web-primitives-toast--docs) — transient overlay notification.
+- [Badge](?path=/docs/web-primitives-badge--docs) — single-word inline status.
