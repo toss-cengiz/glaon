@@ -1,0 +1,78 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as BreadcrumbStories from './Breadcrumb.stories';
+
+<Meta of={BreadcrumbStories} />
+
+# Breadcrumb
+
+Hierarchical path navigation. Renders the user's location inside an
+information architecture as a chain of links culminating in the
+current page. Web only — RN counterpart is queued as a follow-up
+issue (Phase 2 mobile primitive work).
+
+## When to use
+
+- Pages two or more levels deep where users need to trace back: file
+  paths, project hierarchies, multi-section settings.
+- Long-form workflows where users want to jump back to an ancestor
+  without using the browser back button.
+- Any page where the title alone doesn't communicate context (e.g.
+  generic names like "Settings" / "Details" / "Edit").
+
+## When NOT to use
+
+- **Top-level pages** (home, dashboard root) — there's nothing to
+  navigate back to.
+- **Peer view switching inside a single page** → use [Tabs](?path=/docs/web-primitives-tabs--docs).
+- **Site-level navigation chrome** → use [TopBar](?path=/docs/web-primitives-topbar--docs) / [SideNav](?path=/docs/web-primitives-sidenav--docs); breadcrumbs sit _inside_ the page content, not in the global chrome.
+- **Two-step wizards / forms** → use a Stepper pattern (Phase 2); breadcrumbs imply random-access navigation.
+
+## Anatomy
+
+<Canvas of={BreadcrumbStories.Default} />
+
+A `<nav aria-label="Breadcrumbs">` landmark wrapping a list of
+`<Breadcrumb.Item>` segments separated by a divider glyph. The last
+item renders as the current page (no `href`, no link styling).
+
+```tsx
+<Breadcrumb type="text" divider="chevron">
+  <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
+  <Breadcrumb.Item href="/projects">Projects</Breadcrumb.Item>
+  <Breadcrumb.Item>Glaon</Breadcrumb.Item>
+</Breadcrumb>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The kit wraps the list in `<nav aria-label="Breadcrumbs">` so the
+  landmark is announced as a navigation region by screen readers.
+- The current page (last item, no `href`) gets `aria-current="page"`
+  automatically — screen readers announce it distinctly from the
+  ancestor links.
+- Truncation collapses middle items behind a `…` ellipsis dropdown;
+  the dropdown is keyboard-operable (Space / Enter to open, arrows
+  to navigate, Escape to close) and announces the hidden items via
+  `aria-haspopup="menu"`.
+- Avoid placing more than **one** `<Breadcrumb>` per page — multiple
+  `<nav aria-label="Breadcrumbs">` landmarks fail axe
+  `landmark-unique`. (For the same reason there's no Variants gallery
+  story — see `Breadcrumb.stories.tsx` for the rationale.)
+- Keep crumb labels short and meaningful. Generic names ("Detail",
+  "Edit") fail in screen-reader rotor lists; favour the entity name
+  ("Glaon", "Issue #184").
+
+## Related components
+
+- [Tabs](?path=/docs/web-primitives-tabs--docs) — peer-view switching, not hierarchical context.
+- [TopBar](?path=/docs/web-primitives-topbar--docs) / [SideNav](?path=/docs/web-primitives-sidenav--docs) — site navigation chrome (sit outside the page content).
+- [Avatar](?path=/docs/web-primitives-avatar--docs) — paired with `Breadcrumb.AccountItem` for project / org switchers in the breadcrumb chain.

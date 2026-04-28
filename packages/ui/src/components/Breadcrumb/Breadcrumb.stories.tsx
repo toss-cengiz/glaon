@@ -1,37 +1,31 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { storybookIcons } from '../../icons/storybook';
 import { Breadcrumb } from './Breadcrumb';
+import { breadcrumbControls, breadcrumbExcludeFromArgs } from './Breadcrumb.controls';
+
+const { args, argTypes } = defineControls(breadcrumbControls);
 
 // Explicit `Meta<typeof Breadcrumb>` annotation (rather than
 // `satisfies`) keeps the kit's deep RAC generic chains out of the
 // exported `meta` signature — `tsc --noEmit` runs with
 // `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `Breadcrumb.controls.ts`;
+// `tags: ['autodocs']` removed because `Breadcrumb.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Breadcrumb> = {
   title: 'Web Primitives/Breadcrumb',
   component: Breadcrumb,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-breadcrumb',
     },
   },
-  args: {
-    type: 'text',
-    divider: 'chevron',
-    maxVisibleItems: 4,
-  },
-  argTypes: {
-    type: {
-      control: 'inline-radio',
-      options: ['text', 'text-line', 'button'],
-    },
-    divider: { control: 'inline-radio', options: ['chevron', 'slash'] },
-    maxVisibleItems: { control: { type: 'number', min: 2, max: 10, step: 1 } },
-    children: { control: false, table: { disable: true } },
-    className: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div style={{ width: 720 }}>
@@ -44,25 +38,7 @@ const meta: Meta<typeof Breadcrumb> = {
 export default meta;
 type Story = StoryObj<typeof Breadcrumb>;
 
-// `react-docgen-typescript` walks the static-property namespace
-// (`Breadcrumb.Item`, `Breadcrumb.AccountItem`) and surfaces those
-// sub-components' props on the merged root signature. Storybook's
-// `ArgTypes<BreadcrumbsProps>` type only allows root props, so we
-// can't add these to `argTypes`; surface them through the F6
-// `excludeFromArgs` allowlist instead — consumers set them on
-// `<Breadcrumb.Item …>`, not the root.
-export const excludeFromArgs = [
-  // BreadcrumbItem-only props.
-  'href',
-  'icon',
-  'isEllipsis',
-  'avatarSrc',
-  'onClick',
-  // BreadcrumbAccountItem-only props.
-  'items',
-  'selectedKey',
-  'onSelectionChange',
-];
+export const excludeFromArgs = breadcrumbExcludeFromArgs;
 
 export const Default: Story = {
   render: (args) => (
