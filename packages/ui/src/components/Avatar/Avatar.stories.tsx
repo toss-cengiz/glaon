@@ -1,65 +1,37 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
-import { storybookIcons } from '../../icons/storybook';
+import { defineControls } from '../_internal/controls';
 import { Avatar } from './Avatar';
+import { avatarControls, avatarExcludeFromArgs } from './Avatar.controls';
+
+const { args, argTypes } = defineControls(avatarControls);
 
 // Explicit `Meta<typeof Avatar>` annotation (rather than `satisfies`)
 // keeps the kit's unexported `AvatarProps` shape out of the exported
 // `meta` signature — `tsc --noEmit` runs with `declaration: true` and
 // trips TS4023 / TS2742 when the inferred meta references types that
 // aren't portably named.
+//
+// Phase 1.5: `args` + `argTypes` come from `Avatar.controls.ts`;
+// `tags: ['autodocs']` removed because `Avatar.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Avatar> = {
   title: 'Web Primitives/Avatar',
   component: Avatar,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-avatar',
     },
   },
-  args: {
-    size: 'md',
-    alt: 'Olivia Rhye',
-    initials: 'OR',
-    rounded: true,
-    border: false,
-    contrastBorder: false,
-    verified: false,
-    focusable: false,
-  },
-  argTypes: {
-    size: {
-      control: 'inline-radio',
-      options: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-    },
-    src: { control: 'text' },
-    alt: { control: 'text' },
-    initials: { control: 'text' },
-    rounded: { control: 'boolean' },
-    border: { control: 'boolean' },
-    contrastBorder: { control: 'boolean' },
-    verified: { control: 'boolean' },
-    focusable: { control: 'boolean' },
-    status: {
-      control: 'inline-radio',
-      options: ['online', 'offline', undefined],
-    },
-    count: { control: { type: 'number', min: 0, max: 99, step: 1 } },
-    placeholderIcon: {
-      control: 'select',
-      options: Object.keys(storybookIcons),
-      mapping: storybookIcons,
-    },
-    placeholder: { control: false, table: { disable: true } },
-    badge: { control: false, table: { disable: true } },
-    className: { control: false, table: { disable: true } },
-    contentClassName: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
 };
 
 export default meta;
 type Story = StoryObj<typeof Avatar>;
+
+export const excludeFromArgs = avatarExcludeFromArgs;
 
 export const Default: Story = {};
 

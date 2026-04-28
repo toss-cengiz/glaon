@@ -2,38 +2,36 @@ import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
 import { CurrencyDollar } from '@untitledui/icons';
 
+import { defineControls } from '../_internal/controls';
 import { Stat } from './Stat';
+import { statControls, statExcludeFromArgs } from './Stat.controls';
+
+const { args, argTypes } = defineControls(statControls);
 
 // Explicit `Meta<typeof Stat>` annotation (rather than `satisfies`)
 // keeps storybook csf-internal types out of the exported `meta`
 // signature — `tsc --noEmit` runs with `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `Stat.controls.ts`;
+// `tags: ['autodocs']` removed because `Stat.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Stat> = {
   title: 'Web Primitives/Stat',
   component: Stat,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-stat',
     },
   },
-  args: {
-    label: 'Total revenue',
-    value: '$32,400',
-    size: 'md',
-  },
-  argTypes: {
-    label: { control: 'text' },
-    value: { control: 'text' },
-    size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] },
-    delta: { control: 'object' },
-    prefix: { control: false, table: { disable: true } },
-    className: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
 };
 
 export default meta;
 type Story = StoryObj<typeof Stat>;
+
+export const excludeFromArgs = statExcludeFromArgs;
 
 export const Default: Story = {};
 

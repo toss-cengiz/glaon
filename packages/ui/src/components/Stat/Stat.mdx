@@ -1,0 +1,57 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as StatStories from './Stat.stories';
+
+<Meta of={StatStories} />
+
+# Stat
+
+Single-metric KPI card. Shows one bold value with a caption underneath
+and an optional change indicator. Designed for dashboard hero rows
+and inline KPI strips.
+
+## When to use
+
+- Dashboard hero row: 3–4 Stat cards comparing today's vs. yesterday's
+  numbers (revenue, sign-ups, errors).
+- Inline metric inside a Card body — value + label + delta.
+- Profile / project headers: "12 projects", "98% uptime", etc.
+
+## When NOT to use
+
+- **Numeric badge inside a list item** → use [Badge](?path=/docs/web-primitives-badge--docs) (`12 unread`).
+- **Determinate progress** → use [ProgressBar](?path=/docs/web-primitives-progressbar--docs).
+- **Sparkline / multi-point trend** → wait for the Phase 2 chart
+  primitive; embed the chart inside `prefix`.
+
+## Anatomy
+
+<Canvas of={StatStories.Default} />
+
+Layout: optional `prefix` slot (currency icon, unit), bold value,
+optional inline delta indicator (arrow + percentage + colour),
+caption (`label`) below.
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The Stat root renders `<dl>` with `<dd>` (value) above `<dt>`
+  (label) using `flex-col-reverse` — visually the value is on top
+  but the document order satisfies axe `definition-list`.
+- Delta colour tokens (`text-success-700` / `text-error-700` /
+  `text-secondary`) pass WCAG AA contrast at small text sizes.
+- The arrow icon inside the delta is `aria-hidden` — the text
+  (e.g. "+12.5%") carries the meaningful change.
+
+## Related components
+
+- [Badge](?path=/docs/web-primitives-badge--docs) — inline status / count.
+- [Card](?path=/docs/web-primitives-card--docs) — Stat fits naturally inside `Card.Body`.
+- [ProgressBar](?path=/docs/web-primitives-progressbar--docs) — when the metric represents progress, not a snapshot.
