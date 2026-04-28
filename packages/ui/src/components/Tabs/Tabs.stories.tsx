@@ -2,37 +2,31 @@ import type { ReactNode } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { storybookIcons } from '../../icons/storybook';
 import { Tabs } from './Tabs';
+import { tabsControls, tabsExcludeFromArgs } from './Tabs.controls';
+
+const { args, argTypes } = defineControls(tabsControls);
 
 // Explicit `Meta<typeof Tabs>` annotation (rather than `satisfies`)
 // keeps the kit's deep RAC generic chains out of the exported `meta`
 // signature — `tsc --noEmit` runs with `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `Tabs.controls.ts`;
+// `tags: ['autodocs']` removed because `Tabs.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Tabs> = {
   title: 'Web Primitives/Tabs',
   component: Tabs,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-tabs',
     },
   },
-  args: {
-    defaultSelectedKey: 'overview',
-    orientation: 'horizontal',
-    keyboardActivation: 'manual',
-  },
-  argTypes: {
-    defaultSelectedKey: { control: 'text' },
-    selectedKey: { control: 'text' },
-    orientation: { control: 'inline-radio', options: ['horizontal', 'vertical'] },
-    keyboardActivation: { control: 'inline-radio', options: ['automatic', 'manual'] },
-    isDisabled: { control: 'boolean' },
-    onSelectionChange: { control: false, action: 'selection-changed' },
-    children: { control: false, table: { disable: true } },
-    className: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div style={{ width: 640 }}>
@@ -45,32 +39,7 @@ const meta: Meta<typeof Tabs> = {
 export default meta;
 type Story = StoryObj<typeof Tabs>;
 
-// `react-docgen-typescript` walks the static-property namespace on
-// `Tabs` (Tabs.List, Tabs.Trigger, Tabs.Content) and surfaces their
-// own props on the root signature too. The TabList-only props
-// (`size`, `type`, `items`, `fullWidth`) belong on `<Tabs.List>` per
-// the Glaon API; expose them via the sub-component story rather than
-// the root meta.
-export const excludeFromArgs = [
-  // TabList-only props (set on `<Tabs.List type=… size=… fullWidth>`).
-  'size',
-  'type',
-  'items',
-  'fullWidth',
-  // RAC-forwarded props not useful as Storybook knobs.
-  'autoFocus',
-  'aria-label',
-  'aria-labelledby',
-  'aria-describedby',
-  'aria-details',
-  'translate',
-  'slot',
-  'data-rac',
-  'ref',
-  'id',
-  'style',
-  'dir',
-];
+export const excludeFromArgs = tabsExcludeFromArgs;
 
 const samplePanel = (text: string): ReactNode => (
   <div className="p-4 text-sm text-secondary">{text}</div>
