@@ -1,49 +1,32 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { Button } from '../Button';
-import { storybookIcons } from '../../icons/storybook';
 import { Banner } from './Banner';
+import { bannerControls, bannerExcludeFromArgs } from './Banner.controls';
+
+const { args, argTypes } = defineControls(bannerControls);
 
 // Explicit `Meta<typeof Banner>` annotation (rather than `satisfies`)
 // keeps storybook csf-internal types out of the exported `meta`
 // signature — `tsc --noEmit` runs with `declaration: true` and trips
 // TS2742 / TS4023 when the inferred meta references types that aren't
 // portably named.
+//
+// Phase 1.5: `args` + `argTypes` come from `Banner.controls.ts`;
+// `tags: ['autodocs']` removed because `Banner.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Banner> = {
   title: 'Web Primitives/Banner',
   component: Banner,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-banner',
     },
   },
-  args: {
-    title: 'We use cookies',
-    description: 'See our cookie policy for details.',
-    intent: 'info',
-    dismissible: false,
-    dismissLabel: 'Dismiss',
-  },
-  argTypes: {
-    title: { control: 'text' },
-    description: { control: 'text' },
-    intent: {
-      control: 'inline-radio',
-      options: ['info', 'success', 'warning', 'danger'],
-    },
-    dismissible: { control: 'boolean' },
-    dismissLabel: { control: 'text' },
-    icon: {
-      control: 'select',
-      options: Object.keys(storybookIcons),
-      mapping: storybookIcons,
-    },
-    actions: { control: false, table: { disable: true } },
-    onDismiss: { control: false, action: 'dismissed' },
-    className: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div style={{ width: 720 }}>
@@ -55,6 +38,8 @@ const meta: Meta<typeof Banner> = {
 
 export default meta;
 type Story = StoryObj<typeof Banner>;
+
+export const excludeFromArgs = bannerExcludeFromArgs;
 
 export const Default: Story = {};
 

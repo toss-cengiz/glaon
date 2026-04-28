@@ -1,0 +1,62 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as BannerStories from './Banner.stories';
+
+<Meta of={BannerStories} />
+
+# Banner
+
+Page-level announcement. Use Banner when an event affects the entire
+session or app — cookie consent, planned maintenance, version update,
+global outage notice. Wider visual footprint than Alert; carries an
+optional CTA action.
+
+## When to use
+
+- Top of the page: cookie consent prompt with Accept / Decline buttons.
+- App-wide announcement: "Maintenance in 2 hours" warning across all
+  routes.
+- Update prompt: "New version available" with a single Reload action.
+- Outage notice: "Connection to Home Assistant lost — reconnecting…"
+
+## When NOT to use
+
+- **Section-level inline status** → use [Alert](?path=/docs/web-primitives-alert--docs).
+- **Transient confirmation** → use [Toast](?path=/docs/web-primitives-toast--docs).
+- **Single-word status** → use [Badge](?path=/docs/web-primitives-badge--docs).
+
+## Anatomy
+
+<Canvas of={BannerStories.Default} />
+
+Layout: leading icon (intent-based), title + optional description
+(inline on desktop), optional action slot (1–2 Buttons), optional
+close button at the top-right.
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- Renders as `<div role="status">` so screen readers announce the
+  banner on insert / change.
+- The intent icon is `aria-hidden`; title + description carry the
+  meaningful content.
+- Action buttons are real `<Button>` instances — keyboard reachable,
+  focus rings inherited from the Button primitive.
+- The close button (when `dismissible`) carries `dismissLabel` as
+  `aria-label`.
+- Persist the dismissed state in `localStorage` or a per-user setting
+  so reopened banners don't re-display indefinitely (orchestration
+  lives in the consumer, not in the primitive).
+
+## Related components
+
+- [Alert](?path=/docs/web-primitives-alert--docs) — section-level inline status.
+- [Toast](?path=/docs/web-primitives-toast--docs) — transient overlay notification.
+- [Modal](?path=/docs/web-primitives-modal--docs) — blocking confirmation that requires user action.
