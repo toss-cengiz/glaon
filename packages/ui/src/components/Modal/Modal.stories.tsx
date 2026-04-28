@@ -1,32 +1,32 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { Button } from '../Button';
 import { Input } from '../Input';
 import { Textarea } from '../Textarea';
 import { Modal } from './Modal';
+import { modalControls, modalExcludeFromArgs } from './Modal.controls';
+
+const { args, argTypes } = defineControls(modalControls);
 
 // Explicit `Meta<typeof Modal>` annotation (rather than `satisfies`)
 // keeps the merged static-property type out of the exported `meta`
 // signature — `tsc --noEmit` runs with `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `Modal.controls.ts`;
+// `tags: ['autodocs']` removed because `Modal.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Modal> = {
   title: 'Web Primitives/Modal',
   component: Modal,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-modal',
     },
   },
-  args: {
-    defaultOpen: false,
-  },
-  argTypes: {
-    isOpen: { control: 'boolean' },
-    defaultOpen: { control: 'boolean' },
-    onOpenChange: { control: false, action: 'open-changed' },
-    children: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div
@@ -46,6 +46,8 @@ const meta: Meta<typeof Modal> = {
 
 export default meta;
 type Story = StoryObj<typeof Modal>;
+
+export const excludeFromArgs = modalExcludeFromArgs;
 
 const SampleHeader = () => (
   <>
