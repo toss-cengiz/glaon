@@ -132,8 +132,15 @@ function ModalHeader({ className, children }: ModalHeaderProps) {
 }
 
 function ModalBody({ className, children }: ModalBodyProps) {
+  // `tabIndex={0}` lets keyboard users focus the scrollable body and
+  // page through with arrow keys — axe `scrollable-region-focusable`
+  // requires this on every element that scrolls (the Body always
+  // declares `overflow-y-auto`, so it qualifies even when content
+  // fits within the height).
   return (
-    <div className={joinClasses('flex-1 overflow-y-auto px-6 py-5', className)}>{children}</div>
+    <div tabIndex={0} className={joinClasses('flex-1 overflow-y-auto px-6 py-5', className)}>
+      {children}
+    </div>
   );
 }
 
