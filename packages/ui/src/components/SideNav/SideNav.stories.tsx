@@ -2,9 +2,11 @@ import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
 import type { FC } from 'react';
 
+import { defineControls } from '../_internal/controls';
 import { Avatar } from '../Avatar';
 import { storybookIcons } from '../../icons/storybook';
 import { SideNav } from './SideNav';
+import { sideNavControls, sideNavExcludeFromArgs } from './SideNav.controls';
 
 // Pull a few icons from the curated picker so stories share the
 // same icon-typing workaround as Button / Alert / TopBar etc. The
@@ -24,27 +26,26 @@ const settings = icon('settings');
 const star = icon('star');
 const user = icon('user');
 
+const { args, argTypes } = defineControls(sideNavControls);
+
 // Explicit `Meta<typeof SideNav>` annotation (rather than `satisfies`)
 // keeps the merged static-property shape out of the exported `meta`
 // signature — `tsc --noEmit` runs with `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `SideNav.controls.ts`;
+// `tags: ['autodocs']` removed because `SideNav.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof SideNav> = {
   title: 'Web Primitives/SideNav',
   component: SideNav,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-sidenav',
     },
   },
-  args: {
-    collapsed: false,
-  },
-  argTypes: {
-    collapsed: { control: 'boolean' },
-    children: { control: false, table: { disable: true } },
-    className: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div style={{ display: 'flex', height: 560 }}>
@@ -56,6 +57,8 @@ const meta: Meta<typeof SideNav> = {
 
 export default meta;
 type Story = StoryObj<typeof SideNav>;
+
+export const excludeFromArgs = sideNavExcludeFromArgs;
 
 const SampleBrand = () => <span className="text-base font-semibold text-primary">Glaon</span>;
 
