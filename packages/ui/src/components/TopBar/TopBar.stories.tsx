@@ -2,11 +2,13 @@ import type { ComponentType, HTMLAttributes } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { Avatar } from '../Avatar';
 import { Button } from '../Button';
 import { Input } from '../Input';
 import { storybookIcons } from '../../icons/storybook';
 import { TopBar } from './TopBar';
+import { topBarControls, topBarExcludeFromArgs } from './TopBar.controls';
 
 // Same workaround as in `Input.stories.tsx` — the kit's `Input.icon`
 // is typed `ComponentType<HTMLAttributes<...>>` while our shared
@@ -16,27 +18,26 @@ type InputIcon = ComponentType<HTMLAttributes<HTMLOrSVGElement>>;
 const inputIcon = (name: keyof typeof storybookIcons): InputIcon =>
   storybookIcons[name] as InputIcon;
 
+const { args, argTypes } = defineControls(topBarControls);
+
 // Explicit `Meta<typeof TopBar>` annotation (rather than `satisfies`)
 // keeps the merged static-property type out of the exported `meta`
 // signature — `tsc --noEmit` runs with `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `TopBar.controls.ts`;
+// `tags: ['autodocs']` removed because `TopBar.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof TopBar> = {
   title: 'Web Primitives/TopBar',
   component: TopBar,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-topbar',
     },
   },
-  args: {
-    compact: false,
-  },
-  argTypes: {
-    compact: { control: 'boolean' },
-    children: { control: false, table: { disable: true } },
-    className: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div style={{ width: 1024 }}>
@@ -48,6 +49,8 @@ const meta: Meta<typeof TopBar> = {
 
 export default meta;
 type Story = StoryObj<typeof TopBar>;
+
+export const excludeFromArgs = topBarExcludeFromArgs;
 
 const SampleBrand = () => <span className="text-base font-semibold text-primary">Glaon</span>;
 

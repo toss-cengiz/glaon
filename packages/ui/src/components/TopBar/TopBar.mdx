@@ -1,0 +1,89 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as TopBarStories from './TopBar.stories';
+
+<Meta of={TopBarStories} />
+
+# TopBar
+
+Application-shell header. Renders the global navigation chrome at
+the top of every authenticated page: brand on the left, primary nav
+in the centre, user actions on the right.
+
+## When to use
+
+- Top-level navigation chrome on every authenticated page (web app
+  shell, wall-tablet shell).
+- Marketing / public-site headers when you want the same flex
+  layout but different content.
+- Any surface that needs a brand + nav + actions row across the
+  full width of the page.
+
+## When NOT to use
+
+- **Hierarchical context inside a single page** → use [Breadcrumb](?path=/docs/web-primitives-breadcrumb--docs); TopBar belongs in the global chrome, not in page content.
+- **Peer-view switching inside a page** → use [Tabs](?path=/docs/web-primitives-tabs--docs).
+- **Side navigation** → use [SideNav](?path=/docs/web-primitives-sidenav--docs); TopBar and SideNav often coexist in app shells.
+- **Mobile bottom-nav** → out of scope for Phase 1; a mobile-shell BottomBar primitive is queued for Phase 2.
+
+## Anatomy
+
+<Canvas of={TopBarStories.Default} />
+
+Three composition slots, arranged left → centre → right by the
+flex layout regardless of declaration order:
+
+- **`TopBar.Brand`** — logo / wordmark anchor on the left.
+- **`TopBar.Nav`** — `<nav aria-label="Primary">` row of nav links;
+  collapses below `md` breakpoint (provide a hamburger / drawer in
+  `TopBar.Actions` for mobile).
+- **`TopBar.Actions`** — search input, notifications, avatar / user
+  menu, sign-in button.
+
+```tsx
+<TopBar>
+  <TopBar.Brand>
+    <Logo />
+  </TopBar.Brand>
+  <TopBar.Nav>
+    <a href="/devices">Devices</a>
+    <a href="/scenes">Scenes</a>
+  </TopBar.Nav>
+  <TopBar.Actions>
+    <SearchInput />
+    <Avatar />
+  </TopBar.Actions>
+</TopBar>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The root renders `<header>` so it surfaces as a `banner` landmark
+  to screen readers — keep one TopBar per page (multiple `banner`
+  landmarks fail axe `landmark-unique`).
+- `<TopBar.Nav>` renders `<nav aria-label="Primary">` so the
+  navigation region is announced distinctly from any
+  `<Breadcrumb>` (`aria-label="Breadcrumbs"`) further down the page.
+- The `Nav` slot collapses below `md` — provide a mobile menu
+  trigger in `TopBar.Actions` so navigation stays reachable on
+  small screens.
+- Buttons inside `TopBar.Actions` that show only an icon (e.g.
+  notifications bell) MUST set `aria-label` — otherwise the button
+  has no accessible name.
+- Avoid placing additional `<header>` elements inside the TopBar; a
+  single `banner` landmark is the contract.
+
+## Related components
+
+- [SideNav](?path=/docs/web-primitives-sidenav--docs) — secondary global navigation; commonly paired with TopBar in app shells.
+- [Breadcrumb](?path=/docs/web-primitives-breadcrumb--docs) — page-level hierarchy (sits inside the page content, not in TopBar).
+- [Avatar](?path=/docs/web-primitives-avatar--docs) — fits naturally inside `TopBar.Actions` for the user menu trigger.
+- [Input](?path=/docs/web-primitives-input--docs) — search affordance inside `TopBar.Actions`; pair with a leading `search` icon.
