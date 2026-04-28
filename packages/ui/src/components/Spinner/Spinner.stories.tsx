@@ -1,39 +1,37 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { Spinner } from './Spinner';
+import { spinnerControls, spinnerExcludeFromArgs } from './Spinner.controls';
+
+const { args, argTypes } = defineControls(spinnerControls);
 
 // Explicit `Meta<typeof Spinner>` annotation (rather than `satisfies`)
 // keeps the kit's unexported `LoadingIndicatorProps` interface out of
 // the exported `meta` signature — `tsc --noEmit` runs with
 // `declaration: true` and TS4023 fires when an exported `meta` resolves
 // to a non-exported nominal type.
+//
+// Phase 1.5: `args` + `argTypes` come from `Spinner.controls.ts`;
+// `tags: ['autodocs']` removed because `Spinner.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Spinner> = {
   title: 'Web Primitives/Spinner',
   component: Spinner,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-spinner',
     },
   },
-  args: {
-    type: 'line-simple',
-    size: 'sm',
-    label: '',
-  },
-  argTypes: {
-    type: {
-      control: 'inline-radio',
-      options: ['line-simple', 'line-spinner', 'dot-circle'],
-    },
-    size: { control: 'inline-radio', options: ['sm', 'md', 'lg', 'xl'] },
-    label: { control: 'text' },
-  },
+  args,
+  argTypes,
 };
 
 export default meta;
 type Story = StoryObj<typeof Spinner>;
+
+export const excludeFromArgs = spinnerExcludeFromArgs;
 
 export const Default: Story = {};
 

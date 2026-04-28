@@ -12,6 +12,10 @@ export default defineMain({
   addons: [
     '@storybook/addon-a11y',
     '@storybook/addon-designs',
+    // `addon-docs` enables MDX file processing — Storybook 10 ships
+    // autodocs in core but `*.mdx` parsing needs this addon
+    // explicitly so Phase 1.5's per-component docs pages compile.
+    '@storybook/addon-docs',
     '@storybook/addon-themes',
     '@storybook/addon-vitest',
     'storybook-dark-mode',

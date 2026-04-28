@@ -315,3 +315,29 @@ export const DarkOnly: Story = {
 - **`storybook` komutu "Cannot find module"** → `pnpm install` çalıştırdın mı? Paketler `packages/ui`'nin devDeps'inde; workspace kurulumu zorunlu.
 - **Story'de tip hatası** → `satisfies Meta<typeof Component>` kalıbını kullan; props inference'ı doğru çalışır.
 - **a11y uyarıları takılıyor** → kasıtlı istisna varsa story'de `parameters.a11y.test = 'off'` kullan ve yorum yaz; default'u sessizce gevşetme.
+
+## Phase 1.5 — Controls spec + MDX docs (MANDATORY)
+
+Yeni component eklerken her zaman üç dosya çıkar — Storybook stories file'ı tek başına yeterli değildir.
+
+### Üç dosya kontratı
+
+1. **`<Component>.controls.ts`** — typed control spec, story + MDX'in tek kaynağı.
+2. **`<Component>.stories.tsx`** — `defineControls(spec)` ile meta'yı kurar; `tags: ['autodocs']` **kullanılmaz** (MDX devraldı).
+3. **`<Component>.mdx`** — narrative docs sayfası: When to use / When NOT / Anatomy / Variants / Props / A11y / Related.
+
+### `defineControls` helper
+
+`packages/ui/src/components/_internal/controls.ts` her prop için tek bir `ControlSpec` kabul eder. `description` alanı zorunlu — Storybook controls panelinde **ve** MDX `<Controls />` block'unda aynı string render olur.
+
+### MDX kurulum notu
+
+`@storybook/addon-docs` `packages/ui/devDependencies`'de zorunlu. `.storybook/main.ts` `addons` listesinde de yer alır. MDX import'ları her zaman `@storybook/addon-docs/blocks` yolundan yapılır (Storybook 10'da `@storybook/blocks` doğrudan resolve edilmez).
+
+### Source code panel default açık
+
+`.storybook/preview.ts` `parameters.docs.source.state: 'open'` set ediyor. Her story canvas'ında JSX snippet "Show code" butonu basılmadan görünür.
+
+### F6 prop-coverage gate uyumu
+
+`defineControls` çıktısı doğrudan F6 gate'in beklediği shape'i üretir (`args` ∪ `argTypes` ∪ `excludeFromArgs` her prop'u kapsar). Test (`packages/ui/src/__tests__/prop-coverage.test.ts`) değişmeden çalışır.

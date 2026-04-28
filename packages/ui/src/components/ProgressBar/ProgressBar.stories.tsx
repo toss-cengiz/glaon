@@ -1,46 +1,30 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { ProgressBar } from './ProgressBar';
+import { progressBarControls, progressBarExcludeFromArgs } from './ProgressBar.controls';
+
+const { args, argTypes } = defineControls(progressBarControls);
 
 // Explicit `Meta<typeof ProgressBar>` annotation (rather than `satisfies`)
 // keeps storybook's csf-internal types out of the exported `meta`
 // signature — `tsc --noEmit` runs with `declaration: true` and trips
 // TS2742 on inferred references to `storybook/internal/csf`.
+//
+// Phase 1.5: `args` + `argTypes` come from `ProgressBar.controls.ts`;
+// `tags: ['autodocs']` removed because `ProgressBar.mdx` replaces
+// the docs tab.
 const meta: Meta<typeof ProgressBar> = {
   title: 'Web Primitives/ProgressBar',
   component: ProgressBar,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-progressbar',
     },
   },
-  args: {
-    value: 60,
-    min: 0,
-    max: 100,
-    labelPosition: 'right',
-    // Default accessible name. axe `aria-progressbar-name` requires every
-    // `role="progressbar"` element to expose a name; the kit doesn't
-    // imply one from sibling label text. Stories override per-context
-    // when a more specific label fits.
-    'aria-label': 'Progress',
-  },
-  argTypes: {
-    value: { control: { type: 'number', min: 0, max: 100, step: 1 } },
-    min: { control: { type: 'number', min: 0, max: 100, step: 1 } },
-    max: { control: { type: 'number', min: 0, max: 1000, step: 10 } },
-    labelPosition: {
-      control: 'inline-radio',
-      options: ['right', 'bottom', 'top-floating', 'bottom-floating'],
-    },
-    valueFormatter: { control: false, action: 'format' },
-    className: { control: false, table: { disable: true } },
-    progressClassName: { control: false, table: { disable: true } },
-    'aria-label': { control: 'text' },
-    'aria-labelledby': { control: 'text' },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div style={{ width: 320, padding: 24 }}>
@@ -52,6 +36,8 @@ const meta: Meta<typeof ProgressBar> = {
 
 export default meta;
 type Story = StoryObj<typeof ProgressBar>;
+
+export const excludeFromArgs = progressBarExcludeFromArgs;
 
 export const Default: Story = {};
 
