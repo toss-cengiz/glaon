@@ -10,6 +10,7 @@ export * from './components/Breadcrumb';
 export * from './components/Button';
 export * from './components/Card';
 export * from './components/Checkbox';
+export * from './components/Drawer';
 export * from './components/Input';
 export * from './components/Modal';
 export * from './components/Popover';
