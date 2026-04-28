@@ -1,0 +1,72 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as RadioStories from './Radio.stories';
+
+<Meta of={RadioStories} />
+
+# Radio
+
+Single-choice selection from a small, mutually exclusive set of
+options. Always renders inside a `<RadioGroup>` — the group manages
+`value` / `defaultValue`, `onChange`, and keyboard navigation between
+options (arrow keys cycle, Tab jumps in/out of the group).
+
+## When to use
+
+- 2–5 mutually exclusive options where seeing all options at once
+  helps comparison: notification channel, theme, currency.
+- Settings panels with grouped boolean-style choices that can't both
+  be true.
+
+## When NOT to use
+
+- **Independent boolean** → use [Checkbox](?path=/docs/web-primitives-checkbox--docs).
+- **On/off setting that takes effect immediately** → use [Switch](?path=/docs/web-primitives-switch--docs).
+- **More than ~5 options** → use [Select](?path=/docs/web-primitives-select--docs); a long radio list overwhelms.
+- **Toggling between two views with equal visual weight** → use [Tabs](?path=/docs/web-primitives-tabs--docs).
+
+## Anatomy
+
+<Canvas of={RadioStories.InGroup} />
+
+A circular dot (`sm` or `md`) paired with a `label` and an optional
+`hint` caption. Multiple Radios live inside a single `<RadioGroup>`
+that owns the controlled / uncontrolled value contract.
+
+```tsx
+<RadioGroup defaultValue="email" aria-label="Notification channel">
+  <Radio value="email" label="Email" hint="A weekly digest." />
+  <Radio value="sms" label="SMS" hint="Immediate alerts." />
+  <Radio value="push" label="Push" hint="App-only notifications." />
+</RadioGroup>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- Always provide a group label — either a visible `<Label>` element
+  inside the `<RadioGroup>` or an `aria-label` / `aria-labelledby` on
+  the group itself. Without it, screen readers can't announce what
+  the group represents.
+- Each `Radio` MUST have its own `label` (or `aria-label`). The kit
+  forwards `aria-checked` and `role="radio"` automatically.
+- Arrow keys cycle the focused option; Space selects the focused
+  option; Tab moves between groups (RAC's roving-tabindex contract).
+- `isDisabled` on an individual Radio renders that option as
+  unselectable but keeps the group operable for the rest of the
+  options.
+- Avoid relying on colour alone — the dot glyph and the label
+  together carry the meaning.
+
+## Related components
+
+- [Checkbox](?path=/docs/web-primitives-checkbox--docs) — independent boolean (multi-select).
+- [Switch](?path=/docs/web-primitives-switch--docs) — single boolean that takes effect immediately.
+- [Select](?path=/docs/web-primitives-select--docs) — single choice from a large set of options.

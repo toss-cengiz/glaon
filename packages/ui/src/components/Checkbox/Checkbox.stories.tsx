@@ -1,78 +1,36 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { Checkbox } from './Checkbox';
+import { checkboxControls, checkboxExcludeFromArgs } from './Checkbox.controls';
+
+const { args, argTypes } = defineControls(checkboxControls);
 
 // Explicit `Meta<typeof Checkbox>` annotation (rather than `satisfies`)
 // keeps the kit's unexported `CheckboxProps` interface out of the
 // exported `meta` signature — `tsc --noEmit` runs with
 // `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `Checkbox.controls.ts`;
+// `tags: ['autodocs']` removed because `Checkbox.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Checkbox> = {
   title: 'Web Primitives/Checkbox',
   component: Checkbox,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-checkbox',
     },
   },
-  // RAC `<Checkbox>` switches into controlled mode the moment any of
-  // `isSelected` / `isIndeterminate` / `isReadOnly` / `isRequired` is
-  // present in the props (even when `false`). With Storybook's args
-  // panel passing those defaults but no matching `onChange` handler
-  // updating external state, the user can't toggle the checkbox at all.
-  // Keep these props in `argTypes` (so the controls panel still
-  // surfaces them as boolean knobs), but leave them out of `args` so
-  // RAC manages selection state internally.
-  args: {
-    label: 'I agree to the terms',
-    size: 'sm',
-    isDisabled: false,
-  },
-  argTypes: {
-    label: { control: 'text' },
-    hint: { control: 'text' },
-    size: { control: 'inline-radio', options: ['sm', 'md'] },
-    isDisabled: { control: 'boolean' },
-    isSelected: { control: 'boolean' },
-    isIndeterminate: { control: 'boolean' },
-    isReadOnly: { control: 'boolean' },
-    isRequired: { control: 'boolean' },
-    isInvalid: { control: 'boolean' },
-    defaultSelected: { control: 'boolean' },
-    name: { control: 'text' },
-    value: { control: 'text' },
-    onChange: { control: false, action: 'changed' },
-    onBlur: { control: false, action: 'blurred' },
-    onFocus: { control: false, action: 'focused' },
-    className: { control: false, table: { disable: true } },
-    ref: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
 };
 
 export default meta;
 type Story = StoryObj<typeof Checkbox>;
 
-// RAC-forwarded props that aren't useful as Storybook knobs but flow
-// through type-checking; covered by the F6 prop-coverage gate.
-export const excludeFromArgs = [
-  'autoFocus',
-  'children',
-  'inputRef',
-  'validate',
-  'validationBehavior',
-  'aria-label',
-  'aria-labelledby',
-  'aria-describedby',
-  'aria-details',
-  'aria-errormessage',
-  'aria-controls',
-  'excludeFromTabOrder',
-  'form',
-  'translate',
-  'slot',
-  'data-rac',
-];
+export const excludeFromArgs = checkboxExcludeFromArgs;
 
 export const Default: Story = {};
 

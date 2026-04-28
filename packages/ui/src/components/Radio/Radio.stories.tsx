@@ -1,41 +1,30 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { Radio, RadioGroup } from './Radio';
+import { radioControls, radioExcludeFromArgs } from './Radio.controls';
+
+const { args, argTypes } = defineControls(radioControls);
 
 // Explicit `Meta<typeof Radio>` annotation (rather than `satisfies`)
 // keeps the kit's unexported `RadioButtonProps` interface out of the
 // exported `meta` signature — `tsc --noEmit` runs with
 // `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `Radio.controls.ts`;
+// `tags: ['autodocs']` removed because `Radio.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Radio> = {
   title: 'Web Primitives/Radio',
   component: Radio,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-radio',
     },
   },
-  args: {
-    label: 'Email notifications',
-    value: 'email',
-    size: 'sm',
-    isDisabled: false,
-  },
-  argTypes: {
-    label: { control: 'text' },
-    hint: { control: 'text' },
-    value: { control: 'text' },
-    size: { control: 'inline-radio', options: ['sm', 'md'] },
-    isDisabled: { control: 'boolean' },
-    onBlur: { control: false, action: 'blurred' },
-    onFocus: { control: false, action: 'focused' },
-    onFocusChange: { control: false, action: 'focus-changed' },
-    onHoverChange: { control: false, action: 'hover-changed' },
-    className: { control: false, table: { disable: true } },
-    ref: { control: false, table: { disable: true } },
-    inputRef: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <RadioGroup defaultValue="email" aria-label="Notification channel">
@@ -48,19 +37,7 @@ const meta: Meta<typeof Radio> = {
 export default meta;
 type Story = StoryObj<typeof Radio>;
 
-// RAC-forwarded props not useful as Storybook knobs.
-export const excludeFromArgs = [
-  'autoFocus',
-  'children',
-  'aria-label',
-  'aria-labelledby',
-  'aria-describedby',
-  'aria-details',
-  'excludeFromTabOrder',
-  'translate',
-  'slot',
-  'data-rac',
-];
+export const excludeFromArgs = radioExcludeFromArgs;
 
 export const Default: Story = {};
 
