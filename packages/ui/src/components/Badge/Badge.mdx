@@ -1,0 +1,65 @@
+{/_ Glaon Badge — narrative docs page. Storybook auto-discovers
+`_.mdx`from the`stories`glob in`.storybook/main.ts` and
+    surfaces this page under the same sidebar entry as the Badge
+    stories (`Web Primitives/Badge`→ "Docs" tab). The content
+    references the same`badgeControls` spec that drives the story
+canvas, so the docs panel and the controls panel never drift. \*/}
+
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as BadgeStories from './Badge.stories';
+
+<Meta of={BadgeStories} />
+
+# Badge
+
+Inline label for status, category, or count. Visually paired with a
+number, icon, or short text. Lighter than an Alert (P2) and lower-stakes
+than a Toast (P16) — Badge is non-interactive metadata.
+
+## When to use
+
+- Show device status next to a name: **Online** / **Offline** / **Updating**.
+- Indicate counts inside list items (12 unread, 3 errors).
+- Tag entities by category (Active / Archived / Draft).
+- Highlight new or beta features (a `brand`-coloured `New` chip).
+
+## When NOT to use
+
+- **Multi-line messages** → use [Alert](?path=/docs/web-primitives-alert--docs) for inline status.
+- **Standalone notifications** → use [Toast](?path=/docs/web-primitives-toast--docs) for transient feedback.
+- **Calls to action** → Badges are non-interactive. Use [Button](?path=/docs/web-primitives-button--docs).
+
+## Anatomy
+
+<Canvas of={BadgeStories.Default} />
+
+A Badge is a single-line, fully-styled `<span>`. It does not accept
+icons through props in this primitive — for icon + text combinations
+use the kit's `BadgeWithIcon` (also re-exported from `@glaon/ui`).
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- Renders inline as a `<span>`; no role override is needed for purely
+  decorative use.
+- For status meaning, **never rely on colour alone** — the text content
+  must convey the same information (axe `aria-allowed-attr` and design
+  system contrast tokens both enforce this).
+- When wrapping a meaningful label, pair Badge with surrounding text:
+  `<span>Status: <Badge color="success">Online</Badge></span>` so screen
+  readers announce the relationship.
+
+## Related components
+
+- [Alert](?path=/docs/web-primitives-alert--docs) — inline message with title + body.
+- [Toast](?path=/docs/web-primitives-toast--docs) — transient overlay notification.
+- [Avatar](?path=/docs/web-primitives-avatar--docs) — `Avatar.count` prop renders Badge styling.
+- [Stat](?path=/docs/web-primitives-stat--docs) — KPI card with optional delta indicator.

@@ -1,0 +1,53 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as SpinnerStories from './Spinner.stories';
+
+<Meta of={SpinnerStories} />
+
+# Spinner
+
+Indeterminate loading indicator. Communicates that work is in progress
+when the duration is unknown — for known progress prefer **ProgressBar**.
+
+## When to use
+
+- Inline inside a Button (`isLoading` prop already wires this).
+- Inside a list cell while a row is fetching its own data.
+- As a section-level placeholder while a panel waits for its first
+  payload (combined with a `label` for screen readers).
+- Full-page Suspense fallback during route transitions.
+
+## When NOT to use
+
+- **Determinate progress** (file upload, multi-step task) → use [ProgressBar](?path=/docs/web-primitives-progressbar--docs).
+- **Long-running background work** with no UI to block → use a [Toast](?path=/docs/web-primitives-toast--docs) instead so the user can keep working.
+- **Empty states** (no data exists yet) → use the empty-state slot of the host component, not a spinner.
+
+## Anatomy
+
+<Canvas of={SpinnerStories.Default} />
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- Wraps the SVG in a `<div role="status">` flex container — screen
+  readers announce changes to its child text.
+- The SVG itself is `aria-hidden`; the visible label is the accessible
+  name. Always pass `label` for non-decorative uses, or wrap the
+  spinner in an element that provides an accessible name (e.g. a
+  Button with text content).
+- Animation respects `prefers-reduced-motion`: the kit's
+  `animate-spin` Tailwind utility falls back to a static state when
+  the user opts out.
+
+## Related components
+
+- [ProgressBar](?path=/docs/web-primitives-progressbar--docs) — determinate progress with known percentage.
+- [Button](?path=/docs/web-primitives-button--docs) — `isLoading` prop renders Spinner inline automatically.

@@ -20,6 +20,16 @@ const preview: Preview = {
     a11y: {
       test: 'error',
     },
+    docs: {
+      // Surface the JSX snippet panel under every story canvas by
+      // default — Storybook 10 already renders it on demand via the
+      // "Show code" button, but Phase 1.5 wants the source visible
+      // without the extra click so consumers learn the API by
+      // reading the live snippet next to the rendered output.
+      source: {
+        state: 'open',
+      },
+    },
   },
   decorators: [
     withThemeByDataAttribute({

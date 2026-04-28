@@ -120,9 +120,10 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 
 - Every new UI component (web or mobile) ships in the same PR with at least one Storybook story. No story, no merge.
 - Stories live next to the component as `<Component>.stories.tsx` using CSF 3.0.
+- Each component also ships with `<Component>.controls.ts` (typed control spec — single source of truth for variants + descriptions, consumed by both stories and MDX docs) and `<Component>.mdx` (narrative docs page replacing autodocs). Use the `defineControls` helper from `packages/ui/src/components/_internal/controls.ts`; the helper output stays compatible with the F6 prop-coverage gate.
 - Minimum per component: default state + at least one edge case (disabled / loading / error / empty, whichever applies).
 - Accessibility: `@storybook/addon-a11y` is enabled with `a11y.test: 'error'`. Don't silently disable; document any intentional exception inline.
-- Prop or variant additions to an existing component must update the corresponding stories in the same PR.
+- Prop or variant additions to an existing component must update the corresponding stories, controls spec, and MDX docs in the same PR.
 - Details and conventions: [docs/storybook.md](docs/storybook.md).
 
 ## E2E Smoke Rule (MANDATORY)

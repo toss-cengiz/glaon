@@ -1,53 +1,37 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { Badge } from './Badge';
+import { badgeControls, badgeExcludeFromArgs } from './Badge.controls';
+
+const { args, argTypes } = defineControls(badgeControls);
 
 // Explicit `Meta<typeof Badge>` annotation (rather than `satisfies`) keeps
 // the kit's unexported `BadgeProps` interface out of the exported type
 // signature — `tsc --noEmit` runs with `declaration: true` and TS4023
 // fires when an exported `meta` resolves to a non-exported nominal type.
+//
+// Phase 1.5: `args` + `argTypes` come from `Badge.controls.ts` so the
+// story file stays declarative; the MDX docs page (`Badge.mdx`) reads
+// from the same spec. `tags: ['autodocs']` removed — the MDX page
+// replaces autodocs as the per-component documentation entry point.
 const meta: Meta<typeof Badge> = {
   title: 'Web Primitives/Badge',
   component: Badge,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-badge',
     },
   },
-  args: {
-    children: 'Label',
-    type: 'pill-color',
-    size: 'md',
-    color: 'gray',
-  },
-  argTypes: {
-    type: { control: 'inline-radio', options: ['pill-color', 'color', 'modern'] },
-    size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] },
-    color: {
-      control: 'select',
-      options: [
-        'gray',
-        'brand',
-        'error',
-        'warning',
-        'success',
-        'slate',
-        'sky',
-        'blue',
-        'indigo',
-        'purple',
-        'pink',
-        'orange',
-      ],
-    },
-    className: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
 };
 
 export default meta;
 type Story = StoryObj<typeof Badge>;
+
+export const excludeFromArgs = badgeExcludeFromArgs;
 
 export const Default: Story = {};
 

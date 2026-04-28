@@ -1,0 +1,60 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as ProgressBarStories from './ProgressBar.stories';
+
+<Meta of={ProgressBarStories} />
+
+# ProgressBar
+
+Determinate progress indicator. Shows the user how far along a task
+is when the percentage is known. For unknown duration prefer
+**Spinner**; for transient feedback prefer **Toast**.
+
+## When to use
+
+- File upload / download progress.
+- Multi-step wizard or onboarding flow.
+- Storage / quota meters (32 of 100 GB used).
+- Any task where the user cares about how much is left.
+
+## When NOT to use
+
+- **Indeterminate work** (fetch, save, reconnect) → use [Spinner](?path=/docs/web-primitives-spinner--docs).
+- **Empty / loading state** for a list → the host component's empty
+  slot is more appropriate.
+- **Status announcement** ("uploaded successfully") → use [Toast](?path=/docs/web-primitives-toast--docs).
+
+## Anatomy
+
+<Canvas of={ProgressBarStories.Default} />
+
+The bar exposes a track + fill DIV pair. The fill width is computed
+from `((value − min) / (max − min)) × 100%`. Optional label rendered
+inside, beside, or above (depends on `labelPosition`).
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- Renders as `<div role="progressbar">` with `aria-valuenow` /
+  `aria-valuemin` / `aria-valuemax` wired automatically.
+- **`aria-label` is required** — axe `aria-progressbar-name` fires
+  on every progressbar element without an accessible name. Always
+  pass `aria-label` (or `aria-labelledby` if a sibling element
+  already names the bar).
+- The kit was patched to forward `aria-label` and `aria-labelledby`
+  through `ProgressBarBase` (kit shipped without this support; see
+  `base/progress-indicators/progress-indicators.tsx` GLAON PATCH).
+- The fill animation is CSS `transform: translateX()` — respects
+  `prefers-reduced-motion` automatically (no JS-driven motion).
+
+## Related components
+
+- [Spinner](?path=/docs/web-primitives-spinner--docs) — indeterminate progress.
+- [Stat](?path=/docs/web-primitives-stat--docs) — KPI card with optional delta indicator.

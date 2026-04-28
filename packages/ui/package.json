@@ -5,6 +5,7 @@
     "@glaon/config": "workspace:*",
     "@storybook/addon-a11y": "^10.3.5",
     "@storybook/addon-designs": "^11.1.3",
+    "@storybook/addon-docs": "^10.3.5",
     "@storybook/addon-mcp": "^0.6.0",
     "@storybook/addon-themes": "^10.3.5",
     "@storybook/addon-vitest": "^10.3.5",
