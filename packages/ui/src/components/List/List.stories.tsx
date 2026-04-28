@@ -1,40 +1,38 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { Avatar } from '../Avatar';
 import { Badge } from '../Badge';
 import { Checkbox } from '../Checkbox';
 import { storybookIcons } from '../../icons/storybook';
 import { List } from './List';
+import { listControls, listExcludeFromArgs } from './List.controls';
 
 const Bell = storybookIcons.bell;
 const Settings = storybookIcons.settings;
 const Star = storybookIcons.star;
 const User = storybookIcons.user;
 
+const { args, argTypes } = defineControls(listControls);
+
 // Explicit `Meta<typeof List>` annotation (rather than `satisfies`)
 // keeps the merged static-property type out of the exported `meta`
 // signature — `tsc --noEmit` runs with `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `List.controls.ts`;
+// `tags: ['autodocs']` removed because `List.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof List> = {
   title: 'Web Primitives/List',
   component: List,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-list',
     },
   },
-  args: {
-    dividers: false,
-    bordered: false,
-  },
-  argTypes: {
-    dividers: { control: 'boolean' },
-    bordered: { control: 'boolean' },
-    emptyState: { control: false, table: { disable: true } },
-    children: { control: false, table: { disable: true } },
-    className: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div style={{ width: 480 }}>
@@ -46,6 +44,8 @@ const meta: Meta<typeof List> = {
 
 export default meta;
 type Story = StoryObj<typeof List>;
+
+export const excludeFromArgs = listExcludeFromArgs;
 
 export const Default: Story = {
   render: (args) => (
