@@ -1,39 +1,31 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { Badge } from '../Badge';
 import { Table } from './Table';
+import { tableControls, tableExcludeFromArgs } from './Table.controls';
+
+const { args, argTypes } = defineControls(tableControls);
 
 // Explicit `Meta<typeof Table>` annotation (rather than `satisfies`)
 // keeps the kit's deep RAC generic chains and the merged static-
 // property type out of the exported `meta` signature — `tsc --noEmit`
 // runs with `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `Table.controls.ts`;
+// `tags: ['autodocs']` removed because `Table.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Table> = {
   title: 'Web Primitives/Table',
   component: Table,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-table',
     },
   },
-  args: {
-    'aria-label': 'Devices',
-    size: 'md',
-  },
-  argTypes: {
-    'aria-label': { control: 'text' },
-    size: { control: 'inline-radio', options: ['sm', 'md'] },
-    selectionMode: {
-      control: 'inline-radio',
-      options: ['none', 'single', 'multiple'],
-    },
-    onRowAction: { control: false, action: 'row-action' },
-    onSelectionChange: { control: false, action: 'selection-changed' },
-    onSortChange: { control: false, action: 'sort-changed' },
-    children: { control: false, table: { disable: true } },
-    className: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div style={{ width: 720 }}>
@@ -46,28 +38,7 @@ const meta: Meta<typeof Table> = {
 export default meta;
 type Story = StoryObj<typeof Table>;
 
-// RAC-forwarded props that aren't useful as Storybook controls but
-// flow through type-checking; covered by the F6 prop-coverage gate.
-export const excludeFromArgs = [
-  'aria-labelledby',
-  'aria-describedby',
-  'aria-details',
-  'translate',
-  'slot',
-  'data-rac',
-  'autoFocus',
-  'selectedKeys',
-  'defaultSelectedKeys',
-  'disabledKeys',
-  'disallowEmptySelection',
-  'selectionBehavior',
-  'sortDescriptor',
-  'defaultSortDescriptor',
-  'dependencies',
-  'dragAndDropHooks',
-  'isDisabled',
-  'escapeKeyBehavior',
-];
+export const excludeFromArgs = tableExcludeFromArgs;
 
 interface DeviceRow {
   id: string;

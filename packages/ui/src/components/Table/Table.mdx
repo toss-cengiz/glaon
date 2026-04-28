@@ -1,0 +1,116 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as TableStories from './Table.stories';
+
+<Meta of={TableStories} />
+
+# Table
+
+Multi-column tabular data primitive. Built on react-aria-components
+(`<Table>` + `<TableHeader>` + `<Column>` + `<Row>` + `<Cell>` +
+`<TableBody>`) — sortable headers, row selection, sticky headers,
+and full keyboard navigation come from the kit. Use Table when the
+data has fixed columns and the user needs to compare values across
+rows.
+
+## When to use
+
+- Dashboards / admin surfaces showing rows of data with several
+  columns: device inventory, user lists, log tables, transaction
+  records.
+- Sortable data where users need to reorder by column ("Last
+  seen", "Name").
+- Selection workflows: bulk-archive, bulk-delete, bulk-export
+  where the user picks multiple rows.
+- Read-only data summaries inside dashboards (set
+  `selectionMode="none"` and skip `allowsSorting` per column).
+
+## When NOT to use
+
+- **Single-column homogeneous rows** → use [List](?path=/docs/web-primitives-list--docs); a Table for one column is overkill chrome.
+- **Per-row rich layouts** that don't share a column template → use [Card](?path=/docs/web-primitives-card--docs) instances.
+- **Pagination / virtualisation / faceted filtering** → wait for the Phase 2 `DataTable` application primitive; the base Table is deliberately scoped to the basic surface.
+- **Form / settings layout** → use [List](?path=/docs/web-primitives-list--docs) with `<List.Item leading={…} trailing={…}>` rows.
+
+## Anatomy
+
+<Canvas of={TableStories.WithSortableHeader} />
+
+Compose with these slots:
+
+- **`Table.Header`** — sticky `<thead>` row. Houses one
+  `<Table.Head id="…">` per column. Set `allowsSorting` on a head
+  to opt that column into the sort affordance.
+- **`Table.Body`** — `<tbody>` wrapper. Pass `renderEmptyState` to
+  customise the empty fallback; the default empty body still
+  honours the column structure.
+- **`Table.Row`** — one row per data record (`id` doubles as the
+  RAC key for selection / sorting bookkeeping).
+- **`Table.Cell`** — one cell per column. Cells inherit the
+  vertical density from the parent table's `size`.
+
+```tsx
+<Table aria-label="Devices" selectionMode="multiple">
+  <Table.Header>
+    <Table.Head id="name" allowsSorting>
+      Device
+    </Table.Head>
+    <Table.Head id="room">Room</Table.Head>
+    <Table.Head id="status">Status</Table.Head>
+  </Table.Header>
+  <Table.Body>
+    {devices.map((d) => (
+      <Table.Row key={d.id} id={d.id}>
+        <Table.Cell>{d.name}</Table.Cell>
+        <Table.Cell>{d.room}</Table.Cell>
+        <Table.Cell>{statusBadge(d.status)}</Table.Cell>
+      </Table.Row>
+    ))}
+  </Table.Body>
+</Table>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- **Always set `aria-label`** (or `aria-labelledby` referencing a
+  visible heading) on the root `<Table>`. Without a label, axe
+  `aria-required-children` / `region` flags the table as
+  unidentified — screen readers can't announce what the data
+  represents.
+- The kit forwards `role="grid"` semantics on the table,
+  `role="rowheader"` on header cells, and `role="gridcell"` on
+  body cells automatically. RAC also wires `aria-sort` on
+  sortable columns and `aria-selected` on rows when
+  `selectionMode` is set.
+- Keyboard contract (RAC): Arrow keys move focus cell-by-cell;
+  Home / End jump to row start / end; Page Up / Down scroll;
+  Space toggles selection (when `selectionMode` is set); Enter
+  fires `onRowAction` (use it to open a detail view rather than
+  navigating directly).
+- For long tables, the sticky header keeps column context visible
+  while scrolling — don't disable `position: sticky` on the
+  `<thead>`.
+- Selectable tables render a checkbox column automatically.
+  Provide an `aria-label` on each row's primary text via the
+  cell content (e.g. the first cell's text already labels the
+  row); RAC reads the row's first text node into the row's
+  selection-cell aria-name.
+- For row-action affordances (edit / archive / view), use
+  `<TableRowActionsDropdown>` (re-exported from `Table.tsx`) or
+  render an icon button in a trailing cell — never make the row
+  itself navigate, since that conflicts with selection mode.
+
+## Related components
+
+- [List](?path=/docs/web-primitives-list--docs) — single-column homogeneous rows; lighter chrome.
+- [Card](?path=/docs/web-primitives-card--docs) — rich per-item layout when rows can't share a template.
+- [Badge](?path=/docs/web-primitives-badge--docs) — status pill commonly rendered inside a `Status` cell.
+- [Checkbox](?path=/docs/web-primitives-checkbox--docs) — RAC's selection-mode column wraps this primitive automatically.
