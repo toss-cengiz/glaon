@@ -4,6 +4,16 @@
 // suppress type-check here so `untitledui upgrade` stays a clean replace
 // operation. Re-apply this comment after every kit upgrade until UUI
 // tightens their own types.
+//
+// GLAON PATCH (re-apply on upgrade): the upstream `withPillTypes`
+// `badgeModern` entry only ships a `gray` style. When consumers select
+// `type='modern'` with any other `color` (`brand`, `success`, …) the
+// render path crashes on `colors.styles[color].root` because the lookup
+// is `undefined`. We pre-fill all 12 colors on the modern style with
+// the same gray treatment — modern is intentionally a minimal chip
+// that doesn't carry colour semantics, so falling back to gray
+// preserves the kit's visual intent. Drop this patch once upstream
+// changes the schema. See #258.
 "use client";
 
 import type { MouseEventHandler, ReactNode } from "react";
@@ -92,13 +102,20 @@ const withPillTypes = {
     },
     [badgeTypes.badgeModern]: {
         common: "size-max flex items-center whitespace-nowrap rounded-md ring-1 ring-inset shadow-xs",
-        styles: {
-            gray: {
-                root: "bg-primary text-secondary ring-primary",
-                addon: "text-neutral-500",
-                addonButton: "hover:bg-utility-neutral-100 text-utility-neutral-400 hover:text-utility-neutral-500",
-            },
-        },
+        // GLAON PATCH: replicate the gray treatment across all 12
+        // colors so `type='modern'` doesn't crash when paired with a
+        // non-gray color. Modern intentionally renders neutrally
+        // regardless of the selected color.
+        styles: Object.fromEntries(
+            (Object.keys(filledColors) as BadgeColors[]).map((key) => [
+                key,
+                {
+                    root: "bg-primary text-secondary ring-primary",
+                    addon: "text-neutral-500",
+                    addonButton: "hover:bg-utility-neutral-100 text-utility-neutral-400 hover:text-utility-neutral-500",
+                },
+            ]),
+        ) as Record<BadgeColors, { root: string; addon: string; addonButton: string }>,
     },
 };
 

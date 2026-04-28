@@ -51,7 +51,7 @@ export const badgeControls = {
     options: colorOptions,
     default: 'gray',
     description:
-      'Semantic palette. Use `success` / `warning` / `error` for status meanings; `brand` for promoted highlights; `gray` for neutral metadata.',
+      'Semantic palette. Use `success` / `warning` / `error` for status meanings; `brand` for promoted highlights; `gray` for neutral metadata. Note: `type="modern"` always renders the neutral grey treatment regardless of the selected colour (the kit ships only one modern variant; see #258).',
     category: 'Style',
   } satisfies ControlSpec<(typeof colorOptions)[number]>,
   className: {
