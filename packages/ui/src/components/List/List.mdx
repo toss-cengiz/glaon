@@ -1,0 +1,101 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as ListStories from './List.stories';
+
+<Meta of={ListStories} />
+
+# List
+
+Vertical, semantic list primitive for ordered or homogeneous rows.
+Renders as `<ul role="list">` so axe sees the list semantics, with
+optional `bordered` card chrome and `dividers` between rows. Use
+List for repetitive items where the rows share a layout — settings,
+device entries, member lists, recent activity.
+
+## When to use
+
+- Settings panels with parallel rows: "Privacy", "Notifications",
+  "Display & accessibility".
+- Member / contact / team lists with avatar + name + email columns.
+- Device / scene / automation entries with status badges or action
+  buttons.
+- Recent activity feeds where each row carries the same anatomy.
+- Any "stack of homogeneous items where you want a card chrome
+  around the group" surface.
+
+## When NOT to use
+
+- **Tabular / multi-column data** with sortable headers → use [Table](?path=/docs/web-primitives-table--docs); a List is one column with optional leading / trailing affordances.
+- **Per-item rich layouts** (different anatomy per row) → use individual [Card](?path=/docs/web-primitives-card--docs) instances; List rows share a row template.
+- **Application navigation** (devices / scenes / automations as a side panel) → use [SideNav](?path=/docs/web-primitives-sidenav--docs); List rows aren't auto-`<a>`-anchored.
+- **Single-line hint inline** → render a paragraph; List ships chrome you don't need for one row.
+
+## Anatomy
+
+<Canvas of={ListStories.WithActions} />
+
+Each row composes left → centre → right:
+
+- **`leading`** — optional slot for an Avatar, Checkbox, or icon
+  glyph. Renders to the left of the content with `text-fg-quaternary`
+  default colour.
+- **Children** — main content area (any node tree). The kit
+  vertically stacks the children inside a `flex-col` so multi-line
+  text wraps cleanly.
+- **`trailing`** — optional slot for a `<List.ItemAction>` button,
+  status [Badge](?path=/docs/web-primitives-badge--docs), or a chevron glyph. Renders to the right with
+  `gap-2` between multiple trailing nodes.
+
+```tsx
+<List dividers bordered>
+  <List.Item
+    leading={<Avatar size="sm" alt="Olivia" initials="OR" />}
+    trailing={<List.ItemAction onClick={onEdit}>Edit</List.ItemAction>}
+  >
+    <span className="font-semibold text-primary">Olivia Rhye</span>
+    <span className="text-tertiary">olivia@glaon.app</span>
+  </List.Item>
+</List>
+```
+
+`<List.ItemAction>` is a real `<button>` — fires a click when the
+user activates it, separate from any whole-row `onClick` on the
+parent `<List.Item>`.
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The kit forwards `role="list"` on the outer `<ul>` and
+  `role="listitem"` on each `<li>`. Tailwind's `list-style: none`
+  reset would normally strip implicit list semantics — explicit
+  roles keep VoiceOver / NVDA / JAWS announcing "list, N items"
+  on entry.
+- An interactive `<List.Item onClick={…}>` gets a focus ring,
+  `cursor-pointer`, hover styling, and (when `current` is set)
+  `aria-current="page"`. The `<li>` itself isn't keyboard-focusable
+  by default — use `<a>` / `<button>` inside the row when
+  destination semantics matter (e.g. nav lists), or wrap the item in
+  a [Modal](?path=/docs/web-primitives-modal--docs) trigger if it opens a dialog.
+- For selectable lists, render a [Checkbox](?path=/docs/web-primitives-checkbox--docs) inside `leading` (with
+  `aria-label` set to the row's primary text). The Checkbox owns
+  selection a11y; the row itself stays a presentational `<li>`.
+- The empty-state fallback renders a non-list `<div>` so axe doesn't
+  flag a "list with zero items" pattern. Custom `emptyState` content
+  follows the same pattern.
+- For long lists (50+ items) virtualisation belongs in the feature
+  layer (TanStack Virtual or similar) — the List primitive deliberately
+  doesn't ship a virtualiser to keep the chrome composable.
+
+## Related components
+
+- [Table](?path=/docs/web-primitives-table--docs) — multi-column tabular data with sortable headers.
+- [Card](?path=/docs/web-primitives-card--docs) — rich per-item layout when rows don't share a template.
+- [SideNav](?path=/docs/web-primitives-sidenav--docs) — application navigation (auto-anchored, with active state).
+- [Avatar](?path=/docs/web-primitives-avatar--docs) / [Badge](?path=/docs/web-primitives-badge--docs) — common leading / trailing slot inhabitants.
