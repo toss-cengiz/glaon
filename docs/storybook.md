@@ -278,7 +278,16 @@ Aktif toolset'ler:
 - `docs` → autodocs / mdx içeriklerini sorgula.
 - `test` → `run-story-tests` aracı: `@storybook/addon-vitest` + Vitest browser mode + Playwright zinciri üzerinden story'leri test olarak koşar. Storybook dev server'ı açıkken agent direkt tetikleyebilir.
 
-Agent'ı bağlamak için MCP client konfigürasyonunuza Storybook dev server URL'ini ekleyin (client-specific; örn. Claude Code için `.mcp.json` veya `claude mcp add` komutu).
+Repo'nun [.mcp.json](../.mcp.json)'ı bu endpoint'i `storybook` adıyla Claude Code'a kayıtlı tutar:
+
+```json
+"storybook": {
+  "type": "http",
+  "url": "http://localhost:6006/mcp"
+}
+```
+
+Endpoint sadece `pnpm --filter @glaon/ui storybook` çalışırken canlıdır. Dev server kapalıyken Claude Code MCP'yi listede görür ama tool çağrıları bağlanamaz — beklenen davranış; Storybook'u açtıktan sonra agent erişir.
 
 Güvenlik: MCP endpoint sadece lokal dev server'da aktiftir; prod static build'de (`build-storybook` çıktısı) MCP yoktur. Başka bir makineden bağlantı için port forward/SSH tüneli kullanın — endpoint'i public'e açmayın.
 
