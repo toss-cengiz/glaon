@@ -1,0 +1,101 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as ToastStories from './Toast.stories';
+
+<Meta of={ToastStories} />
+
+# Toast
+
+Transient feedback overlay. Toasts fly into the top-right corner of
+the viewport, announce themselves to assistive tech, optionally
+auto-dismiss after a few seconds, and don't interrupt the user's
+current task. Pair with `<ToastProvider>` (mounted once at the app
+root) and the `useToast()` hook to enqueue toasts imperatively from
+anywhere in the tree.
+
+## When to use
+
+- Confirmation that a background action succeeded ("Saved",
+  "Settings stored", "Pairing started").
+- Error notifications for failures the user can ignore or retry
+  ("Connection lost — reconnecting in the background").
+- Soft warnings tied to time / state ("Token rotation in 24
+  hours").
+- Update prompts with a single CTA ("New version available
+  — Install").
+
+## When NOT to use
+
+- **Critical decision the user must address right now** → use [Modal](?path=/docs/web-primitives-modal--docs); toasts can be missed.
+- **Persistent system status** → render an inline [Banner](?path=/docs/web-primitives-banner--docs) at the top of the surface.
+- **Inline form-field error** → use the field's `isInvalid` + `hint` (Input / Textarea / Select); toasts are wrong for adjacency-bound feedback.
+- **Single-line hover hint** → use [Tooltip](?path=/docs/web-primitives-tooltip--docs).
+- **Overlay surface that needs the user's full attention** → use [Modal](?path=/docs/web-primitives-modal--docs) or [Drawer](?path=/docs/web-primitives-drawer--docs).
+
+## Anatomy
+
+<Canvas of={ToastStories.WithAction} />
+
+A pill-shaped card (max width ~24rem) with:
+
+- **Leading icon** — driven by `intent` (info / success / warning / danger), `aria-hidden`.
+- **Title** — bold first line; this is what screen readers announce first.
+- **Description** — optional secondary line for context.
+- **Action button** — optional CTA. Auto-dismisses after `onPress`.
+- **Close button** — `aria-label="Dismiss"` `×` glyph; hidden when
+  `hideClose` is set.
+
+```tsx
+const { show } = useToast();
+
+show({
+  intent: 'success',
+  title: 'Saved',
+  description: 'Configuration applied.',
+  duration: 4000,
+});
+```
+
+For one-off snapshot stories you can also render a frozen `<Toast>`
+card directly — the queue is optional, but production callers should
+always go through `useToast().show()` so the queue manages lifecycles
+and the portal mount.
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The toast root carries `role="status"` + `aria-live="polite"` +
+  `aria-atomic="true"` so screen readers announce the full title +
+  description as one update on insert.
+- The portal viewport (`<ToastProvider>`'s fixed-position container)
+  also carries `aria-live="polite"` — combined with per-toast
+  `aria-atomic="true"`, screen readers announce only the new toast,
+  not the entire stack.
+- Use `aria-live="polite"` (not `assertive`) so toasts don't
+  interrupt the user mid-sentence. For hard-failure cases that
+  _must_ interrupt, use a [Modal](?path=/docs/web-primitives-modal--docs) instead.
+- Auto-dismiss is fine for confirmations but **never** for errors
+  the user might miss — bump `duration` to `0` (manual dismissal)
+  for `intent="danger"` toasts that announce a critical failure.
+- The leading icon is `aria-hidden` — the meaning is carried by the
+  text. Don't communicate severity through icon-only toasts.
+- Action and close buttons are real `<button>` elements with
+  visible focus rings; they're keyboard-reachable while the toast
+  is mounted (Tab from the trigger that fired the toast).
+- For `hideClose: true` toasts, an action button is the only
+  dismissal path — never combine `hideClose: true` with
+  `duration: 0`, which strands the user.
+
+## Related components
+
+- [Banner](?path=/docs/web-primitives-banner--docs) — persistent system status pinned to the page (not transient overlay).
+- [Alert](?path=/docs/web-primitives-alert--docs) — inline notification adjacent to the affected content.
+- [Modal](?path=/docs/web-primitives-modal--docs) — interrupting dialog for decisions the user must address now.
+- [Tooltip](?path=/docs/web-primitives-tooltip--docs) — short hover/focus-revealed hint anchored to a trigger.

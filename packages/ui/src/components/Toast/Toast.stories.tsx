@@ -1,41 +1,31 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { Button } from '../Button';
 import { Toast, useToast } from './Toast';
+import { toastControls, toastExcludeFromArgs } from './Toast.controls';
+
+const { args, argTypes } = defineControls(toastControls);
 
 // Explicit `Meta<typeof Toast>` annotation (rather than `satisfies`)
 // keeps the unexported helper interfaces (`ToastEntry`,
 // `ToastContextValue`) out of the exported `meta` signature —
 // `tsc --noEmit` runs with `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `Toast.controls.ts`;
+// `tags: ['autodocs']` removed because `Toast.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Toast> = {
   title: 'Web Primitives/Toast',
   component: Toast,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-toast',
     },
   },
-  args: {
-    title: 'Saved successfully',
-    description: 'Your changes are live across the workspace.',
-    intent: 'info',
-    duration: 0,
-    hideClose: false,
-  },
-  argTypes: {
-    title: { control: 'text' },
-    description: { control: 'text' },
-    intent: {
-      control: 'inline-radio',
-      options: ['info', 'success', 'warning', 'danger'],
-    },
-    duration: { control: { type: 'number', min: 0, max: 30000, step: 500 } },
-    hideClose: { control: 'boolean' },
-    action: { control: 'object' },
-    onDismiss: { control: false, action: 'dismissed' },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div style={{ padding: 24 }}>
@@ -47,6 +37,8 @@ const meta: Meta<typeof Toast> = {
 
 export default meta;
 type Story = StoryObj<typeof Toast>;
+
+export const excludeFromArgs = toastExcludeFromArgs;
 
 export const Default: Story = {};
 
