@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import {
   ComboBox,
   MultiSelect,
@@ -8,51 +9,29 @@ import {
   SelectItem,
   type SelectItemType,
 } from './Select';
+import { selectControls, selectExcludeFromArgs } from './Select.controls';
+
+const { args, argTypes } = defineControls(selectControls);
 
 // Explicit `Meta<typeof Select>` annotation (rather than `satisfies`)
 // keeps the kit's deep RAC generic chains (`AriaSelectProps<SelectItemType>`
 // etc.) out of the exported `meta` signature — `tsc --noEmit` runs with
 // `declaration: true`.
+//
+// Phase 1.5: `args` + `argTypes` come from `Select.controls.ts`;
+// `tags: ['autodocs']` removed because `Select.mdx` replaces the
+// docs tab.
 const meta: Meta<typeof Select> = {
   title: 'Web Primitives/Select',
   component: Select,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-select',
     },
   },
-  args: {
-    label: 'Country',
-    placeholder: 'Select a country',
-    size: 'md',
-    isDisabled: false,
-  },
-  argTypes: {
-    label: { control: 'text' },
-    hint: { control: 'text' },
-    placeholder: { control: 'text' },
-    tooltip: { control: 'text' },
-    size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] },
-    isDisabled: { control: 'boolean' },
-    isInvalid: { control: 'boolean' },
-    isRequired: { control: 'boolean' },
-    hideRequiredIndicator: { control: 'boolean' },
-    selectedKey: { control: 'text' },
-    defaultSelectedKey: { control: 'text' },
-    name: { control: 'text' },
-    onSelectionChange: { control: false, action: 'selection-changed' },
-    onOpenChange: { control: false, action: 'open-changed' },
-    onBlur: { control: false, action: 'blurred' },
-    onFocus: { control: false, action: 'focused' },
-    items: { control: false, table: { disable: true } },
-    children: { control: false, table: { disable: true } },
-    icon: { control: false, table: { disable: true } },
-    className: { control: false, table: { disable: true } },
-    popoverClassName: { control: false, table: { disable: true } },
-    ref: { control: false, table: { disable: true } },
-  },
+  args,
+  argTypes,
   decorators: [
     (Story) => (
       <div style={{ width: 360 }}>
@@ -65,33 +44,7 @@ const meta: Meta<typeof Select> = {
 export default meta;
 type Story = StoryObj<typeof Select>;
 
-// RAC-forwarded props that aren't useful as Storybook knobs but flow
-// through type-checking; covered by the F6 prop-coverage gate.
-export const excludeFromArgs = [
-  'autoFocus',
-  'aria-label',
-  'aria-labelledby',
-  'aria-describedby',
-  'aria-details',
-  'aria-errormessage',
-  'excludeFromTabOrder',
-  'form',
-  'translate',
-  'slot',
-  'data-rac',
-  'menuTrigger',
-  'shouldFlip',
-  'disabledKeys',
-  'validate',
-  'validationBehavior',
-  'isOpen',
-  'defaultOpen',
-  'autoComplete',
-  // Kit popover surface — not knobs.
-  'key',
-  'children',
-  'items',
-];
+export const excludeFromArgs = selectExcludeFromArgs;
 
 const COUNTRIES: SelectItemType[] = [
   { id: 'tr', label: 'Türkiye' },

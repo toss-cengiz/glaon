@@ -1,0 +1,79 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as SelectStories from './Select.stories';
+
+<Meta of={SelectStories} />
+
+# Select
+
+Single-value picker that opens a popover ListBox of options. Built on
+react-aria-components — keyboard navigation (arrow / typeahead /
+Escape), focus trapping, and screen-reader announcements come from
+the kit. Sibling primitives (`ComboBox`, `MultiSelect`,
+`NativeSelect`) are re-exported for the search / multi-value /
+native-form variants.
+
+## When to use
+
+- Pick one value from a known set of 6+ options where comparing all
+  options at once isn't useful.
+- Form fields with a long but bounded list (countries, currencies,
+  timezones).
+- Inline filter triggers in toolbars (use `size="sm"`).
+
+## When NOT to use
+
+- **2–5 mutually exclusive options** → use [Radio](?path=/docs/web-primitives-radio--docs); seeing all options at a glance helps comparison.
+- **Independent boolean** → use [Checkbox](?path=/docs/web-primitives-checkbox--docs) or [Switch](?path=/docs/web-primitives-switch--docs).
+- **Free-form value not in a known set** → use [Input](?path=/docs/web-primitives-input--docs).
+- **Search-as-you-type** → use the `WithSearch` story / sibling `ComboBox` primitive instead of plain Select.
+- **Native picker (e.g. iOS-style mobile dropdown)** → use the `Native` story / sibling `NativeSelect` primitive.
+
+## Anatomy
+
+<Canvas of={SelectStories.Default} />
+
+A trigger button (label + selected value or placeholder + chevron),
+which opens a popover containing the option ListBox. Items render
+via the `children` render function consuming the `items` collection.
+
+```tsx
+<Select label="Country" items={COUNTRIES}>
+  {(item) => <SelectItem id={item.id} label={item.label} />}
+</Select>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- Always set `label`. Visible labels satisfy axe `label` and pair the
+  Select with assistive tech automatically. For visually hidden
+  labels (rare) use `aria-label` instead.
+- Keyboard contract (RAC): Space / Enter / Arrow Down opens the
+  popover; Arrow keys move focus through items; typeahead jumps to
+  matching options; Escape closes without selecting; Enter selects
+  the focused option.
+- The popover is focus-trapped — Tab cycles within the ListBox until
+  the popover closes (Escape or selection).
+- `isInvalid` re-styles the hint to red AND wires
+  `aria-invalid="true"` + `aria-describedby` to the hint node, so
+  screen readers announce the error along with the label.
+- `isRequired` forwards `aria-required="true"` even when the visual
+  marker is hidden via `hideRequiredIndicator` — keep the prop set so
+  the a11y contract holds on dense forms.
+- For 50+ options, prefer `ComboBox` (search) — long ListBoxes are
+  hard to navigate with screen readers regardless of focus
+  management.
+
+## Related components
+
+- [Radio](?path=/docs/web-primitives-radio--docs) — single choice from a small set (2–5) where seeing all options helps.
+- [Checkbox](?path=/docs/web-primitives-checkbox--docs) — independent boolean (multi-select).
+- [Input](?path=/docs/web-primitives-input--docs) — free-form text capture when the value isn't from a fixed set.
