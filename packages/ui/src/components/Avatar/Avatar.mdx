@@ -1,0 +1,64 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as AvatarStories from './Avatar.stories';
+
+<Meta of={AvatarStories} />
+
+# Avatar
+
+Profile placeholder for a person, account, or entity. Falls back from
+image → initials → icon → custom slot so the cell never collapses
+empty. Lighter than a Card (P4) and more identity-specific than a
+Badge (P1).
+
+## When to use
+
+- List rows, table cells, comment threads — anywhere a name needs
+  visual identification.
+- Profile headers (size `xl` / `2xl`) with verified ticks or status
+  indicators.
+- TopBar / SideNav user-section corner.
+- AvatarGroup compositions (Phase 2) — base unit.
+
+## When NOT to use
+
+- **Decorative imagery only** → use a plain `<img>` with the
+  appropriate `alt`.
+- **Logo + wordmark blocks** → use a dedicated brand component, not
+  an Avatar.
+
+## Anatomy
+
+<Canvas of={AvatarStories.Default} />
+
+Layout: rounded surface with image fill, fallback content (initials
+/ icon / placeholder) when no image, optional outer border, optional
+corner badge (status indicator / verified tick / count / custom slot).
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- Pass a meaningful `alt` — describe **who** the avatar represents,
+  not what it is. ("Olivia Rhye" not "Avatar").
+- Initials are wrapped in `<span>` with text colour that meets WCAG
+  AA contrast (kit was patched in P3 to use `text-secondary` instead
+  of `text-quaternary` — see `base/avatar/avatar.tsx` GLAON PATCH).
+- Status indicators (`status`) are decorative; the meaningful state
+  ("Online", "Offline") should also appear in surrounding text or
+  `aria-label`.
+- The `focusable` prop lets the avatar inherit a focus ring when
+  wrapped inside an interactive element (link, button) — the Avatar
+  itself stays non-interactive.
+
+## Related components
+
+- [Badge](?path=/docs/web-primitives-badge--docs) — `Avatar.count` prop reuses Badge styling.
+- [Stat](?path=/docs/web-primitives-stat--docs) — KPI cards (often paired with Avatar in user / actor contexts).
+- [List](?path=/docs/web-primitives-list--docs) — Avatar fits naturally in `List.Item.leading` slot.
