@@ -12,6 +12,7 @@ export * from './components/Card';
 export * from './components/Checkbox';
 export * from './components/Drawer';
 export * from './components/Input';
+export * from './components/List';
 export * from './components/Modal';
 export * from './components/Popover';
 export * from './components/PressableButton';
