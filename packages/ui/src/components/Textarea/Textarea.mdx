@@ -1,0 +1,76 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as TextareaStories from './Textarea.stories';
+
+<Meta of={TextareaStories} />
+
+# Textarea
+
+Multi-line text field with the same label / helper / validation
+contract as Input. Use whenever the user might type more than a single
+line — descriptions, comments, free-form notes.
+
+## When to use
+
+- Long-form descriptions, comments, release notes, profile bios.
+- Markdown / rich text composers that fall back to plain text.
+- Any field where soft-wrap matters (the kit forwards the native
+  `wrap="soft"` behavior automatically).
+
+## When NOT to use
+
+- **Single-line capture** → use [Input](?path=/docs/web-primitives-input--docs); a Textarea on a single-line value wastes vertical space and confuses keyboard users (Enter inserts a newline instead of submitting).
+- **Code / monospaced editing** → out of scope for Phase 1; queue a Phase 2 CodeEditor primitive.
+- **Rich text with formatting toolbars** → out of scope; queue a Phase 2 RichText primitive.
+
+## Anatomy
+
+<Canvas of={TextareaStories.WithHelper} />
+
+Top-to-bottom: optional `label` (with optional inline `tooltip` and
+required indicator), the multi-line `<textarea>` (with the kit's
+resize handle in the bottom-right corner), and an optional `hint`
+caption that re-styles to red when `isInvalid` is true.
+
+```tsx
+<Textarea
+  label="Description"
+  placeholder="Tell us a bit about yourself…"
+  hint="Markdown is supported."
+  rows={4}
+  isRequired
+/>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- Always set `label`. Visible labels satisfy axe `label` and pair the
+  field with assistive tech automatically; placeholder-only labels
+  fail.
+- Enter inserts a newline (it does not submit the surrounding form).
+  When the Textarea sits inside a form, surface a separate Submit
+  button — the kit will not interpret Enter as submit.
+- `isRequired` forwards `aria-required="true"` even when the visual
+  marker is hidden via `hideRequiredIndicator` — keep the prop set so
+  the a11y contract holds on dense forms.
+- `isInvalid` re-styles the hint to red AND wires
+  `aria-invalid="true"` + `aria-describedby` to the hint node, so
+  screen readers announce the error along with the label.
+- The resize handle is operable with mouse + touch; keyboard users
+  can rely on `rows` plus content scroll instead. Don't disable
+  resize via CSS without a strong reason — it removes a useful
+  affordance.
+
+## Related components
+
+- [Input](?path=/docs/web-primitives-input--docs) — single-line counterpart with the same label / hint / validation contract and a built-in password toggle.
+- [Select](?path=/docs/web-primitives-select--docs) — when the value comes from a fixed set of options instead of free text.
+- [Checkbox](?path=/docs/web-primitives-checkbox--docs) / [Radio](?path=/docs/web-primitives-radio--docs) / [Switch](?path=/docs/web-primitives-switch--docs) — boolean form controls when a Textarea would be overkill.
