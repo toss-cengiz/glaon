@@ -1,0 +1,100 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as LogoStories from './Logo.stories';
+
+<Meta of={LogoStories} />
+
+# Logo
+
+Glaon brand identity primitive. Renders the wordmark or the standalone
+symbol, with a contrast variant for light vs. dark surfaces. SVG paths
+are inlined from `packages/assets/glaon{,_dark}.svg` and
+`symbol{,_dark}.svg` so the wrap renders without a Vite SVG plugin or
+asset loader in the consuming app.
+
+## When to use
+
+- **Top bar / header** — full `wordmark` on the marketing site,
+  `symbol` on the in-app top bar when horizontal space is tight.
+- **Auth screens** — `wordmark` centered above the login form.
+- **Splash / boot** — `symbol` for app icon style framing.
+- **Empty states** — `symbol` with `decorative` to anchor an empty
+  panel without screen-reader noise.
+
+## When NOT to use
+
+- **Avatar** — the user's profile picture is owned by [Avatar](?path=/docs/web-primitives-avatar--docs); use that with the symbol as a fallback only when no profile photo exists.
+- **Inline brand mention in body copy** — write "Glaon" as text;
+  inserting an inline SVG breaks line-height and typography rhythm.
+
+## Anatomy
+
+<Canvas of={LogoStories.AllVariants} />
+
+The mark is composed of two visual elements:
+
+- **Body** — the wordmark glyphs / symbol ring. Fill resolves through
+  `currentColor`; the wrapper picks `var(--brand-500)` for the
+  `light` theme and `var(--base-dirty)` for the `dark` theme.
+- **Accent** — the orange dot (`var(--red-500)`). Brand-canonical and
+  theme-invariant — it stays the same on both surfaces.
+
+```tsx
+<Logo variant="wordmark" theme="light" size={240} />
+<Logo variant="symbol" theme="dark" background="var(--brand-700)" size={96} />
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Theme prop vs. app theme
+
+The `theme` prop is **independent** from the app-level
+`<ThemeProvider>`. Source design tokens are single-mode today (Figma
+Variables don't yet expose Theme: Dark — see #140). `theme` here
+expresses contrast intent against the immediate surrounding surface,
+not the global app theme.
+
+When the dark token binding lands, this contract still holds: a
+`theme="dark"` Logo continues to mean "render on dark / brand-tinted
+surface", regardless of which app-level theme is active.
+
+## Accessibility
+
+- Default behaviour: the wrapper renders with `role="img"` and
+  `aria-label="Glaon"`. Override the label only when context demands
+  a longer description (e.g. "Glaon — Home Assistant frontend").
+- Set `decorative` when the logo duplicates information already
+  available to screen readers (a visible "Glaon" headline elsewhere
+  on the page). The wrapper switches to `aria-hidden="true"` and
+  drops the `role`.
+- Contrast: pair `theme="light"` with surfaces lighter than
+  `var(--neutral-200)`; use `theme="dark"` for surfaces darker than
+  `var(--brand-300)`. The Storybook **AllVariants** story is the
+  canonical contrast check.
+
+## Source SVGs
+
+The four canonical SVGs live in [`packages/assets/`](../../../assets/):
+
+- `glaon.svg` — light wordmark
+- `glaon_dark.svg` — dark wordmark
+- `symbol.svg` — light symbol
+- `symbol_dark.svg` — dark symbol
+
+The component inlines paths from the **light** files and switches the
+body fill via `currentColor` to render the dark variant — the only
+visual difference between the light and dark source files is the body
+fill, which our color strategy parameterizes.
+
+## Related components
+
+- [Avatar](?path=/docs/web-primitives-avatar--docs) — for user profile
+  photos; can render a Logo-shaped fallback for unknown users.
+- [TopBar](?path=/docs/web-primitives-topbar--docs) — typical host for
+  the wordmark variant.
