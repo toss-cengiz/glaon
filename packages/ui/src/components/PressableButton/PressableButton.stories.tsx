@@ -106,7 +106,12 @@ export const WithTrailingIcon: Story = {
   args: { iconTrailing: storybookIcons.arrowRight, children: 'Continue' },
 };
 
+// Matrix stories iterate over a single prop and render every variant
+// side by side; the Storybook controls panel hides the iterated prop
+// because changing it on a matrix is meaningless. Other props still
+// flow through `{...args}`.
 export const Sizes: Story = {
+  parameters: { controls: { exclude: ['size', 'children'] } },
   render: (args) => (
     <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
       {(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => (
@@ -119,6 +124,7 @@ export const Sizes: Story = {
 };
 
 export const Colors: Story = {
+  parameters: { controls: { exclude: ['color', 'children'] } },
   render: (args) => (
     <View style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start', flexWrap: 'wrap' }}>
       {(

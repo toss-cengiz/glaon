@@ -77,7 +77,11 @@ export const TitleOnly: Story = {
   args: { description: undefined, title: 'A short status line' },
 };
 
+// Matrix story: iterates `intent` and renders every variant in a
+// single canvas, so the controls panel hides `intent` (changing it on
+// a matrix is meaningless). Other props still flow through `{...args}`.
 export const Intents: Story = {
+  parameters: { controls: { exclude: ['intent'] } },
   render: (args) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       {(['info', 'success', 'warning', 'danger'] as const).map((intent) => (

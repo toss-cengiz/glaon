@@ -94,7 +94,11 @@ export const Squared: Story = {
   },
 };
 
+// Matrix story: iterates `size` and renders every variant in a
+// single canvas, so the controls panel hides `size`. Other props
+// still flow through `{...args}`.
 export const Sizes: Story = {
+  parameters: { controls: { exclude: ['size'] } },
   render: (args) => (
     <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
       {(['xs', 'sm', 'md', 'lg', 'xl', '2xl'] as const).map((size) => (
