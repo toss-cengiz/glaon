@@ -114,7 +114,13 @@ export const InteractiveTile: Story = {
   },
 };
 
+// Matrix story: iterates `variant` and renders every option in a
+// single canvas, so the controls panel hides `variant`. The render
+// fn ignores `args` (each Card hard-codes its content) — keep the
+// remaining controls disabled too via the rest of the `exclude` list
+// is unnecessary here because no other prop matters.
 export const Variants: Story = {
+  parameters: { controls: { exclude: ['variant'] } },
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {(['default', 'elevated', 'muted'] as const).map((variant) => (

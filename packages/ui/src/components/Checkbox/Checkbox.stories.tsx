@@ -65,7 +65,12 @@ export const Invalid: Story = {
   args: { isInvalid: true, hint: 'You must agree to continue.' },
 };
 
+// Matrix story: iterates `size` and renders every variant in a
+// single canvas, so the controls panel hides `size` and the
+// per-instance `label` (which is overridden by `Size: ${size}`).
+// Other props still flow through `{...args}`.
 export const Sizes: Story = {
+  parameters: { controls: { exclude: ['size', 'label'] } },
   render: (args) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       {(['sm', 'md'] as const).map((size) => (

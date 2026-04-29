@@ -69,7 +69,12 @@ export const InGroup: Story = {
   ],
 };
 
+// Matrix story: iterates `size` (driven by `<RadioGroup>`) and
+// renders every variant in a single canvas. The render fn ignores
+// `args` (each group hard-codes its content), so hide the iterated
+// prop and the per-Radio `label` knob that's overridden inline.
 export const Sizes: Story = {
+  parameters: { controls: { exclude: ['size', 'label'] } },
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       {(['sm', 'md'] as const).map((size) => (

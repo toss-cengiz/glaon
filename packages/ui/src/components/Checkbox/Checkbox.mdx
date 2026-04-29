@@ -52,8 +52,8 @@ the `label` text and an optional `hint` caption beneath the label.
 - Space toggles the checkbox; Enter never toggles it (the kit follows
   RAC's keyboard contract — Enter is reserved for form submission).
 - `isInvalid` re-styles the hint to red AND wires `aria-invalid="true"`
-  + `aria-describedby` to the hint node, so screen readers announce
-  the error along with the label.
+  - `aria-describedby` to the hint node, so screen readers announce
+    the error along with the label.
 - `isIndeterminate` forwards `aria-checked="mixed"` (not `"true"`/
   `"false"`) — assistive tech announces the mixed state correctly.
 - Avoid relying on colour alone to communicate state — the check

@@ -47,7 +47,13 @@ export const Modern: Story = {
   args: { type: 'modern', children: 'Modern' },
 };
 
+// Matrix stories iterate over a single prop and render every variant
+// side by side; the Storybook controls panel hides the iterated prop
+// because changing it on a matrix is meaningless (each instance owns
+// its own value). Other props still flow through `{...args}` so the
+// remaining controls stay live.
 export const Sizes: Story = {
+  parameters: { controls: { exclude: ['size'] } },
   render: (args) => (
     <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
       {(['sm', 'md', 'lg'] as const).map((size) => (
@@ -60,6 +66,7 @@ export const Sizes: Story = {
 };
 
 export const Colors: Story = {
+  parameters: { controls: { exclude: ['color'] } },
   render: (args) => (
     <div
       style={{
@@ -94,6 +101,7 @@ export const Colors: Story = {
 };
 
 export const Types: Story = {
+  parameters: { controls: { exclude: ['type'] } },
   render: (args) => (
     <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
       {(['pill-color', 'color', 'modern'] as const).map((type) => (

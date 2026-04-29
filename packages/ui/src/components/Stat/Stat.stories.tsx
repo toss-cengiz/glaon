@@ -68,7 +68,11 @@ export const Large: Story = {
   args: { size: 'lg', value: '1,284,930', label: 'Active users' },
 };
 
+// Matrix story: iterates `size` and renders every variant in a
+// single canvas, so the controls panel hides `size`. Other props
+// still flow through `{...args}`.
 export const Sizes: Story = {
+  parameters: { controls: { exclude: ['size'] } },
   render: (args) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       {(['sm', 'md', 'lg'] as const).map((size) => (
