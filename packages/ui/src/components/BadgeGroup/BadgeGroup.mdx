@@ -1,0 +1,93 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as BadgeGroupStories from './BadgeGroup.stories';
+
+<Meta of={BadgeGroupStories} />
+
+# BadgeGroup
+
+Pill-shaped composite chip with a small inline Badge + main text +
+optional trailing chevron. Use for "What's new" / release announcements,
+promotional CTAs, or any pattern where a Badge introduces a label.
+
+The Glaon BadgeGroup is hand-rolled — Untitled UI's kit ships only
+hard-coded marketing-page header templates, no generic primitive. The
+wrap uses kit surface vocabulary as canonical reference (`bg-secondary`
+pill, ring, `<Badge>` slot) and parameterises the content fully.
+
+## When to use
+
+- Announcement chips: "What's new — Read post →" at the top of a
+  marketing or dashboard page.
+- Release / changelog highlights: "v1.4 — See changes →".
+- Promotional CTAs anchored to a Badge label: "New — Try the beta →".
+- Compact status + label pairs where a standalone [Badge](?path=/docs/web-primitives-badge--docs) feels too small.
+
+## When NOT to use
+
+- **Inline status next to a name** → use [Badge](?path=/docs/web-primitives-badge--docs); BadgeGroup adds outer chrome that's wasted on simple chips.
+- **Page-level alert** → use [Alert](?path=/docs/web-primitives-alert--docs); BadgeGroup is for compact inline announcements, not multi-line messages.
+- **Top-bar navigation** → use [TopBar](?path=/docs/web-primitives-topbar--docs).
+- **CTA-heavy hero section** → use [Button](?path=/docs/web-primitives-button--docs); a primary CTA shouldn't hide inside a pill.
+
+## Anatomy
+
+<Canvas of={BadgeGroupStories.Default} />
+
+Three composition slots arranged left-to-right (or reversed when
+`addonPlacement="trailing"`):
+
+- **`addon`** — inner Badge node, typically `<Badge size="sm">What's new</Badge>`.
+- **Children** — main text label (one line).
+- **`trailingIcon`** — optional decorative glyph (commonly a chevron).
+
+```tsx
+<BadgeGroup
+  color="brand"
+  size="md"
+  addon={<Badge color="brand">What's new</Badge>}
+  trailingIcon={ChevronRight}
+  onPress={() => navigate('/blog/release')}
+>
+  Read post
+</BadgeGroup>
+```
+
+The whole pill activates as a single `<button>` when `onPress` is
+set, or as an `<a>` when `href` is set. Without either, BadgeGroup
+renders a presentational `<span>` (use this for purely visual
+announcements that don't need a click target).
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The pill uses `role="button"` (when `onPress`) or `role="link"`
+  (when `href`) automatically via the underlying element — no role
+  override needed.
+- For interactive groups, the inner Badge and trailing icon are
+  decorative; the children's text is the accessible name. Avoid
+  cluttering it with status words ("New: Read post about the new release") —
+  shorter is better for screen-reader rotor lists.
+- The `trailingIcon` is `aria-hidden` — pair the chevron with a verb
+  in the children (`Read post →`, not `→` alone) so the label reads
+  as a sentence.
+- For purely presentational groups (no `onPress` / no `href`), the
+  `<span>` wrapper is non-focusable — that's intentional, since
+  there's no action to fire.
+- Don't nest a BadgeGroup inside another interactive container
+  (Card, ListItem with `onClick`, …) — that creates nested-interactive
+  controls which fail axe.
+
+## Related components
+
+- [Badge](?path=/docs/web-primitives-badge--docs) — the inner addon slot is typically a Badge instance.
+- [Alert](?path=/docs/web-primitives-alert--docs) — multi-line inline status / announcement.
+- [Toast](?path=/docs/web-primitives-toast--docs) — transient overlay notification.
+- [Button](?path=/docs/web-primitives-button--docs) — when the primary action stands alone (no Badge label).
