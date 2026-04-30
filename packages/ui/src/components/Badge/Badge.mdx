@@ -7,8 +7,14 @@ import * as BadgeStories from './Badge.stories';
 # Badge
 
 Inline label for status, category, or count. Visually paired with a
-number, icon, or short text. Lighter than an Alert (P2) and lower-stakes
-than a Toast (P16) — Badge is non-interactive metadata.
+number, icon, or short text. Lighter than an Alert (P2) and
+lower-stakes than a Toast (P16) — Badge is non-interactive metadata
+(except when `icon === 'close'`, which surfaces a single dismissal
+affordance).
+
+The Glaon `<Badge>` is a parametric wrap over the kit's 7 sibling
+primitives. The `icon` discriminator picks the right shape, mirroring
+the Figma `web-primitives-badge` `Icon` axis 1:1.
 
 ## When to use
 
@@ -16,20 +22,49 @@ than a Toast (P16) — Badge is non-interactive metadata.
 - Indicate counts inside list items (12 unread, 3 errors).
 - Tag entities by category (Active / Archived / Draft).
 - Highlight new or beta features (a `brand`-coloured `New` chip).
+- Filter chips with a dismissal affordance (`icon="close"`).
+- Profile / member tiles with embedded avatars (`icon="avatar"`).
 
 ## When NOT to use
 
 - **Multi-line messages** → use [Alert](?path=/docs/web-primitives-alert--docs) for inline status.
 - **Standalone notifications** → use [Toast](?path=/docs/web-primitives-toast--docs) for transient feedback.
-- **Calls to action** → Badges are non-interactive. Use [Button](?path=/docs/web-primitives-button--docs).
+- **Promotional text + CTA pair** → use [BadgeGroup](?path=/docs/web-primitives-badgegroup--docs) (text label + chevron action).
+- **Primary calls to action** → use [Button](?path=/docs/web-primitives-button--docs); Badge dismissal close button is for the badge itself, not page-level actions.
 
 ## Anatomy
 
-<Canvas of={BadgeStories.Default} />
+<Canvas of={BadgeStories.Icons} />
 
-A Badge is a single-line, fully-styled `<span>`. It does not accept
-icons through props in this primitive — for icon + text combinations
-use the kit's `BadgeWithIcon` (also re-exported from `@glaon/ui`).
+A Badge is a single-line, fully-styled `<span>` (or `<button>` slot
+when `icon === 'close'`). The `icon` discriminator dispatches to the
+right kit primitive:
+
+| `icon` value     | Kit primitive     | Slot prop                 |
+| ---------------- | ----------------- | ------------------------- |
+| `none` (default) | `Badge`           | —                         |
+| `dot`            | `BadgeWithDot`    | (kit-rendered dot)        |
+| `leading`        | `BadgeWithIcon`   | `iconComponent`           |
+| `trailing`       | `BadgeWithIcon`   | `iconComponent`           |
+| `only`           | `BadgeIcon`       | `iconComponent`           |
+| `avatar`         | `BadgeWithImage`  | `imgSrc`                  |
+| `flag`           | `BadgeWithFlag`   | `flag` (ISO-3166 alpha-2) |
+| `close`          | `BadgeWithButton` | `onClose` + `closeLabel`  |
+
+```tsx
+<Badge icon="dot" color="success">Online</Badge>
+<Badge icon="leading" iconComponent={Star01} color="brand">Pro</Badge>
+<Badge icon="avatar" imgSrc="…" color="gray">Olivia Rhye</Badge>
+<Badge icon="flag" flag="TR" color="gray">Türkiye</Badge>
+<Badge icon="close" onClose={dismiss} closeLabel="Remove filter">
+  Active filter
+</Badge>
+```
+
+For consumers that prefer narrower types (e.g. tree-shaking the
+dispatcher), `BadgeBase` and `BadgeWithDot` / `BadgeWithIcon` /
+`BadgeIcon` / `BadgeWithImage` / `BadgeWithFlag` / `BadgeWithButton`
+are still re-exported by name from `@glaon/ui`.
 
 ## Variants
 
@@ -49,9 +84,17 @@ use the kit's `BadgeWithIcon` (also re-exported from `@glaon/ui`).
 - When wrapping a meaningful label, pair Badge with surrounding text:
   `<span>Status: <Badge color="success">Online</Badge></span>` so screen
   readers announce the relationship.
+- `icon="close"` renders a real `<button>` element; always provide a
+  meaningful `closeLabel` (e.g. `"Remove filter"`) so screen readers
+  announce the action — without it, axe `button-name` flags the
+  unlabelled button.
+- `icon="only"` (icon-only chip) renders no visible text, so the
+  surrounding context must convey what the chip represents (pair
+  with a text label nearby or wrap in a tooltip).
 
 ## Related components
 
+- [BadgeGroup](?path=/docs/web-primitives-badgegroup--docs) — promo / "What's new" chip with an inline Badge + label + CTA pair.
 - [Alert](?path=/docs/web-primitives-alert--docs) — inline message with title + body.
 - [Toast](?path=/docs/web-primitives-toast--docs) — transient overlay notification.
 - [Avatar](?path=/docs/web-primitives-avatar--docs) — `Avatar.count` prop renders Badge styling.
