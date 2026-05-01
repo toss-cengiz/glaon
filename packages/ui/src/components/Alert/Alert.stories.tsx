@@ -1,19 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
 import { defineControls } from '../_internal/controls';
-import { Alert } from './Alert';
+import { Alert, type AlertColor } from './Alert';
 import { alertControls, alertExcludeFromArgs } from './Alert.controls';
 
 const { args, argTypes } = defineControls(alertControls);
 
-// Explicit `Meta<typeof Alert>` annotation (rather than `satisfies`) keeps
-// storybook csf-internal types out of the exported `meta` signature —
-// `tsc --noEmit` runs with `declaration: true` and trips TS2742 / TS4023
-// when the inferred meta references types that aren't portably named.
+// Explicit `Meta<typeof Alert>` annotation (rather than `satisfies`)
+// keeps the kit's deep `AlertFloating` / `AlertFullWidth` prop shapes
+// out of the exported `meta` signature — `tsc --noEmit` runs with
+// `declaration: true`.
 //
-// Phase 1.5: `args` + `argTypes` come from `Alert.controls.ts`;
-// `tags: ['autodocs']` removed because `Alert.mdx` replaces the
-// docs tab.
+// #303: Alert is now a parametric wrap dispatching to
+// `AlertFloating` (size='floating') or `AlertFullWidth`
+// (size='full-width'). Color axis matches Figma's 6-value palette.
 const meta: Meta<typeof Alert> = {
   title: 'Web Primitives/Alert',
   component: Alert,
@@ -25,13 +25,6 @@ const meta: Meta<typeof Alert> = {
   },
   args,
   argTypes,
-  decorators: [
-    (Story) => (
-      <div style={{ width: 480 }}>
-        <Story />
-      </div>
-    ),
-  ],
 };
 
 export default meta;
@@ -41,51 +34,64 @@ export const excludeFromArgs = alertExcludeFromArgs;
 
 export const Default: Story = {};
 
-export const Info: Story = {
-  args: { intent: 'info', title: 'Heads up — new release on Friday.' },
+export const Floating: Story = {
+  args: { size: 'floating', color: 'brand', confirmLabel: 'View changes' },
 };
 
-export const Success: Story = {
+export const FullWidth: Story = {
+  args: { size: 'full-width', color: 'brand', confirmLabel: 'View changes' },
+};
+
+export const WithActions: Story = {
   args: {
-    intent: 'success',
-    title: 'Saved',
-    description: 'Your changes are live.',
+    color: 'success',
+    title: 'Settings saved',
+    description: 'Your changes are live across the workspace.',
+    confirmLabel: 'View changes',
+    onConfirm: () => undefined,
+    onDismiss: () => undefined,
   },
 };
 
-export const Warning: Story = {
+export const Persistent: Story = {
   args: {
-    intent: 'warning',
+    color: 'warning',
     title: 'Token rotation in 24 hours',
-    description: 'Re-authenticate before midnight.',
+    description: 'Re-authenticate before midnight or jobs will fail.',
+    confirmLabel: 'Re-authenticate',
+    onConfirm: () => undefined,
+    // No onDismiss → no close X → persistent until the user acts.
   },
-};
-
-export const Danger: Story = {
-  args: {
-    intent: 'danger',
-    title: 'Could not save changes',
-    description: 'Network error. Try again.',
-  },
-};
-
-export const Dismissible: Story = {
-  args: { dismissible: true },
 };
 
 export const TitleOnly: Story = {
   args: { description: undefined, title: 'A short status line' },
 };
 
-// Matrix story: iterates `intent` and renders every variant in a
-// single canvas, so the controls panel hides `intent` (changing it on
-// a matrix is meaningless). Other props still flow through `{...args}`.
-export const Intents: Story = {
-  parameters: { controls: { exclude: ['intent'] } },
+// Matrix story: iterates `color` and renders every variant in a
+// single canvas, so the controls panel hides `color`. Other props
+// still flow through `{...args}`.
+const COLORS: AlertColor[] = ['default', 'brand', 'gray', 'error', 'warning', 'success'];
+
+export const Colors: Story = {
+  parameters: { controls: { exclude: ['color'] } },
   render: (args) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {(['info', 'success', 'warning', 'danger'] as const).map((intent) => (
-        <Alert key={intent} {...args} intent={intent} title={`Intent: ${intent}`} />
+      {COLORS.map((color) => (
+        <Alert key={color} {...args} color={color} title={`Color: ${color}`} />
+      ))}
+    </div>
+  ),
+};
+
+// Matrix story: iterates `size` to show the floating vs. full-width
+// layout difference in one canvas. Other controls stay live.
+export const Sizes: Story = {
+  parameters: { controls: { exclude: ['size'] } },
+  render: (args) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {(['floating', 'full-width'] as const).map((size) => (
+        <Alert key={size} {...args} size={size} title={`Size: ${size}`} />
       ))}
     </div>
   ),
