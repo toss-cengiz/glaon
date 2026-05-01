@@ -31,6 +31,7 @@
 
 import type { FC, MouseEventHandler, ReactNode } from 'react';
 
+import { filledColors } from '../base/badges/badges';
 import type { BadgeColor, BadgeSize } from '../Badge';
 
 // `@untitledui/icons` declares per-file icon types; type the slot
@@ -71,25 +72,26 @@ export interface BadgeGroupProps {
   children: ReactNode;
 }
 
-const sizeStyles: Record<BadgeSize, string> = {
-  sm: 'gap-1.5 py-0.5 pl-0.5 pr-2 text-xs font-medium',
-  md: 'gap-2 py-1 pl-1 pr-2.5 text-sm font-medium',
-  lg: 'gap-2.5 py-1.5 pl-1.5 pr-3 text-sm font-medium',
+// Padding mirrors the kit's `BadgeWithIcon` size scale: more padding
+// goes on the side opposite to the addon so the label has breathing
+// room. `leading` placement → small left padding (the addon already
+// fills it), large right padding. `trailing` placement → mirrored.
+const baseSizeStyles: Record<BadgeSize, string> = {
+  sm: 'gap-1.5 py-0.5 text-xs font-medium',
+  md: 'gap-2 py-1 text-sm font-medium',
+  lg: 'gap-2.5 py-1.5 text-sm font-medium',
 };
 
-const surfaceColors: Record<BadgeColor, string> = {
-  gray: 'bg-secondary text-secondary ring-secondary_alt',
-  brand: 'bg-utility-brand-50 text-utility-brand-700 ring-utility-brand-200',
-  error: 'bg-utility-error-50 text-utility-error-700 ring-utility-error-200',
-  warning: 'bg-utility-warning-50 text-utility-warning-700 ring-utility-warning-200',
-  success: 'bg-utility-success-50 text-utility-success-700 ring-utility-success-200',
-  slate: 'bg-utility-gray-blue-50 text-utility-gray-blue-700 ring-utility-gray-blue-200',
-  sky: 'bg-utility-blue-light-50 text-utility-blue-light-700 ring-utility-blue-light-200',
-  blue: 'bg-utility-blue-50 text-utility-blue-700 ring-utility-blue-200',
-  indigo: 'bg-utility-indigo-50 text-utility-indigo-700 ring-utility-indigo-200',
-  purple: 'bg-utility-purple-50 text-utility-purple-700 ring-utility-purple-200',
-  pink: 'bg-utility-pink-50 text-utility-pink-700 ring-utility-pink-200',
-  orange: 'bg-utility-orange-50 text-utility-orange-700 ring-utility-orange-200',
+const leadingPadding: Record<BadgeSize, string> = {
+  sm: 'pl-0.5 pr-2',
+  md: 'pl-1 pr-2.5',
+  lg: 'pl-1.5 pr-3',
+};
+
+const trailingPadding: Record<BadgeSize, string> = {
+  sm: 'pl-2 pr-0.5',
+  md: 'pl-2.5 pr-1',
+  lg: 'pl-3 pr-1.5',
 };
 
 function joinClasses(...parts: (string | undefined | false)[]): string {
@@ -112,10 +114,15 @@ export function BadgeGroup({
   className,
   children,
 }: BadgeGroupProps) {
+  const padding = addonPlacement === 'leading' ? leadingPadding[size] : trailingPadding[size];
   const containerClass = joinClasses(
     'inline-flex w-max items-center whitespace-nowrap rounded-full ring-1 ring-inset',
-    sizeStyles[size],
-    surfaceColors[color],
+    baseSizeStyles[size],
+    padding,
+    // Reuse the kit's canonical `filledColors` map so the surface
+    // matches `<Badge>`'s outer chrome verbatim — no duplicate token
+    // table to drift out of sync.
+    filledColors[color].root,
     (onPress !== undefined || href !== undefined) &&
       'cursor-pointer outline-focus-ring transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2',
     className,
