@@ -95,11 +95,16 @@ export function Alert({
   dismissLabel,
   onDismiss,
 }: AlertProps) {
-  // Confirm label is required by both kit primitives — fall back to
-  // a sensible default so callers can pass `onConfirm` without a
-  // matching label (matches the kit's `Dismiss` default for
-  // `dismissLabel`). Empty string suppresses the rendered button.
-  const resolvedConfirmLabel = confirmLabel ?? '';
+  // The kit renders the confirm / dismiss buttons solely on the
+  // presence of their click handlers. Only forward `onConfirm` when
+  // a `confirmLabel` is also set — otherwise the kit emits a
+  // text-empty `<button>` and axe `button-name` fails. Same logic
+  // for `onDismiss` against `dismissLabel`. Storybook auto-spies on
+  // action argTypes, so without these guards every story would
+  // render labelless buttons.
+  const hasConfirm = confirmLabel !== undefined && confirmLabel !== '';
+  const resolvedDismissLabel = dismissLabel ?? 'Dismiss';
+  const hasDismiss = onDismiss !== undefined && resolvedDismissLabel !== '';
 
   if (size === 'full-width') {
     const props: {
@@ -110,17 +115,17 @@ export function Alert({
       actionType: AlertActionType;
       onConfirm?: () => void;
       onClose?: () => void;
-      dismissLabel?: string;
+      dismissLabel: string;
     } = {
       title,
       description: description ?? '',
-      confirmLabel: resolvedConfirmLabel,
+      confirmLabel: hasConfirm ? confirmLabel : '',
       color,
       actionType,
+      dismissLabel: resolvedDismissLabel,
     };
-    if (onConfirm !== undefined) props.onConfirm = onConfirm;
-    if (onDismiss !== undefined) props.onClose = onDismiss;
-    if (dismissLabel !== undefined) props.dismissLabel = dismissLabel;
+    if (hasConfirm && onConfirm !== undefined) props.onConfirm = onConfirm;
+    if (hasDismiss) props.onClose = onDismiss;
     return <AlertFullWidth {...props} />;
   }
 
@@ -131,15 +136,15 @@ export function Alert({
     color: AlertColor;
     onConfirm?: () => void;
     onClose?: () => void;
-    dismissLabel?: string;
+    dismissLabel: string;
   } = {
     title,
     description: description ?? '',
-    confirmLabel: resolvedConfirmLabel,
+    confirmLabel: hasConfirm ? confirmLabel : '',
     color,
+    dismissLabel: resolvedDismissLabel,
   };
-  if (onConfirm !== undefined) props.onConfirm = onConfirm;
-  if (onDismiss !== undefined) props.onClose = onDismiss;
-  if (dismissLabel !== undefined) props.dismissLabel = dismissLabel;
+  if (hasConfirm && onConfirm !== undefined) props.onConfirm = onConfirm;
+  if (hasDismiss) props.onClose = onDismiss;
   return <AlertFloating {...props} />;
 }

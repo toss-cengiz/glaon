@@ -168,6 +168,11 @@ export function Notification({
 
   const showActions = primaryActionLabel !== undefined || secondaryActionLabel !== undefined;
   const showProgress = type === 'progress-indicator';
+  // Progressbar a11y: derive an accessible name from the title when
+  // it's a plain string (the common case — "Uploading resume.pdf"),
+  // otherwise fall back to a generic label so axe
+  // `aria-progressbar-name` stays green.
+  const progressAriaLabel = typeof title === 'string' ? title : 'Progress';
 
   return (
     <div role="status" className={containerClass}>
@@ -184,6 +189,7 @@ export function Notification({
           <div className="mt-2 flex flex-col gap-1">
             <div
               role="progressbar"
+              aria-label={progressAriaLabel}
               aria-valuenow={progress ?? 0}
               aria-valuemin={0}
               aria-valuemax={100}
