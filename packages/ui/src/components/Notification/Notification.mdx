@@ -1,0 +1,111 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as NotificationStories from './Notification.stories';
+
+<Meta of={NotificationStories} />
+
+# Notification
+
+In-app activity feed item. Use Notification to surface things that
+happened _while the user wasn't looking_ — comments on their files,
+file uploads finishing, system updates installing, mentions, approvals.
+Distinct from [Toast](?path=/docs/web-primitives-toast--docs) (transient
+overlay) and [Alert](?path=/docs/web-primitives-alert--docs) (in-flow
+inline message).
+
+The `type` discriminator picks the right leading visual — Figma's
+`web-primitives-notification` `Type` axis maps 1:1 to the prop's 9
+values.
+
+## When to use
+
+- Activity inbox / notification drawer items: "Olivia commented on
+  your file", "Phoenix approved your PR".
+- File transfer progress (`type='progress-indicator'`): "Uploading
+  resume.pdf — 65 %".
+- System events: "Update available", "Pairing started", "Sync
+  finished".
+- Direct messages preview with avatar + content snippet
+  (`type='avatar'`).
+- Marketing / content cards inside a feed (`type='image'`).
+
+## When NOT to use
+
+- **Transient overlay feedback** ("Saved", "Could not save") → use
+  [Toast](?path=/docs/web-primitives-toast--docs); Toast disappears
+  on its own, Notification persists in a feed.
+- **Inline status next to a form field / section** → use [Alert](?path=/docs/web-primitives-alert--docs).
+- **Page-level marketing announcement** → use [Banner](?path=/docs/web-primitives-banner--docs).
+- **Single-word status next to a name** → use [Badge](?path=/docs/web-primitives-badge--docs).
+
+## Anatomy
+
+<Canvas of={NotificationStories.WithAvatar} />
+
+Layout: leading visual (driven by `type`) + body (title + optional
+timestamp + optional description + optional progress bar + optional
+action button row) + optional close X button.
+
+| `type` value         | Leading visual                | Slot prop                                    |
+| -------------------- | ----------------------------- | -------------------------------------------- |
+| `primary-icon`       | FeaturedIcon (brand)          | `icon` (override)                            |
+| `gray-icon`          | FeaturedIcon (gray, modern)   | `icon`                                       |
+| `success-icon`       | FeaturedIcon (success)        | `icon`                                       |
+| `warning-icon`       | FeaturedIcon (warning)        | `icon`                                       |
+| `error-icon`         | FeaturedIcon (error)          | `icon`                                       |
+| `no-icon`            | (none)                        | —                                            |
+| `progress-indicator` | (inline progress bar in body) | `progress` (0..100) + `progressLabel`        |
+| `avatar`             | Avatar                        | `avatarSrc` / `avatarAlt` / `avatarInitials` |
+| `image`              | 40px rounded image            | `imageSrc` / `imageAlt`                      |
+
+```tsx
+<Notification
+  type="avatar"
+  avatarSrc="…"
+  avatarAlt="Olivia Rhye"
+  title="Olivia commented on your file"
+  description="“Looks great — let's ship it 🚀”"
+  timestamp="2 min ago"
+  primaryActionLabel="Reply"
+  onPrimaryAction={openThread}
+  onDismiss={markAsRead}
+/>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The wrapper carries `role="status"` so screen readers announce new
+  notifications when they're inserted into a live feed (use a
+  parent live region with `aria-live="polite"` for the queue).
+- For `type='progress-indicator'`, the inner bar carries
+  `role="progressbar"` + `aria-valuenow` / `aria-valuemin` /
+  `aria-valuemax` automatically — no extra wiring needed.
+- Avatar / image leading slots: always pass an `*Alt` text — it
+  describes who / what the notification is about. Empty alts fail
+  axe `image-alt`.
+- The close X button is a real `<button>` with `aria-label` from
+  `dismissLabel` (defaults to `Dismiss`); leaving `onDismiss`
+  undefined hides the button entirely so users aren't given an
+  inert affordance.
+- Action buttons are real `<button>` elements with visible focus
+  rings; pair with short verb labels (`Reply`, `View changes`).
+- Don't autofocus a destructive action — the user is reading the
+  notification, not taking action under pressure.
+- Avoid relying on `timestamp` alone for "when this happened" —
+  pair with an absolute date in the description if the relative
+  string is the only timestamp screen readers will hear.
+
+## Related components
+
+- [Toast](?path=/docs/web-primitives-toast--docs) — transient overlay notification (auto-dismiss).
+- [Alert](?path=/docs/web-primitives-alert--docs) — inline status message in the page flow.
+- [Banner](?path=/docs/web-primitives-banner--docs) — page-level marketing announcement.
+- [Avatar](?path=/docs/web-primitives-avatar--docs) — used internally by `type='avatar'`.

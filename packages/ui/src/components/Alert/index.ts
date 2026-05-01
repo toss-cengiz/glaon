@@ -1,1 +1,2 @@
-export { Alert, type AlertIntent, type AlertProps } from './Alert';
+export { Alert } from './Alert';
+export type { AlertActionType, AlertColor, AlertProps, AlertSize } from './Alert';

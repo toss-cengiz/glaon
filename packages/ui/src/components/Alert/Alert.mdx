@@ -6,10 +6,15 @@ import * as AlertStories from './Alert.stories';
 
 # Alert
 
-Inline status message. Use Alert when the user needs to read, but
-not necessarily act on, contextual information that lives next to
-the content it relates to. Heavier than a Badge (P1), lower-stakes
-than a Toast (P16).
+Inline status message. Use Alert when the user needs to read, and
+optionally act on, contextual information that lives next to the
+content it relates to. Heavier than a [Badge](?path=/docs/web-primitives-badge--docs)
+(P1), lower-stakes than a [Toast](?path=/docs/web-primitives-toast--docs) (P16).
+
+The Glaon `<Alert>` is a parametric wrap over the kit's `AlertFloating`
+and `AlertFullWidth` primitives — the `size` prop dispatches to the
+right one. The `color` axis (6 values) and `actionType` knob match
+the Figma `web-primitives-alert` `Color` × `Size` matrix 1:1.
 
 ## When to use
 
@@ -18,21 +23,48 @@ than a Toast (P16).
 - Inside a settings page, calling attention to the impact of a flag.
 - After a save, confirming the result inline ("Profile saved.")
   when the user is still viewing the form.
+- Pinned to the top of a dashboard for system status (`size='full-width'`).
 
 ## When NOT to use
 
-- **Page-level announcement** that's not tied to a specific section
-  → use [Banner](?path=/docs/web-primitives-banner--docs).
+- **Page-level marketing announcement** that's not tied to a specific
+  section → use [Banner](?path=/docs/web-primitives-banner--docs).
 - **Transient feedback** that should disappear → use [Toast](?path=/docs/web-primitives-toast--docs).
+- **In-app activity feed item** (avatar + comment / file upload progress)
+  → use [Notification](?path=/docs/web-primitives-notification--docs).
 - **Single-word status** → use [Badge](?path=/docs/web-primitives-badge--docs).
 
 ## Anatomy
 
-<Canvas of={AlertStories.Default} />
+<Canvas of={AlertStories.WithActions} />
 
-Layout: leading icon (intent-based), title + optional description
-(stacked vertically on mobile, inline-with-gap on desktop), optional
-close button at the top-right.
+Layout: leading FeaturedIcon (color-coded by `color`), title + optional
+description (stacked on mobile, inline on desktop), optional inline
+action group (`confirmLabel` + `dismissLabel`), optional close X
+button when `onDismiss` is set.
+
+```tsx
+<Alert
+  color="success"
+  size="floating"
+  title="Settings saved"
+  description="Your changes are live across the workspace."
+  confirmLabel="View changes"
+  onConfirm={navigateToChanges}
+  onDismiss={() => setOpen(false)}
+/>
+```
+
+The two layout primitives have different optimal use-cases:
+
+- **`size='floating'`** — card-style, modal-friendly, dashboard
+  surface. Renders inside the page's content area with a rounded
+  ring. Action buttons always render as inline links (kit
+  contract).
+- **`size='full-width'`** — page-wide bar pinned to a section /
+  page top. Use for system status announcements that span the
+  layout. Pair with `actionType='button'` for prominent CTAs or
+  `actionType='link'` for low-key links.
 
 ## Variants
 
@@ -44,18 +76,28 @@ close button at the top-right.
 
 ## Accessibility
 
-- Renders as `<div role="status">` so screen readers announce the
-  text on insert / change.
-- The intent icon is `aria-hidden`; the title + description carry
-  the meaningful content.
-- Color alone never conveys meaning — title text always describes
-  the state ("Saved", "Connection lost", "Update available").
-- The close button is a real `<button>` with the configurable
-  `dismissLabel` as `aria-label` — keyboard reachable, focus ring
-  via `outline-focus-ring`.
+- The kit forwards a semantic role on the wrapper so screen readers
+  announce the text on insert / change.
+- The leading FeaturedIcon is decorative — title + description must
+  carry the meaningful content (axe `color-contrast` and the kit's
+  contrast tokens both enforce this).
+- Color alone never conveys meaning — pair `color='error'` /
+  `'warning'` / `'success'` with descriptive title text ("Connection
+  lost", "Token rotation in 24 hours", "Saved").
+- The close X is a real `<button>` element; always pass an
+  `onDismiss` handler if you render it, so keyboard users can
+  activate it. The button's `aria-label` comes from `dismissLabel`
+  (defaults to `Dismiss`).
+- Action buttons inside the alert are real focusable controls — use
+  short verb labels ("Re-authenticate", "View changes") rather than
+  generic "OK" / "Cancel".
+- Avoid placing form inputs inside an Alert. If users need to act on
+  a form, the form's own validation / hint state is the right home
+  for the message.
 
 ## Related components
 
-- [Banner](?path=/docs/web-primitives-banner--docs) — page-level announcement with optional CTA.
+- [Banner](?path=/docs/web-primitives-banner--docs) — page-level marketing announcement with optional CTA.
 - [Toast](?path=/docs/web-primitives-toast--docs) — transient overlay notification.
+- [Notification](?path=/docs/web-primitives-notification--docs) — in-app activity feed item (avatar + comment, file upload progress, …).
 - [Badge](?path=/docs/web-primitives-badge--docs) — single-word inline status.
