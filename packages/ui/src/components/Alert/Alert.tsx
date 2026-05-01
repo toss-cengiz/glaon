@@ -97,14 +97,15 @@ export function Alert({
 }: AlertProps) {
   // The kit renders the confirm / dismiss buttons solely on the
   // presence of their click handlers. Only forward `onConfirm` when
-  // a `confirmLabel` is also set — otherwise the kit emits a
-  // text-empty `<button>` and axe `button-name` fails. Same logic
-  // for `onDismiss` against `dismissLabel`. Storybook auto-spies on
-  // action argTypes, so without these guards every story would
-  // render labelless buttons.
-  const hasConfirm = confirmLabel !== undefined && confirmLabel !== '';
+  // a `confirmLabel` is also set (and not just whitespace) —
+  // otherwise the kit emits a text-empty `<button>` which both fails
+  // axe `button-name` and leaves a dead-zone in the layout. Same
+  // logic for `onDismiss` against `dismissLabel`. Storybook auto-
+  // spies on action argTypes, so without these guards every story
+  // would render labelless buttons.
+  const hasConfirm = confirmLabel !== undefined && confirmLabel.trim() !== '';
   const resolvedDismissLabel = dismissLabel ?? 'Dismiss';
-  const hasDismiss = onDismiss !== undefined && resolvedDismissLabel !== '';
+  const hasDismiss = onDismiss !== undefined && resolvedDismissLabel.trim() !== '';
 
   if (size === 'full-width') {
     const props: {

@@ -154,7 +154,15 @@ export const AlertFullWidth = ({
                 </div>
 
                 {(onConfirm || onClose) && (
-                    <div className="flex gap-2">
+                    // GLAON PATCH (re-apply on upgrade): add `items-center`
+                    // so the inline action buttons (link / button mode)
+                    // align vertically with the close X when the kit
+                    // switches the close button from `absolute` to
+                    // `md:static` on desktop. Upstream lacks this class,
+                    // so `actionType='link'` lays out a thin link button
+                    // next to a taller close X with no vertical
+                    // alignment guarantee. Reported on #303 PR review.
+                    <div className="flex items-center gap-2">
                         <div className={cx("flex w-full gap-3", actionType === "button" ? "flex-col-reverse md:flex-row" : "flex-row")}>
                             {onClose && (
                                 <Button onClick={onClose} color={actionType === "button" ? "secondary" : "link-gray"} size="sm">
