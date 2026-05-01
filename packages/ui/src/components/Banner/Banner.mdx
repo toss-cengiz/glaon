@@ -6,32 +6,81 @@ import * as BannerStories from './Banner.stories';
 
 # Banner
 
-Page-level announcement. Use Banner when an event affects the entire
-session or app — cookie consent, planned maintenance, version update,
-global outage notice. Wider visual footprint than Alert; carries an
-optional CTA action.
+Page-level announcement strip. Use Banner when an event affects the
+entire session or page — cookie consent, newsletter signup, planned
+maintenance, version update, global outage notice. Wider visual
+footprint than [Alert](?path=/docs/web-primitives-alert--docs)
+(which is in-flow / section-level), and unlike
+[Toast](?path=/docs/web-primitives-toast--docs) it persists until
+the user dismisses it or the underlying state changes.
+
+The Glaon `<Banner>` is a parametric primitive. The `type`
+discriminator picks the right layout — Figma's
+`web-primitives-banner` `Type` axis maps 1:1 to the prop's 4 values
+(`text-field` / `single-action` / `dual-action` / `slim`). The
+`theme` axis (`default` / `brand`) swaps the surface palette.
 
 ## When to use
 
-- Top of the page: cookie consent prompt with Accept / Decline buttons.
-- App-wide announcement: "Maintenance in 2 hours" warning across all
-  routes.
-- Update prompt: "New version available" with a single Reload action.
-- Outage notice: "Connection to Home Assistant lost — reconnecting…"
+- Cookie consent prompt at the top of the page (`type='dual-action'`,
+  Decline / Allow).
+- Newsletter signup at the bottom of marketing pages
+  (`type='text-field'` with email input + Subscribe button).
+- Update / changelog announcement (`type='single-action'`, "Read
+  update").
+- App-wide system notice (`type='slim'` with a single inline link —
+  "We've just launched a new feature! Check out the new dashboard.").
 
 ## When NOT to use
 
-- **Section-level inline status** → use [Alert](?path=/docs/web-primitives-alert--docs).
-- **Transient confirmation** → use [Toast](?path=/docs/web-primitives-toast--docs).
+- **Section-level inline status** (form-field error, save
+  confirmation in-place) → use [Alert](?path=/docs/web-primitives-alert--docs).
+- **Transient confirmation** ("Saved", "Could not save") → use
+  [Toast](?path=/docs/web-primitives-toast--docs).
+- **In-app activity feed item** (avatar + comment, file upload
+  progress) → use [Notification](?path=/docs/web-primitives-notification--docs).
 - **Single-word status** → use [Badge](?path=/docs/web-primitives-badge--docs).
+- **Blocking confirmation** that requires user action before
+  proceeding → use [Modal](?path=/docs/web-primitives-modal--docs).
 
 ## Anatomy
 
-<Canvas of={BannerStories.Default} />
+<Canvas of={BannerStories.DualAction} />
 
-Layout: leading icon (intent-based), title + optional description
-(inline on desktop), optional action slot (1–2 Buttons), optional
-close button at the top-right.
+Layout per `type`:
+
+| Type            | Anatomy                                                                                |
+| --------------- | -------------------------------------------------------------------------------------- |
+| `text-field`    | leading icon + title + description + email input + submit button + close X             |
+| `single-action` | leading icon + title + description + 1 button + close X                                |
+| `dual-action`   | leading icon + title + inline-link description + 2 buttons (Decline / Allow) + close X |
+| `slim`          | center-aligned title + inline link + close X (no icon, compact)                        |
+
+```tsx
+<Banner
+  type="dual-action"
+  theme="default"
+  title="We use third-party cookies in order to personalise your experience"
+  description={
+    <>
+      Read our <a href="/cookies">Cookie Policy</a>.
+    </>
+  }
+  primaryActionLabel="Allow"
+  onPrimaryAction={acceptCookies}
+  secondaryActionLabel="Decline"
+  onSecondaryAction={declineCookies}
+  onDismiss={hideBanner}
+/>
+```
+
+The `theme` axis is independent of `type`:
+
+- **`default`** — light surface (`bg-secondary`) with a thin
+  outline ring. Blends with dashboards / content surfaces.
+- **`brand`** — dark navy fill (`bg-utility-brand-700`) with white
+  text. Use for promotional / hero strips that should pop above
+  the page chrome.
 
 ## Variants
 
@@ -43,20 +92,30 @@ close button at the top-right.
 
 ## Accessibility
 
-- Renders as `<div role="status">` so screen readers announce the
+- The wrapper carries `role="status"` so screen readers announce the
   banner on insert / change.
-- The intent icon is `aria-hidden`; title + description carry the
-  meaningful content.
-- Action buttons are real `<Button>` instances — keyboard reachable,
-  focus rings inherited from the Button primitive.
-- The close button (when `dismissible`) carries `dismissLabel` as
-  `aria-label`.
-- Persist the dismissed state in `localStorage` or a per-user setting
-  so reopened banners don't re-display indefinitely (orchestration
-  lives in the consumer, not in the primitive).
+- The leading icon is decorative (`aria-hidden`); the title and
+  description carry the meaningful content.
+- Action buttons + close X are real `<button>` elements with visible
+  focus rings; close X carries `dismissLabel` as `aria-label`
+  (defaults to `Dismiss`).
+- For `type='text-field'`, the email input has `aria-label` set via
+  `inputAriaLabel` (defaults to `Email`); always provide a
+  meaningful value when the surrounding UI doesn't already label
+  the input.
+- Empty / whitespace `primaryActionLabel` / `secondaryActionLabel`
+  values auto-hide the corresponding button so axe `button-name`
+  never trips on text-empty controls.
+- Persist the dismissed state in `localStorage` or a per-user
+  setting so reopened banners don't re-display indefinitely
+  (orchestration lives in the consumer, not in the primitive).
+- Render at most one Banner per page surface — multiple `role="status"`
+  regions stacked together compete for the screen reader's
+  attention queue.
 
 ## Related components
 
 - [Alert](?path=/docs/web-primitives-alert--docs) — section-level inline status.
 - [Toast](?path=/docs/web-primitives-toast--docs) — transient overlay notification.
+- [Notification](?path=/docs/web-primitives-notification--docs) — in-app activity feed item.
 - [Modal](?path=/docs/web-primitives-modal--docs) — blocking confirmation that requires user action.

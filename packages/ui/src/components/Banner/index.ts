@@ -1,1 +1,2 @@
-export { Banner, type BannerIntent, type BannerProps } from './Banner';
+export { Banner } from './Banner';
+export type { BannerInputType, BannerProps, BannerTheme, BannerType } from './Banner';
