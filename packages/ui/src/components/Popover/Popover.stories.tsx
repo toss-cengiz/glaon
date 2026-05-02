@@ -167,13 +167,13 @@ export const WithRichContent: Story = {
   ),
 };
 
-// `OpenState` is the single story that renders with the popover
-// already open — Chromatic's open-popover snapshot lives here. All
-// other stories render the closed trigger button so the MDX docs
-// page stays readable when every story renders side by side. See
-// #316 for the rationale (auto-open across all stories breaks the
-// docs surface when multiple popovers overlap).
+// `OpenState` carries the open-popover snapshot for Chromatic. We
+// also opt this story OUT of the MDX `<Stories>` docs block via
+// `parameters.docs.disable: true` — keeps docs page readable +
+// Storybook navigator + Chromatic still see the story. See #316
+// for the rationale.
 export const OpenState: Story = {
+  parameters: { docs: { disable: true } },
   args: { defaultOpen: true },
   render: (args) => (
     <Popover {...args}>

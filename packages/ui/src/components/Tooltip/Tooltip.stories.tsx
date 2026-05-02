@@ -171,12 +171,13 @@ export const SlowDelay: Story = {
   ),
 };
 
-// `OpenState` is the single story that renders with the tooltip
-// already open — Chromatic's open-tooltip snapshot lives here. All
-// other stories render the closed trigger so the MDX docs page
-// stays readable when every story renders side by side (otherwise
-// 11 tooltips stack and overlap). See #316 for the rationale.
+// `OpenState` carries the open-tooltip snapshot for Chromatic. We
+// also opt this story OUT of the MDX `<Stories>` docs block via
+// `parameters.docs.disable: true` — keeps docs page readable +
+// Storybook navigator + Chromatic still see the story. See #316
+// for the rationale.
 export const OpenState: Story = {
+  parameters: { docs: { disable: true } },
   args: { defaultOpen: true, title: 'Tooltip text' },
   render: (args) => (
     <Tooltip {...args}>

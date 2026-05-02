@@ -286,12 +286,15 @@ export const SizeFull: Story = {
   ),
 };
 
-// `OpenState` is the single story that renders with the drawer
-// already open — Chromatic's open-drawer snapshot lives here. All
-// other stories render the closed trigger button so the MDX docs
-// page stays readable when every story renders side by side.
-// See #316 for the rationale.
+// `OpenState` carries the open-drawer snapshot for Chromatic. We
+// also opt this story OUT of the MDX `<Stories>` docs block via
+// `parameters.docs.disable: true` — without it, the docs page
+// renders the full-side drawer alongside the other stories,
+// covering everything beside it. The Storybook navigator still
+// lists the story for direct browsing + Chromatic snapshots
+// continue to capture it. See #316 for the rationale.
 export const OpenState: Story = {
+  parameters: { docs: { disable: true } },
   args: { defaultOpen: true },
   render: (args) => (
     <Drawer {...args}>
