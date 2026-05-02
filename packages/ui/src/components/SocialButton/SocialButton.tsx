@@ -128,14 +128,15 @@ const brandTokens: Record<SocialBrand, BrandTokens> = {
   },
   google: {
     label: 'Google',
-    // Google's primary brand colour (#4285F4 ≈ utility-blue-500). Using
-    // the brand bg matches the visual treatment of Apple / Facebook /
-    // Dribbble / Twitter / Figma — all 6 brand-styled buttons surface
-    // the provider's colour. (Google's own "Sign-In" guidelines spec a
-    // white bg with the multicolour G mark; consumers who need that
-    // exact pattern can pass `style='black-outline'` for the
-    // light-surface variant.)
-    brandClass: 'bg-utility-blue-500 text-white hover:bg-utility-blue-600',
+    // Google's brand colour family is blue (~#4285F4 ≈ utility-blue-
+    // 500), but white text on blue-500 only hits 3.76:1 contrast —
+    // below WCAG AA's 4.5:1 small-text threshold. Drop to blue-700
+    // so axe `color-contrast` stays green; the logo + label
+    // ("Continue with Google") disambiguate from Facebook visually.
+    // (Google's own "Sign-In" guidelines spec a white bg with the
+    // multicolour G mark; consumers who need that exact pattern can
+    // pass `style='black-outline'` for the light-surface variant.)
+    brandClass: 'bg-utility-blue-700 text-white hover:bg-utility-blue-800',
     glyph: (
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M12.545 12.151V9.6h8.728c.109.522.182 1.002.182 1.673 0 4.873-3.275 8.327-8.91 8.327A9.636 9.636 0 0 1 2.91 9.964 9.636 9.636 0 0 1 12.545.327c2.691 0 4.946.964 6.728 2.6l-2.582 2.582c-.764-.728-2.073-1.51-4.146-1.51-3.546 0-6.437 2.945-6.437 6.964s2.891 6.964 6.437 6.964c4.109 0 5.65-2.945 5.891-4.473h-5.891v-1.303Z" />
