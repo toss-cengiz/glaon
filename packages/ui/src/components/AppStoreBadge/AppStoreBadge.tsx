@@ -127,9 +127,9 @@ const storeTokens: Record<AppStore, StoreTokens> = {
 };
 
 const themeClasses: Record<AppStoreBadgeTheme, string> = {
-  dark: 'bg-utility-gray-900 text-white ring-1 ring-inset ring-utility-gray-900 hover:bg-utility-gray-800',
+  dark: 'bg-utility-neutral-900 text-white ring-1 ring-inset ring-utility-neutral-900 hover:bg-utility-neutral-800',
   light:
-    'bg-white text-utility-gray-900 ring-1 ring-inset ring-utility-gray-900 hover:bg-utility-gray-50',
+    'bg-white text-utility-neutral-900 ring-1 ring-inset ring-utility-neutral-900 hover:bg-utility-neutral-50',
 };
 
 function joinClasses(...parts: (string | undefined | false)[]): string {

@@ -107,7 +107,7 @@ export const Styles: Story = {
           key={style}
           className={
             style === 'white-outline'
-              ? 'flex items-center gap-3 bg-utility-gray-900 p-3'
+              ? 'flex items-center gap-3 bg-utility-neutral-900 p-3'
               : 'flex items-center gap-3'
           }
         >

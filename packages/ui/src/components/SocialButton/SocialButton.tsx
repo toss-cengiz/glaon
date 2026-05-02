@@ -88,7 +88,7 @@ interface BrandTokens {
 const brandTokens: Record<SocialBrand, BrandTokens> = {
   apple: {
     label: 'Apple',
-    brandClass: 'bg-utility-gray-900 text-white hover:bg-utility-gray-800',
+    brandClass: 'bg-utility-neutral-900 text-white hover:bg-utility-neutral-800',
     glyph: (
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M17.535 12.625c.024-2.612 2.13-3.873 2.226-3.93-1.213-1.77-3.099-2.013-3.766-2.038-1.601-.162-3.124.943-3.937.943-.812 0-2.062-.92-3.388-.895-1.745.025-3.354 1.013-4.252 2.572-1.812 3.143-.464 7.793 1.301 10.34.86 1.247 1.886 2.652 3.232 2.602 1.296-.052 1.787-.84 3.354-.84 1.567 0 2.011.84 3.39.812 1.396-.025 2.282-1.275 3.137-2.526.985-1.451 1.392-2.85 1.417-2.924-.031-.014-2.722-1.046-2.748-4.116Zm-2.594-7.55c.715-.866 1.197-2.069 1.066-3.27-1.029.041-2.275.685-3.013 1.55-.661.766-1.241 1.989-1.084 3.166 1.151.089 2.315-.585 3.031-1.446Z" />
@@ -115,7 +115,7 @@ const brandTokens: Record<SocialBrand, BrandTokens> = {
   },
   figma: {
     label: 'Figma',
-    brandClass: 'bg-utility-gray-900 text-white hover:bg-utility-gray-800',
+    brandClass: 'bg-utility-neutral-900 text-white hover:bg-utility-neutral-800',
     glyph: (
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M8 24c2.208 0 4-1.792 4-4v-4H8c-2.208 0-4 1.792-4 4s1.792 4 4 4Z" fill="#0ACF83" />
@@ -144,7 +144,7 @@ const brandTokens: Record<SocialBrand, BrandTokens> = {
   },
   twitter: {
     label: 'Twitter',
-    brandClass: 'bg-utility-gray-900 text-white hover:bg-utility-gray-800',
+    brandClass: 'bg-utility-neutral-900 text-white hover:bg-utility-neutral-800',
     glyph: (
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
@@ -179,10 +179,10 @@ const sizeStyles: Record<
 
 const styleClasses: Record<Exclude<SocialStyle, 'brand'>, string> = {
   'black-outline':
-    'bg-primary text-utility-gray-900 ring-1 ring-inset ring-utility-gray-300 hover:bg-utility-gray-50',
+    'bg-primary text-utility-neutral-900 ring-1 ring-inset ring-utility-neutral-300 hover:bg-utility-neutral-50',
   'white-outline': 'bg-transparent text-white ring-1 ring-inset ring-white/30 hover:bg-white/10',
   'icon-only':
-    'bg-primary text-utility-gray-900 ring-1 ring-inset ring-utility-gray-300 hover:bg-utility-gray-50',
+    'bg-primary text-utility-neutral-900 ring-1 ring-inset ring-utility-neutral-300 hover:bg-utility-neutral-50',
 };
 
 function joinClasses(...parts: (string | undefined | false)[]): string {

@@ -51,7 +51,7 @@ export const Light: Story = {
   args: { store: 'app-store', theme: 'light' },
   decorators: [
     (Story) => (
-      <div className="flex h-20 items-center bg-utility-gray-900 p-4">
+      <div className="flex h-20 items-center bg-utility-neutral-900 p-4">
         <Story />
       </div>
     ),
@@ -93,7 +93,7 @@ export const Themes: Story = {
         <span className="min-w-32 text-xs text-tertiary">theme: dark</span>
         <AppStoreBadge {...args} theme="dark" />
       </div>
-      <div className="flex items-center gap-3 bg-utility-gray-900 p-4">
+      <div className="flex items-center gap-3 bg-utility-neutral-900 p-4">
         <span className="min-w-32 text-xs text-white">theme: light</span>
         <AppStoreBadge {...args} theme="light" />
       </div>
