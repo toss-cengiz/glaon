@@ -1,0 +1,85 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as AppStoreBadgeStories from './AppStoreBadge.stories';
+
+<Meta of={AppStoreBadgeStories} />
+
+# AppStoreBadge
+
+Stylised app-store download badge. Use AppStoreBadge inside marketing
+pages, footers, or sign-up flows to point users at the platform-
+specific install link. Five platforms supported: **App Store**, **Mac
+App Store**, **Google Play**, **Galaxy Store**, **AppGallery**.
+
+> **Production trademark note**: official Apple / Google / Samsung /
+> Huawei badges are governed by each platform's brand guidelines.
+> The Glaon primitive renders a stylised approximation sized for
+> design-system consistency. For pixel-fidelity marketing pages,
+> swap in the official trademark assets downloaded from each
+> platform's brand kit.
+
+## When to use
+
+- Marketing footer / pricing-page CTA: "Download our app".
+- Sign-up flow exit screen: redirect users from web onboarding to
+  the matching mobile store.
+- Help-centre / docs pages that reference the mobile companion app.
+
+## When NOT to use
+
+- **Generic "Download" button** for files / installers → use [Button](?path=/docs/web-primitives-button--docs).
+- **Social-provider sign-in CTA** → use [SocialButton](?path=/docs/web-primitives-socialbutton--docs).
+- **In-app navigation** to a settings tab → use [Button](?path=/docs/web-primitives-button--docs) with `href`.
+
+## Anatomy
+
+<Canvas of={AppStoreBadgeStories.Default} />
+
+A two-line layout:
+
+- **Brand glyph** — Apple logo / Google Play triangle / Galaxy
+  star / Huawei flower.
+- **Top line** — uppercase descriptor (`Download on the` /
+  `GET IT ON` / `Get it on` / `EXPLORE IT ON`).
+- **Bottom line** — store name (`App Store` / `Google Play` /
+  `Galaxy Store` / `AppGallery`).
+
+```tsx
+<AppStoreBadge store="app-store" href="https://apps.apple.com/…" />
+
+<AppStoreBadge store="google-play" href="https://play.google.com/…" />
+
+<AppStoreBadge store="app-store" theme="light" /> {/* for dark page bg */}
+```
+
+The component renders as an `<a>` when `href` is set, a `<button>`
+when `onPress` is set, or a presentational `<span>` when neither
+is set (catalogue / showcase use).
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The component derives its accessible label from the store name
+  (`Download on the App Store`, `GET IT ON Google Play`, etc.) so
+  axe `link-name` / `button-name` always passes — no manual
+  `aria-label` needed for the typical use-case.
+- Brand glyphs are `aria-hidden` — the visible label carries the
+  meaning.
+- `theme='dark'` (default) is for placement on light page backgrounds;
+  `theme='light'` is for dark backgrounds. Pick the one with the
+  highest contrast against the page surface (axe `color-contrast`).
+- Keyboard activation works for `href` / `onPress` variants;
+  presentational `<span>` is non-focusable by design (no action to
+  fire).
+
+## Related components
+
+- [SocialButton](?path=/docs/web-primitives-socialbutton--docs) — social-provider sign-in CTAs (Apple / Google / Facebook / etc.).
+- [Button](?path=/docs/web-primitives-button--docs) — generic action button.
