@@ -250,24 +250,24 @@ export const WithAvatarGroupHeader: Story = {
         <Avatar src={oliviaUrl} alt="Olivia Rhye" size="sm" />
       </AriaButton>
       <Dropdown.Popover>
+        {/* Render the avatar profile preview as a sibling of <Menu>
+            (inside Popover but outside the menu role hierarchy) —
+            axe `aria-required-children` only validates `role="menu"`
+            descendants, and the kit's `<Avatar>` renders an
+            `<img>` that gets tabindex-bound by RAC's collection
+            machinery when placed inside Menu. Sibling layout keeps
+            the visual identical with proper a11y semantics. */}
+        <div
+          className="flex items-center gap-3 border-b border-secondary_alt px-3 py-3"
+          role="presentation"
+        >
+          <Avatar src={oliviaUrl} alt="Olivia Rhye" size="sm" />
+          <div className="flex min-w-0 flex-col">
+            <span className="truncate text-sm font-semibold text-primary">Olivia Rhye</span>
+            <span className="truncate text-xs text-tertiary">olivia@untitledui.com</span>
+          </div>
+        </div>
         <Dropdown.Menu>
-          {/* RAC `<Header>` (SectionHeader) must live inside a
-              `<Section>` so axe `aria-required-children` accepts it
-              under the `role="menu"` parent. Without the Section
-              wrapper, axe flags `header[tabindex]` as a non-allowed
-              child of `role="menu"`. */}
-          <Dropdown.Section>
-            <Dropdown.SectionHeader className="block px-3 pt-3 pb-2">
-              <div className="flex items-center gap-3">
-                <Avatar src={oliviaUrl} alt="Olivia Rhye" size="sm" />
-                <div className="flex min-w-0 flex-col">
-                  <span className="truncate text-sm font-semibold text-primary">Olivia Rhye</span>
-                  <span className="truncate text-xs text-tertiary">olivia@untitledui.com</span>
-                </div>
-              </div>
-            </Dropdown.SectionHeader>
-          </Dropdown.Section>
-          <Dropdown.Separator />
           <Dropdown.Item icon={eyeIcon} label="View profile" />
           <Dropdown.Item icon={settingsIcon} label="Settings" />
           <Dropdown.Item icon={userIcon} label="Switch account" />
@@ -356,22 +356,22 @@ export const OpenState: Story = {
         <Avatar src={oliviaUrl} alt="Olivia Rhye" size="sm" />
       </AriaButton>
       <Dropdown.Popover>
+        {/* Avatar profile preview as Menu sibling — see
+            WithAvatarGroupHeader story for the rationale (axe
+            `aria-required-children` rejects img[tabindex] under
+            role="menu"; sibling layout keeps the visual identical
+            with correct a11y semantics). */}
+        <div
+          className="flex items-center gap-3 border-b border-secondary_alt px-3 py-3"
+          role="presentation"
+        >
+          <Avatar src={oliviaUrl} alt="Olivia Rhye" size="sm" />
+          <div className="flex min-w-0 flex-col">
+            <span className="truncate text-sm font-semibold text-primary">Olivia Rhye</span>
+            <span className="truncate text-xs text-tertiary">olivia@untitledui.com</span>
+          </div>
+        </div>
         <Dropdown.Menu>
-          {/* RAC `<Header>` (SectionHeader) must live inside a
-              `<Section>` for axe `aria-required-children` (see
-              WithAvatarGroupHeader story for the same fix). */}
-          <Dropdown.Section>
-            <Dropdown.SectionHeader className="block px-3 pt-3 pb-2">
-              <div className="flex items-center gap-3">
-                <Avatar src={oliviaUrl} alt="Olivia Rhye" size="sm" />
-                <div className="flex min-w-0 flex-col">
-                  <span className="truncate text-sm font-semibold text-primary">Olivia Rhye</span>
-                  <span className="truncate text-xs text-tertiary">olivia@untitledui.com</span>
-                </div>
-              </div>
-            </Dropdown.SectionHeader>
-          </Dropdown.Section>
-          <Dropdown.Separator />
           <Dropdown.Item icon={eyeIcon} label="View profile" addon="⌘P" />
           <Dropdown.Item icon={settingsIcon} label="Settings" addon="⌘," />
           <Dropdown.Item icon={userIcon} label="Switch account" />
