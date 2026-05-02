@@ -10,6 +10,7 @@ export * from './components/BadgeGroup';
 export * from './components/Banner';
 export * from './components/Breadcrumb';
 export * from './components/Button';
+export * from './components/ButtonGroup';
 export * from './components/Card';
 export * from './components/Checkbox';
 export * from './components/Drawer';

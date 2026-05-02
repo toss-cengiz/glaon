@@ -1,0 +1,122 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as ButtonGroupStories from './ButtonGroup.stories';
+
+<Meta of={ButtonGroupStories} />
+
+# ButtonGroup
+
+Segmented control for picking exactly one option out of a small,
+known set. Use it where the choice should stay on screen — date
+range filters, view-mode toggles, status sweeps — so users see the
+full set of options without opening a menu.
+
+## When to use
+
+- **Date range filters** — Day / Week / Month / Year on a dashboard.
+- **View toggles** — List / Grid / Map for a result set.
+- **Status sweeps** — All / Active / Archived on a list page.
+- **Property selectors** — Imperial / Metric, Light / Dark.
+
+## When NOT to use
+
+- More than ~5 options → use [Tabs](?path=/docs/web-primitives-tabs--docs)
+  or a `<Select>`. Segmented controls scale badly past five segments.
+- The choice opens different content panels → use **Tabs** (the
+  panels are the affordance, not the segments).
+- Each segment performs a different action (no "selected" state) →
+  this is V1.1 ("action-group" mode); for now, lay out separate
+  `<Button>` instances side by side.
+- Multi-select (multiple segments active at once) → V1.1; use
+  `<Checkbox>` group or chips today.
+
+## Anatomy
+
+<Canvas of={ButtonGroupStories.Default} />
+
+The group is a compound component: a parent `<ButtonGroup>` shares
+the rounded outer ring and a flat surface; each `<ButtonGroup.Item>`
+is a segment with three visual modes (label only, leading icon +
+label, status dot + label, icon only). The selected segment receives
+a "pressed" treatment (`bg-secondary`); unselected segments keep the
+neutral surface and pick up `bg-primary_hover` on pointer entry.
+
+```tsx
+<ButtonGroup defaultValue="week" aria-label="Date range">
+  <ButtonGroup.Item value="day">Day</ButtonGroup.Item>
+  <ButtonGroup.Item value="week">Week</ButtonGroup.Item>
+  <ButtonGroup.Item value="month">Month</ButtonGroup.Item>
+  <ButtonGroup.Item value="year">Year</ButtonGroup.Item>
+</ButtonGroup>
+```
+
+## Selection modes
+
+V1 ships **single-select only**. Either pick the controlled flow:
+
+```tsx
+const [view, setView] = useState('list');
+
+<ButtonGroup value={view} onChange={setView} aria-label="View mode">
+  <ButtonGroup.Item value="list" iconLeading={ListIcon}>List</ButtonGroup.Item>
+  <ButtonGroup.Item value="grid" iconLeading={GridIcon}>Grid</ButtonGroup.Item>
+</ButtonGroup>
+```
+
+…or hand state off to the component with `defaultValue` and read the
+selection through `onChange` only. Mixing both (`value` + `defaultValue`)
+is not supported — `value` always wins when defined.
+
+## Item variants
+
+Each `<ButtonGroup.Item>` exposes these visual axes (mirrors Figma's
+`Icon` axis on the base button group cell):
+
+- **Label only** — pass children, omit `iconLeading` and `dot`.
+- **Leading icon + label** — set `iconLeading` to a component icon.
+- **Dot + label** — set `dot` (`gray` / `brand` / `success` /
+  `warning` / `error`) for a status-prefixed segment.
+- **Icon only** — set `iconLeading` and `iconOnly`. Always pair with
+  `aria-label` so axe `button-name` stays green.
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+The controls panel below covers the **root** (`<ButtonGroup>`) props.
+`<ButtonGroup.Item>` props are documented above (and exercised through
+the variant stories) — the controls panel binds to a single component,
+so per-item knobs live in the dedicated stories rather than as
+top-level controls.
+
+<Controls />
+
+## Accessibility
+
+- Wrapper renders as `<div role="group">` with the consumer's
+  `aria-label` ("Date range", "View mode") so the group is announced
+  as a unit.
+- Each segment is a native `<button type="button">` with
+  `aria-pressed={isSelected}` — the toggle-button pattern. V1 uses Tab
+  to move between segments and Enter / Space to pick; arrow-key roving
+  focus is a V1.1 follow-up.
+- Icon-only segments **must** carry `aria-label`. The wrap forwards it
+  onto the button so screen readers announce "View as grid" instead
+  of an unnamed icon.
+- Disabled segments lose pointer events and contrast (`opacity-50`).
+  When the group itself is disabled, every segment inherits the
+  disabled state — per-item `isDisabled` cannot un-disable.
+- Selected segment is z-raised (`z-10`) so its 1px corners overlap the
+  divider lines cleanly without clipping; focus ring lifts even higher
+  (`focus-visible:z-10`) so it doesn't get trimmed by neighbours.
+
+## Related components
+
+- [Tabs](?path=/docs/web-primitives-tabs--docs) — when each segment
+  opens a different content panel.
+- [Button](?path=/docs/web-primitives-button--docs) — when each
+  control performs an action (no "pressed" persistence).
+- [Select](?path=/docs/web-primitives-select--docs) — when the option
+  set is large or only the chosen value matters at rest.
