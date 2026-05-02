@@ -2,6 +2,7 @@ import type { FC } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 import { Eye, LogOut01, Settings01, User01 } from '@untitledui/icons';
+import { Button as AriaButton } from 'react-aria-components';
 
 import { defineControls } from '../_internal/controls';
 import { Avatar } from '../Avatar';
@@ -61,7 +62,6 @@ type Story = StoryObj<typeof Dropdown>;
 export const excludeFromArgs = dropdownExcludeFromArgs;
 
 export const Default: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Dropdown {...args}>
       <Button color="secondary">Options</Button>
@@ -79,7 +79,6 @@ export const Default: Story = {
 };
 
 export const WithIcons: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Dropdown {...args}>
       <Button color="secondary">Account</Button>
@@ -97,7 +96,6 @@ export const WithIcons: Story = {
 };
 
 export const WithAddons: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Dropdown {...args}>
       <Button color="secondary">Quick actions</Button>
@@ -119,7 +117,6 @@ const phoenixUrl = 'https://www.untitledui.com/images/avatars/phoenix-baker?fm=w
 const lanaUrl = 'https://www.untitledui.com/images/avatars/lana-steiner?fm=webp&q=80';
 
 export const WithAvatars: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Dropdown {...args}>
       <Button color="secondary">Assignee</Button>
@@ -135,7 +132,6 @@ export const WithAvatars: Story = {
 };
 
 export const WithSelectionCheckmark: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Dropdown {...args}>
       <Button color="secondary">Sort by</Button>
@@ -152,7 +148,6 @@ export const WithSelectionCheckmark: Story = {
 };
 
 export const WithSelectionCheckbox: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Dropdown {...args}>
       <Button color="secondary">Filter</Button>
@@ -169,7 +164,6 @@ export const WithSelectionCheckbox: Story = {
 };
 
 export const WithSelectionRadio: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Dropdown {...args}>
       <Button color="secondary">Theme</Button>
@@ -185,7 +179,6 @@ export const WithSelectionRadio: Story = {
 };
 
 export const WithSelectionToggle: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Dropdown {...args}>
       <Button color="secondary">View options</Button>
@@ -201,7 +194,6 @@ export const WithSelectionToggle: Story = {
 };
 
 export const WithSections: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Dropdown {...args}>
       <Button color="secondary">Workspace</Button>
@@ -231,7 +223,6 @@ export const WithSections: Story = {
 };
 
 export const WithDividers: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Dropdown {...args}>
       <Button color="secondary">Mixed</Button>
@@ -250,10 +241,14 @@ export const WithDividers: Story = {
 };
 
 export const WithAvatarGroupHeader: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Dropdown {...args}>
-      <Avatar src={oliviaUrl} alt="Olivia Rhye" size="sm" />
+      <AriaButton
+        aria-label="User menu for Olivia Rhye"
+        className="rounded-full outline-focus-ring focus-visible:outline-2 focus-visible:outline-offset-2"
+      >
+        <Avatar src={oliviaUrl} alt="Olivia Rhye" size="sm" />
+      </AriaButton>
       <Dropdown.Popover>
         <Dropdown.Menu>
           <Dropdown.SectionHeader className="block px-3 pt-3 pb-2">
@@ -278,7 +273,6 @@ export const WithAvatarGroupHeader: Story = {
 };
 
 export const IconTrigger: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Dropdown {...args}>
       <Dropdown.DotsButton aria-label="More actions" />
@@ -294,17 +288,20 @@ export const IconTrigger: Story = {
   ),
 };
 
+// `<MenuTrigger>` (Dropdown root) needs a press-aware child to bind
+// the open/close handlers — a plain `<button>` or `<Avatar>` won't
+// activate the menu. Wrap the avatar in RAC's `<AriaButton>` so the
+// trigger contract works without forcing the Glaon `<Button>` chrome
+// (padding / ring / shadow) on the avatar visual.
 export const AvatarTrigger: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Dropdown {...args}>
-      <button
-        type="button"
+      <AriaButton
         aria-label="User menu for Olivia Rhye"
         className="rounded-full outline-focus-ring focus-visible:outline-2 focus-visible:outline-offset-2"
       >
         <Avatar src={oliviaUrl} alt="Olivia Rhye" size="md" />
-      </button>
+      </AriaButton>
       <Dropdown.Popover>
         <Dropdown.Menu>
           <Dropdown.Item icon={eyeIcon} label="View profile" />
@@ -318,7 +315,6 @@ export const AvatarTrigger: Story = {
 };
 
 export const DisabledItem: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Dropdown {...args}>
       <Button color="secondary">With disabled</Button>
@@ -329,6 +325,46 @@ export const DisabledItem: Story = {
           <Dropdown.Item id="archived" icon={userIcon} label="Archived (coming soon)" />
           <Dropdown.Separator />
           <Dropdown.Item id="logout" icon={logOutIcon} label="Sign out" />
+        </Dropdown.Menu>
+      </Dropdown.Popover>
+    </Dropdown>
+  ),
+};
+
+// `OpenState` is the single story that renders with the popover
+// already open — it carries the canonical menu (avatar header +
+// sectioned items) so Chromatic's open-popover snapshot covers the
+// rich content. All other stories render the closed trigger only;
+// users click in the Storybook canvas to interact. See #316 for
+// the rationale (auto-open across all stories breaks the MDX docs
+// page when every overlay opens at once).
+export const OpenState: Story = {
+  args: { defaultOpen: true },
+  render: (args) => (
+    <Dropdown {...args}>
+      <AriaButton
+        aria-label="User menu for Olivia Rhye"
+        className="rounded-full outline-focus-ring focus-visible:outline-2 focus-visible:outline-offset-2"
+      >
+        <Avatar src={oliviaUrl} alt="Olivia Rhye" size="sm" />
+      </AriaButton>
+      <Dropdown.Popover>
+        <Dropdown.Menu>
+          <Dropdown.SectionHeader className="block px-3 pt-3 pb-2">
+            <div className="flex items-center gap-3">
+              <Avatar src={oliviaUrl} alt="Olivia Rhye" size="sm" />
+              <div className="flex min-w-0 flex-col">
+                <span className="truncate text-sm font-semibold text-primary">Olivia Rhye</span>
+                <span className="truncate text-xs text-tertiary">olivia@untitledui.com</span>
+              </div>
+            </div>
+          </Dropdown.SectionHeader>
+          <Dropdown.Separator />
+          <Dropdown.Item icon={eyeIcon} label="View profile" addon="⌘P" />
+          <Dropdown.Item icon={settingsIcon} label="Settings" addon="⌘," />
+          <Dropdown.Item icon={userIcon} label="Switch account" />
+          <Dropdown.Separator />
+          <Dropdown.Item icon={logOutIcon} label="Sign out" />
         </Dropdown.Menu>
       </Dropdown.Popover>
     </Dropdown>
