@@ -123,7 +123,16 @@ function ButtonGroupRoot({
         role="group"
         aria-label={ariaLabel}
         className={joinClasses(
-          'inline-flex h-max rounded-lg bg-primary shadow-xs-skeuomorphic ring-1 ring-primary ring-inset',
+          // `w-fit` blocks the cross-axis stretch a parent flex column
+          // would otherwise apply (`align-items: stretch` on `inline-flex`
+          // children still expands them in the cross-axis), which used
+          // to paint the wrapper's empty surface as a long line right of
+          // the segments. The outer ring is owned by each segment's own
+          // `border` (see `ButtonGroupItem` below) — keeping the ring on
+          // the wrapper hid the selected segment's top / bottom edges
+          // because child backgrounds always paint over a parent's
+          // `box-shadow: inset`.
+          'inline-flex h-max w-fit rounded-lg shadow-xs-skeuomorphic',
           className,
         )}
       >
@@ -229,8 +238,15 @@ function ButtonGroupItem({
       className={joinClasses(
         'relative inline-flex items-center justify-center whitespace-nowrap outline-focus-ring transition',
         'focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2',
-        'first:rounded-l-[7px] last:rounded-r-[7px]',
-        '[&:not(:first-child)]:-ml-px [&:not(:first-child)]:border-l [&:not(:first-child)]:border-primary',
+        // Each segment owns a full `border` instead of relying on the
+        // wrapper's `ring-inset` — that way the selected segment's
+        // `bg-secondary` can't paint over the wrapper's top / bottom
+        // ring. Adjacent segments collapse their shared edge with
+        // `-ml-px` so the visible result is still a single 1px frame
+        // around the group. First / last segments round to match the
+        // wrapper's `rounded-lg`.
+        'border border-primary first:rounded-l-lg last:rounded-r-lg',
+        '[&:not(:first-child)]:-ml-px',
         'disabled:cursor-not-allowed disabled:opacity-50',
         sizes.base,
         iconOnly ? sizes.iconOnly : sizes.padded,
