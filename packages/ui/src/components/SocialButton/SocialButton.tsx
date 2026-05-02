@@ -128,18 +128,32 @@ const brandTokens: Record<SocialBrand, BrandTokens> = {
   },
   google: {
     label: 'Google',
-    // Google's brand colour family is blue (~#4285F4 ≈ utility-blue-
-    // 500), but white text on blue-500 only hits 3.76:1 contrast —
-    // below WCAG AA's 4.5:1 small-text threshold. Drop to blue-700
-    // so axe `color-contrast` stays green; the logo + label
-    // ("Continue with Google") disambiguate from Facebook visually.
-    // (Google's own "Sign-In" guidelines spec a white bg with the
-    // multicolour G mark; consumers who need that exact pattern can
-    // pass `style='black-outline'` for the light-surface variant.)
-    brandClass: 'bg-utility-blue-700 text-white hover:bg-utility-blue-800',
+    // Google's official Sign-In spec mandates a white surface with the
+    // multicolour G mark — collapsing it to a single-colour G on a
+    // brand-blue surface stripped the recognisable identity. White bg
+    // + multicolour G is the canonical pattern; `text-secondary`
+    // (dark text) + ring keep the button visible on light page bg's.
+    // For dark page bg's, callers should swap to `style='white-
+    // outline'`.
+    brandClass: 'bg-primary text-secondary ring-1 ring-inset ring-primary hover:bg-primary_hover',
     glyph: (
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M12.545 12.151V9.6h8.728c.109.522.182 1.002.182 1.673 0 4.873-3.275 8.327-8.91 8.327A9.636 9.636 0 0 1 2.91 9.964 9.636 9.636 0 0 1 12.545.327c2.691 0 4.946.964 6.728 2.6l-2.582 2.582c-.764-.728-2.073-1.51-4.146-1.51-3.546 0-6.437 2.945-6.437 6.964s2.891 6.964 6.437 6.964c4.109 0 5.65-2.945 5.891-4.473h-5.891v-1.303Z" />
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09Z"
+          fill="#4285F4"
+        />
+        <path
+          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A10.99 10.99 0 0 0 12 23Z"
+          fill="#34A853"
+        />
+        <path
+          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.99 10.99 0 0 0 1 12c0 1.79.43 3.48 1.18 4.93l3.66-2.84Z"
+          fill="#FBBC05"
+        />
+        <path
+          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A10.99 10.99 0 0 0 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53Z"
+          fill="#EA4335"
+        />
       </svg>
     ),
   },
