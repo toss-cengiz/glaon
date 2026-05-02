@@ -13,6 +13,7 @@ export * from './components/Button';
 export * from './components/Card';
 export * from './components/Checkbox';
 export * from './components/Drawer';
+export * from './components/Dropdown';
 export * from './components/Input';
 export * from './components/List';
 export * from './components/Logo';
