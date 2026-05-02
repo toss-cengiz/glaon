@@ -338,14 +338,15 @@ export const DisabledItem: Story = {
   ),
 };
 
-// `OpenState` is the single story that renders with the popover
-// already open — it carries the canonical menu (avatar header +
-// sectioned items) so Chromatic's open-popover snapshot covers the
-// rich content. All other stories render the closed trigger only;
-// users click in the Storybook canvas to interact. See #316 for
-// the rationale (auto-open across all stories breaks the MDX docs
-// page when every overlay opens at once).
+// `OpenState` carries the open-popover snapshot for Chromatic
+// (avatar header + sectioned items). Opted OUT of the MDX
+// `<Stories>` docs block via `parameters.docs.disable: true` —
+// without it, the docs page would render an open dropdown
+// alongside other stories. The Storybook navigator still lists
+// the story for direct browsing + Chromatic still snapshots it.
+// See #316 for the rationale.
 export const OpenState: Story = {
+  parameters: { docs: { disable: true } },
   args: { defaultOpen: true },
   render: (args) => (
     <Dropdown {...args}>

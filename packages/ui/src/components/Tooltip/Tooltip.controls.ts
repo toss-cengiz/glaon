@@ -87,9 +87,9 @@ export const tooltipControls = {
   } satisfies ControlSpec<boolean>,
   defaultOpen: {
     type: 'boolean',
-    default: true,
+    default: false,
     description:
-      'Initial open state for uncontrolled usage. Story canvases default to `true` so the tooltip is visible without manual hover during snapshot capture.',
+      'Initial open state for uncontrolled usage. The dedicated `OpenState` story sets this to `true` so Chromatic captures the open-tooltip snapshot; other stories render the closed trigger so the MDX docs page stays readable when all stories render side by side.',
     category: 'Behavior',
   } satisfies ControlSpec<boolean>,
   offset: {

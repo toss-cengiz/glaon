@@ -135,7 +135,7 @@ export const Right: Story = {
 };
 
 export const Disabled: Story = {
-  args: { isDisabled: true, defaultOpen: false },
+  args: { isDisabled: true },
   render: (args) => (
     <Tooltip {...args}>
       <Button color="secondary" size="sm">
@@ -161,11 +161,28 @@ export const LongContent: Story = {
 };
 
 export const SlowDelay: Story = {
-  args: { delay: 1200, defaultOpen: false },
+  args: { delay: 1200 },
   render: (args) => (
     <Tooltip {...args}>
       <Button color="secondary" size="sm">
         Hover (1.2s delay)
+      </Button>
+    </Tooltip>
+  ),
+};
+
+// `OpenState` carries the open-tooltip snapshot for Chromatic. We
+// also opt this story OUT of the MDX `<Stories>` docs block via
+// `parameters.docs.disable: true` — keeps docs page readable +
+// Storybook navigator + Chromatic still see the story. See #316
+// for the rationale.
+export const OpenState: Story = {
+  parameters: { docs: { disable: true } },
+  args: { defaultOpen: true, title: 'Tooltip text' },
+  render: (args) => (
+    <Tooltip {...args}>
+      <Button color="secondary" size="sm">
+        Hovered
       </Button>
     </Tooltip>
   ),

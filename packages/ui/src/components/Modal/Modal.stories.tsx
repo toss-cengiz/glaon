@@ -87,7 +87,6 @@ export const Default: Story = {
 };
 
 export const SizeSm: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Modal {...args}>
       <Modal.Trigger>
@@ -113,7 +112,6 @@ export const SizeSm: Story = {
 };
 
 export const SizeMd: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Modal {...args}>
       <Modal.Trigger>
@@ -139,7 +137,6 @@ export const SizeMd: Story = {
 };
 
 export const SizeLg: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Modal {...args}>
       <Modal.Trigger>
@@ -165,7 +162,6 @@ export const SizeLg: Story = {
 };
 
 export const SizeFull: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Modal {...args}>
       <Modal.Trigger>
@@ -226,7 +222,6 @@ export const WithForm: Story = {
 };
 
 export const Scrollable: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Modal {...args}>
       <Modal.Trigger>
@@ -299,7 +294,6 @@ export const Persistent: Story = {
 };
 
 export const Confirmation: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Modal {...args}>
       <Modal.Trigger>
@@ -318,6 +312,46 @@ export const Confirmation: Story = {
           </Button>
           <Button color="primary-destructive" size="sm">
             Delete
+          </Button>
+        </Modal.Footer>
+      </Modal.Content>
+    </Modal>
+  ),
+};
+
+// `OpenState` carries the open-modal snapshot for Chromatic. We
+// also opt this story OUT of the MDX `<Stories>` docs block via
+// `parameters.docs.disable: true` — without it, the docs page
+// renders the full-viewport modal alongside the other stories,
+// covering everything below it. The Storybook navigator still
+// lists the story for direct browsing + Chromatic snapshots
+// continue to capture it. See #316 for the rationale.
+export const OpenState: Story = {
+  parameters: { docs: { disable: true } },
+  args: { defaultOpen: true },
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Trigger>
+        <Button color="secondary" size="sm">
+          Open modal
+        </Button>
+      </Modal.Trigger>
+      <Modal.Content>
+        <Modal.Header>
+          <h2 className="text-lg font-semibold text-primary">Confirm action</h2>
+          <p className="text-sm text-tertiary">This will permanently apply the change.</p>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="text-sm text-secondary">
+            Modals are focus-trapped overlays for blocking decisions or short multi-step flows.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button color="secondary" size="sm">
+            Cancel
+          </Button>
+          <Button color="primary" size="sm">
+            Confirm
           </Button>
         </Modal.Footer>
       </Modal.Content>

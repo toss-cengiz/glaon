@@ -98,7 +98,6 @@ export const Default: Story = {
 };
 
 export const SideRight: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Drawer {...args}>
       <Drawer.Trigger>
@@ -122,7 +121,6 @@ export const SideRight: Story = {
 };
 
 export const SideLeft: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Drawer {...args}>
       <Drawer.Trigger>
@@ -146,7 +144,6 @@ export const SideLeft: Story = {
 };
 
 export const SideTop: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Drawer {...args}>
       <Drawer.Trigger>
@@ -170,7 +167,6 @@ export const SideTop: Story = {
 };
 
 export const SideBottom: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Drawer {...args}>
       <Drawer.Trigger>
@@ -263,7 +259,6 @@ export const Persistent: Story = {
 };
 
 export const SizeFull: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Drawer {...args}>
       <Drawer.Trigger>
@@ -284,6 +279,47 @@ export const SizeFull: Story = {
         <Drawer.Footer>
           <Button color="primary" size="sm">
             Done
+          </Button>
+        </Drawer.Footer>
+      </Drawer.Content>
+    </Drawer>
+  ),
+};
+
+// `OpenState` carries the open-drawer snapshot for Chromatic. We
+// also opt this story OUT of the MDX `<Stories>` docs block via
+// `parameters.docs.disable: true` — without it, the docs page
+// renders the full-side drawer alongside the other stories,
+// covering everything beside it. The Storybook navigator still
+// lists the story for direct browsing + Chromatic snapshots
+// continue to capture it. See #316 for the rationale.
+export const OpenState: Story = {
+  parameters: { docs: { disable: true } },
+  args: { defaultOpen: true },
+  render: (args) => (
+    <Drawer {...args}>
+      <Drawer.Trigger>
+        <Button color="secondary" size="sm">
+          Open drawer
+        </Button>
+      </Drawer.Trigger>
+      <Drawer.Content>
+        <Drawer.Header>
+          <h2 className="text-lg font-semibold text-primary">Settings</h2>
+          <p className="text-sm text-tertiary">Tweak the defaults for this workspace.</p>
+        </Drawer.Header>
+        <Drawer.Body>
+          <p className="text-sm text-secondary">
+            Drawer content sits in a slide-in panel. Use it for forms, filters, or any flow where
+            the user needs context from the page behind the panel.
+          </p>
+        </Drawer.Body>
+        <Drawer.Footer>
+          <Button color="secondary" size="sm">
+            Cancel
+          </Button>
+          <Button color="primary" size="sm">
+            Save
           </Button>
         </Drawer.Footer>
       </Drawer.Content>
