@@ -17,7 +17,7 @@
 // follow-up adds Theme: Dark). `theme` here expresses contrast intent
 // against the immediate surface, not the global app theme.
 
-import type { CSSProperties } from 'react';
+import type { CSSProperties, MouseEventHandler } from 'react';
 
 export type LogoVariant = 'wordmark' | 'symbol';
 export type LogoTheme = 'light' | 'dark';
@@ -51,6 +51,36 @@ export interface LogoProps {
    * @default 'transparent'
    */
   background?: string;
+  /**
+   * Wrapper padding. Number → `px`; string → forwarded verbatim
+   * (`8px`, `0.5rem`, `8px 12px`). Useful when the logo sits inside
+   * a branded tile / chip and needs breathing room.
+   */
+  padding?: number | string;
+  /**
+   * Wrapper border-radius. Number → `px`; string → forwarded verbatim
+   * (`8px`, `9999px` for a circle, `0.5rem`). Pair with `padding` and
+   * `background` for badge- / chip-style logo presentations.
+   */
+  radius?: number | string;
+  /**
+   * Wrapper border. Pass any CSS `border` shorthand
+   * (`1px solid var(--color-secondary-alt)`, `2px solid currentColor`).
+   * Rendered as `style.border` on the wrapper.
+   */
+  border?: string;
+  /**
+   * Link destination. When set, the wrapper renders as an `<a>` so
+   * the entire mark becomes a click target (typical "home" link in
+   * a TopBar / SideNav). Mutually exclusive with `onPress`.
+   */
+  href?: string;
+  /**
+   * Click handler (`<button>` variant). Use when the logo opens a
+   * menu / triggers a programmatic action rather than navigating.
+   * Mutually exclusive with `href`.
+   */
+  onPress?: MouseEventHandler;
   /** Tailwind / className override hook for the wrapper. */
   className?: string;
   /**
@@ -61,7 +91,8 @@ export interface LogoProps {
   /**
    * Hide from assistive tech (sets `aria-hidden`). Use when the logo
    * is decorative — e.g. paired with a visible "Glaon" wordmark
-   * elsewhere on the page.
+   * elsewhere on the page. Ignored when `href` or `onPress` is set
+   * (link / button always need an accessible name).
    * @default false
    */
   decorative?: boolean;
@@ -126,6 +157,11 @@ export function Logo({
   theme = 'light',
   size,
   background = 'transparent',
+  padding,
+  radius,
+  border,
+  href,
+  onPress,
   className,
   label = 'Glaon',
   decorative = false,
@@ -135,14 +171,57 @@ export function Logo({
     color: bodyFill[theme],
     background,
     ...(size !== undefined ? { width: size } : {}),
+    ...(padding !== undefined ? { padding } : {}),
+    ...(radius !== undefined ? { borderRadius: radius } : {}),
+    ...(border !== undefined ? { border } : {}),
   };
+
+  const mark = variant === 'wordmark' ? <Wordmark /> : <Symbol />;
+
+  // Link / button variants always carry an accessible name (the link
+  // / button must be announced by screen readers regardless of
+  // `decorative` — focusable controls without a name fail axe
+  // `link-name` / `button-name`).
+  if (href !== undefined) {
+    return (
+      <a
+        href={href}
+        aria-label={label}
+        className={
+          className ?? 'outline-focus-ring focus-visible:outline-2 focus-visible:outline-offset-2'
+        }
+        style={wrapperStyle}
+      >
+        {mark}
+      </a>
+    );
+  }
+
+  if (onPress !== undefined) {
+    return (
+      <button
+        type="button"
+        onClick={onPress}
+        aria-label={label}
+        className={
+          className ?? 'outline-focus-ring focus-visible:outline-2 focus-visible:outline-offset-2'
+        }
+        style={wrapperStyle}
+      >
+        {mark}
+      </button>
+    );
+  }
+
+  // Presentational variant — `<span>` with role="img" or
+  // aria-hidden depending on `decorative`.
   const a11yProps = decorative
     ? { 'aria-hidden': true as const }
     : { role: 'img' as const, 'aria-label': label };
 
   return (
     <span className={className} style={wrapperStyle} {...a11yProps}>
-      {variant === 'wordmark' ? <Wordmark /> : <Symbol />}
+      {mark}
     </span>
   );
 }

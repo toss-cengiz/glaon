@@ -15,9 +15,12 @@ asset loader in the consuming app.
 ## When to use
 
 - **Top bar / header** — full `wordmark` on the marketing site,
-  `symbol` on the in-app top bar when horizontal space is tight.
+  `symbol` on the in-app top bar when horizontal space is tight. Pair
+  with `href="/"` so the entire mark becomes the home link.
 - **Auth screens** — `wordmark` centered above the login form.
 - **Splash / boot** — `symbol` for app icon style framing.
+- **Brand chips / tiles** — `symbol` with `padding`, `radius`, and
+  `background` to render a badge-style logo (favicon-on-card).
 - **Empty states** — `symbol` with `decorative` to anchor an empty
   panel without screen-reader noise.
 
@@ -43,6 +46,35 @@ The mark is composed of two visual elements:
 <Logo variant="wordmark" theme="light" size={240} />
 <Logo variant="symbol" theme="dark" background="var(--brand-700)" size={96} />
 ```
+
+## Chrome props
+
+`padding`, `radius`, and `border` style the wrapper around the SVG —
+useful for badge / chip presentations without authoring a separate
+container in the consuming page. Numbers are treated as `px`; strings
+forward verbatim (`'8px 12px'`, `'9999px'`, `'1px solid var(--color-secondary-alt)'`).
+
+```tsx
+<Logo variant="symbol" size={48} padding={12} radius="9999px" background="var(--brand-50)" />
+<Logo variant="wordmark" size={200} padding="12px 20px" radius={12} border="1px solid var(--color-secondary-alt)" />
+```
+
+## Link / button variants
+
+Set `href` to render the wrapper as an `<a>` so the entire mark
+becomes a click target — typical "home" link in a TopBar or SideNav.
+Set `onPress` instead when the logo opens a menu or triggers a
+programmatic action; the wrapper renders as a `<button type="button">`.
+The two props are mutually exclusive.
+
+```tsx
+<Logo variant="symbol" size={32} href="/" />
+<Logo variant="symbol" size={32} onPress={openBrandMenu} label="Open brand menu" />
+```
+
+Focusable variants always carry `aria-label` (defaults to `'Glaon'`)
+so screen readers announce the link / button — `decorative` is ignored
+when `href` or `onPress` is set.
 
 ## Variants
 
@@ -72,7 +104,13 @@ surface", regardless of which app-level theme is active.
 - Set `decorative` when the logo duplicates information already
   available to screen readers (a visible "Glaon" headline elsewhere
   on the page). The wrapper switches to `aria-hidden="true"` and
-  drops the `role`.
+  drops the `role`. Ignored when `href` or `onPress` is set —
+  focusable controls always need an accessible name.
+- `href` renders an `<a>`; `onPress` renders a `<button type="button">`.
+  Both carry `aria-label={label}` so axe `link-name` /
+  `button-name` stay green. The default `className` adds a focus ring
+  (`outline-focus-ring focus-visible:outline-2 focus-visible:outline-offset-2`);
+  pass an explicit `className` to override.
 - Contrast: pair `theme="light"` with surfaces lighter than
   `var(--neutral-200)`; use `theme="dark"` for surfaces darker than
   `var(--brand-300)`. The Storybook **AllVariants** story is the

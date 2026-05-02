@@ -51,6 +51,68 @@ export const Decorative: Story = {
   args: { variant: 'symbol', size: 96, decorative: true },
 };
 
+// Chrome — `padding` adds breathing room between the SVG and the
+// wrapper edge; pair with `background` for a tile-style presentation.
+export const Padded: Story = {
+  args: {
+    variant: 'symbol',
+    size: 64,
+    padding: 16,
+    background: 'var(--brand-50)',
+  },
+};
+
+// `radius` rounds the wrapper. Combine with `padding` and `background`
+// for a chip-style mark — useful for compact brand badges in cards
+// and list rows.
+export const Rounded: Story = {
+  args: {
+    variant: 'symbol',
+    size: 56,
+    padding: 14,
+    radius: '9999px',
+    background: 'var(--brand-50)',
+  },
+};
+
+// `border` adds a hairline outline around the wrapper. Mirrors the
+// TopBar treatment where the brand mark sits inside a thin neutral
+// frame for added definition on warm panels.
+export const Bordered: Story = {
+  args: {
+    variant: 'wordmark',
+    size: 200,
+    padding: '12px 20px',
+    radius: 12,
+    border: '1px solid var(--color-secondary-alt)',
+  },
+};
+
+// `href` turns the entire mark into an `<a>` — typical "home" link in
+// a TopBar / SideNav. Always carries `aria-label` so screen readers
+// announce the link target.
+export const AsLink: Story = {
+  args: {
+    variant: 'symbol',
+    size: 40,
+    href: '#home',
+    label: 'Glaon — go to home',
+  },
+};
+
+// `onPress` renders a `<button type="button">` instead — use when the
+// logo opens a menu or triggers a programmatic action. Mutually
+// exclusive with `href`. Inline noop here so the wrapper picks the
+// button branch; consumers wire a real handler.
+export const WithHandler: Story = {
+  args: {
+    variant: 'symbol',
+    size: 40,
+    label: 'Open brand menu',
+    onPress: () => undefined,
+  },
+};
+
 // Gallery — all four variants on their natural surfaces. Mirrors the
 // Brand Guideline placement grid so designers can verify pixel parity
 // against the Figma frame.
