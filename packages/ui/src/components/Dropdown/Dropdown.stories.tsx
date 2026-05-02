@@ -251,15 +251,22 @@ export const WithAvatarGroupHeader: Story = {
       </AriaButton>
       <Dropdown.Popover>
         <Dropdown.Menu>
-          <Dropdown.SectionHeader className="block px-3 pt-3 pb-2">
-            <div className="flex items-center gap-3">
-              <Avatar src={oliviaUrl} alt="Olivia Rhye" size="sm" />
-              <div className="flex min-w-0 flex-col">
-                <span className="truncate text-sm font-semibold text-primary">Olivia Rhye</span>
-                <span className="truncate text-xs text-tertiary">olivia@untitledui.com</span>
+          {/* RAC `<Header>` (SectionHeader) must live inside a
+              `<Section>` so axe `aria-required-children` accepts it
+              under the `role="menu"` parent. Without the Section
+              wrapper, axe flags `header[tabindex]` as a non-allowed
+              child of `role="menu"`. */}
+          <Dropdown.Section>
+            <Dropdown.SectionHeader className="block px-3 pt-3 pb-2">
+              <div className="flex items-center gap-3">
+                <Avatar src={oliviaUrl} alt="Olivia Rhye" size="sm" />
+                <div className="flex min-w-0 flex-col">
+                  <span className="truncate text-sm font-semibold text-primary">Olivia Rhye</span>
+                  <span className="truncate text-xs text-tertiary">olivia@untitledui.com</span>
+                </div>
               </div>
-            </div>
-          </Dropdown.SectionHeader>
+            </Dropdown.SectionHeader>
+          </Dropdown.Section>
           <Dropdown.Separator />
           <Dropdown.Item icon={eyeIcon} label="View profile" />
           <Dropdown.Item icon={settingsIcon} label="Settings" />
@@ -350,15 +357,20 @@ export const OpenState: Story = {
       </AriaButton>
       <Dropdown.Popover>
         <Dropdown.Menu>
-          <Dropdown.SectionHeader className="block px-3 pt-3 pb-2">
-            <div className="flex items-center gap-3">
-              <Avatar src={oliviaUrl} alt="Olivia Rhye" size="sm" />
-              <div className="flex min-w-0 flex-col">
-                <span className="truncate text-sm font-semibold text-primary">Olivia Rhye</span>
-                <span className="truncate text-xs text-tertiary">olivia@untitledui.com</span>
+          {/* RAC `<Header>` (SectionHeader) must live inside a
+              `<Section>` for axe `aria-required-children` (see
+              WithAvatarGroupHeader story for the same fix). */}
+          <Dropdown.Section>
+            <Dropdown.SectionHeader className="block px-3 pt-3 pb-2">
+              <div className="flex items-center gap-3">
+                <Avatar src={oliviaUrl} alt="Olivia Rhye" size="sm" />
+                <div className="flex min-w-0 flex-col">
+                  <span className="truncate text-sm font-semibold text-primary">Olivia Rhye</span>
+                  <span className="truncate text-xs text-tertiary">olivia@untitledui.com</span>
+                </div>
               </div>
-            </div>
-          </Dropdown.SectionHeader>
+            </Dropdown.SectionHeader>
+          </Dropdown.Section>
           <Dropdown.Separator />
           <Dropdown.Item icon={eyeIcon} label="View profile" addon="⌘P" />
           <Dropdown.Item icon={settingsIcon} label="Settings" addon="⌘," />
