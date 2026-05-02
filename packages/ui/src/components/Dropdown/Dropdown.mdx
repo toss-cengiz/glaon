@@ -1,0 +1,131 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as DropdownStories from './Dropdown.stories';
+
+<Meta of={DropdownStories} />
+
+# Dropdown
+
+Menu trigger + sectioned items primitive. Use Dropdown for action
+menus where the user picks one (or multiple) item(s) from a finite,
+visible list — TopBar user menu, table row context menu, toolbar
+filter dropdown, view settings, account switcher.
+
+The Glaon `<Dropdown>` is a thin re-export of the kit's `Dropdown`
+namespace (`packages/ui/src/components/base/dropdown/dropdown.tsx`).
+The kit provides keyboard navigation (Arrow / Enter / Escape /
+typeahead), focus management, and the `aria-expanded` /
+`aria-controls` wiring out of the box via react-aria-components'
+`<MenuTrigger>` + `<Menu>` + `<MenuItem>`.
+
+## When to use
+
+- TopBar user menu (avatar trigger + profile preview header + items
+  like `View profile` / `Settings` / `Sign out`).
+- Table row context menu (`...` overflow trigger + edit / archive /
+  delete items).
+- Toolbar filter dropdown (button trigger + checkbox-style multi-
+  select items).
+- View settings (button trigger + toggle indicators for `Auto-refresh`
+  / `Show archived` flags).
+- Account switcher (avatar trigger + avatar-group header showing
+  multiple connected accounts).
+
+## When NOT to use
+
+- **Form value picker** (single / multi value bound to a form field) → use [Select](?path=/docs/web-primitives-select--docs); Dropdown items are actions or toggles, not form values with a `selectedKey`.
+- **Generic anchored overlay** with arbitrary content → use [Popover](?path=/docs/web-primitives-popover--docs); Dropdown carries the WAI-ARIA `menu` role hierarchy.
+- **Peer-view switching** → use [Tabs](?path=/docs/web-primitives-tabs--docs).
+- **Modal confirmation** that requires user action before proceeding → use [Modal](?path=/docs/web-primitives-modal--docs).
+
+## Anatomy
+
+<Canvas of={DropdownStories.Default} />
+
+Compose with these slots:
+
+- **`<Dropdown>`** (alias for `<Dropdown.Root>`) — wraps the trigger and popover. Owns the open state.
+- **Trigger** — first focusable child (any `<Button>`, `<Avatar>`, or
+  `<Dropdown.DotsButton>` for the `...` overflow pattern).
+- **`<Dropdown.Popover>`** — popover container. Owns positioning
+  (`placement` / `offset` / `crossOffset`) and the entrance / exit
+  animations.
+- **`<Dropdown.Menu>`** — `<Menu>` list (RAC). Owns selection mode
+  (`selectionMode` / `selectedKeys` / `onSelectionChange`).
+- **`<Dropdown.Item>`** — `<MenuItem>` row. Slots: `label`,
+  `icon`, `avatarUrl`, `addon` (right-side text), `selectionIndicator`
+  (`'checkmark' | 'checkbox' | 'radio' | 'toggle' | 'none'`).
+- **`<Dropdown.Section>`** — grouped section. Pair with
+  `<Dropdown.SectionHeader>` for an eyebrow heading.
+- **`<Dropdown.Separator>`** — divider line between items.
+- **`<Dropdown.DotsButton>`** — pre-built `...` overflow button (use
+  for table row context menus).
+
+```tsx
+<Dropdown>
+  <Button iconTrailing={ChevronDown}>Options</Button>
+  <Dropdown.Popover>
+    <Dropdown.Menu>
+      <Dropdown.Item icon={Eye} label="View profile" />
+      <Dropdown.Item icon={Settings} label="Settings" />
+      <Dropdown.Separator />
+      <Dropdown.Item icon={LogOut} label="Sign out" />
+    </Dropdown.Menu>
+  </Dropdown.Popover>
+</Dropdown>
+```
+
+## Selection indicators
+
+`<Dropdown.Item selectionIndicator="...">` switches the visual
+indicator on the selected state:
+
+- **`checkmark`** (default) — single-select dropdown; ticks the
+  active row.
+- **`checkbox`** — multi-select dropdown (filter toolbar pattern).
+- **`radio`** — single-select with a leading radio dot (settings
+  groups).
+- **`toggle`** — boolean settings dropdown (each row is a flag
+  toggle; pair with `<Dropdown.Menu selectionMode="multiple">`).
+- **`none`** — no indicator (action menu items).
+
+Pair the indicator with `<Dropdown.Menu selectionMode="single">` /
+`'multiple'` so RAC's selection contract drives `aria-checked` /
+`aria-selected` on items.
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The kit forwards RAC's `<MenuTrigger>` semantics: `role="menu"`
+  on the popover, `role="menuitem"` (or `menuitemcheckbox` /
+  `menuitemradio`) on items, `aria-expanded` / `aria-controls`
+  on the trigger, automatic focus return on close.
+- Keyboard contract: Space / Enter / Down Arrow opens the menu
+  (or activates the focused item); Up / Down Arrow navigates;
+  Home / End jump to first / last; type-ahead filters by first
+  letter; Escape closes; Tab moves out of the menu.
+- For icon-only triggers (`<Dropdown.DotsButton>` or icon-only
+  `<Button>`), always set `aria-label` so screen readers can
+  announce the trigger's purpose.
+- `selectionIndicator='checkbox'` / `'radio'` / `'toggle'` items
+  forward `aria-checked` to the `<MenuItem>` automatically — RAC
+  wires the role-specific semantics.
+- For `Dropdown.SectionHeader` (the eyebrow text above a group),
+  the kit renders a real `<header>` so screen readers announce the
+  group label without it being focusable.
+- Avoid placing form inputs inside a Dropdown menu — the menu role
+  doesn't expect `<input type="text">` children; use a [Popover](?path=/docs/web-primitives-popover--docs) for that case.
+
+## Related components
+
+- [Select](?path=/docs/web-primitives-select--docs) — form-input picker for single/multi value.
+- [Popover](?path=/docs/web-primitives-popover--docs) — generic anchored overlay with arbitrary content.
+- [Tabs](?path=/docs/web-primitives-tabs--docs) — peer-view switching.
+- [Modal](?path=/docs/web-primitives-modal--docs) — full-surface dialog for blocking decisions.
