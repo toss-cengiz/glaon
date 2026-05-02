@@ -87,7 +87,6 @@ export const Default: Story = {
 };
 
 export const SizeSm: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Modal {...args}>
       <Modal.Trigger>
@@ -113,7 +112,6 @@ export const SizeSm: Story = {
 };
 
 export const SizeMd: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Modal {...args}>
       <Modal.Trigger>
@@ -139,7 +137,6 @@ export const SizeMd: Story = {
 };
 
 export const SizeLg: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Modal {...args}>
       <Modal.Trigger>
@@ -165,7 +162,6 @@ export const SizeLg: Story = {
 };
 
 export const SizeFull: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Modal {...args}>
       <Modal.Trigger>
@@ -226,7 +222,6 @@ export const WithForm: Story = {
 };
 
 export const Scrollable: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Modal {...args}>
       <Modal.Trigger>
@@ -299,7 +294,6 @@ export const Persistent: Story = {
 };
 
 export const Confirmation: Story = {
-  args: { defaultOpen: true },
   render: (args) => (
     <Modal {...args}>
       <Modal.Trigger>
@@ -318,6 +312,44 @@ export const Confirmation: Story = {
           </Button>
           <Button color="primary-destructive" size="sm">
             Delete
+          </Button>
+        </Modal.Footer>
+      </Modal.Content>
+    </Modal>
+  ),
+};
+
+// `OpenState` is the single story that renders with the modal already
+// open — Chromatic's open-modal snapshot lives here. All other stories
+// render the closed trigger button so the MDX docs page stays
+// readable when every story renders side by side. See #316 for the
+// rationale (auto-open across all stories breaks the docs surface
+// when multiple modals overlap).
+export const OpenState: Story = {
+  args: { defaultOpen: true },
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Trigger>
+        <Button color="secondary" size="sm">
+          Open modal
+        </Button>
+      </Modal.Trigger>
+      <Modal.Content>
+        <Modal.Header>
+          <h2 className="text-lg font-semibold text-primary">Confirm action</h2>
+          <p className="text-sm text-tertiary">This will permanently apply the change.</p>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="text-sm text-secondary">
+            Modals are focus-trapped overlays for blocking decisions or short multi-step flows.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button color="secondary" size="sm">
+            Cancel
+          </Button>
+          <Button color="primary" size="sm">
+            Confirm
           </Button>
         </Modal.Footer>
       </Modal.Content>

@@ -135,7 +135,7 @@ export const Right: Story = {
 };
 
 export const Disabled: Story = {
-  args: { isDisabled: true, defaultOpen: false },
+  args: { isDisabled: true },
   render: (args) => (
     <Tooltip {...args}>
       <Button color="secondary" size="sm">
@@ -161,11 +161,27 @@ export const LongContent: Story = {
 };
 
 export const SlowDelay: Story = {
-  args: { delay: 1200, defaultOpen: false },
+  args: { delay: 1200 },
   render: (args) => (
     <Tooltip {...args}>
       <Button color="secondary" size="sm">
         Hover (1.2s delay)
+      </Button>
+    </Tooltip>
+  ),
+};
+
+// `OpenState` is the single story that renders with the tooltip
+// already open — Chromatic's open-tooltip snapshot lives here. All
+// other stories render the closed trigger so the MDX docs page
+// stays readable when every story renders side by side (otherwise
+// 11 tooltips stack and overlap). See #316 for the rationale.
+export const OpenState: Story = {
+  args: { defaultOpen: true, title: 'Tooltip text' },
+  render: (args) => (
+    <Tooltip {...args}>
+      <Button color="secondary" size="sm">
+        Hovered
       </Button>
     </Tooltip>
   ),

@@ -167,19 +167,26 @@ export const WithRichContent: Story = {
   ),
 };
 
-export const DefaultOpen: Story = {
+// `OpenState` is the single story that renders with the popover
+// already open — Chromatic's open-popover snapshot lives here. All
+// other stories render the closed trigger button so the MDX docs
+// page stays readable when every story renders side by side. See
+// #316 for the rationale (auto-open across all stories breaks the
+// docs surface when multiple popovers overlap).
+export const OpenState: Story = {
   args: { defaultOpen: true },
   render: (args) => (
     <Popover {...args}>
       <Popover.Trigger>
         <Button color="secondary" size="sm">
-          Default-open
+          Open popover
         </Button>
       </Popover.Trigger>
       <Popover.Content>
         <div className="w-64 p-4">
-          <p className="text-sm text-secondary">
-            Useful for snapshotting the open state in Chromatic.
+          <p className="text-sm font-semibold text-primary">Popover title</p>
+          <p className="mt-1 text-sm text-secondary">
+            Popovers are click-triggered overlays for richer content than a tooltip.
           </p>
         </div>
       </Popover.Content>
