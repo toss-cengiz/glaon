@@ -39,6 +39,36 @@ export const logoControls = {
       'Width of the rendered mark. Number → `px`; string → forwarded verbatim (`100%`, `4rem`). Height scales via the SVG `viewBox` aspect ratio. Leave empty for the SVG natural size.',
     category: 'Style',
   } satisfies ControlSpec<number | string>,
+  padding: {
+    type: 'text',
+    description:
+      'Wrapper padding. Number → `px`; string → forwarded verbatim (`8px`, `0.5rem`, `8px 12px`). Pair with `background` and `radius` for badge / chip presentations.',
+    category: 'Style',
+  } satisfies ControlSpec<number | string>,
+  radius: {
+    type: 'text',
+    description:
+      'Wrapper border-radius. Number → `px`; string → forwarded verbatim (`8px`, `9999px` for a circle). Typically combined with `padding` and `background`.',
+    category: 'Style',
+  } satisfies ControlSpec<number | string>,
+  border: {
+    type: 'text',
+    description:
+      'CSS `border` shorthand applied to the wrapper (`1px solid var(--color-secondary-alt)`, `2px solid currentColor`). Useful for outlined chip presentations.',
+    category: 'Style',
+  } satisfies ControlSpec<string>,
+  href: {
+    type: 'text',
+    description:
+      'Link destination. When set, the wrapper renders as an `<a>` so the entire mark becomes a click target (typical "home" link in a TopBar / SideNav). Mutually exclusive with `onPress`.',
+    category: 'Behavior',
+  } satisfies ControlSpec<string>,
+  onPress: {
+    type: false,
+    description:
+      'Click handler. When set, the wrapper renders as a `<button>` — use for menu triggers or programmatic actions rather than navigation. Mutually exclusive with `href`. Set per-story via `args.onPress` (the controls panel hides function props).',
+    category: 'Behavior',
+  } satisfies ControlSpec<unknown>,
   label: {
     type: 'text',
     default: 'Glaon',
