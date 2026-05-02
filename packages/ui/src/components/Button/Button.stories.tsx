@@ -1,80 +1,42 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
+import { defineControls } from '../_internal/controls';
 import { storybookIcons } from '../../icons/storybook';
 import { Button } from './Button';
+import { buttonControls, buttonExcludeFromArgs } from './Button.controls';
 
-const meta = {
+const { args, argTypes } = defineControls(buttonControls);
+
+// Explicit `Meta<typeof Button>` annotation (rather than `satisfies`)
+// keeps the kit's unexported `ButtonProps` interface out of the
+// exported `meta` signature — `tsc --noEmit` runs with
+// `declaration: true`.
+//
+// #307: Phase 1.5 conversion — `args` + `argTypes` come from
+// `Button.controls.ts`; `tags: ['autodocs']` removed because
+// `Button.mdx` replaces the docs tab.
+const meta: Meta<typeof Button> = {
   title: 'Web Primitives/Button',
   component: Button,
-  tags: ['autodocs'],
   parameters: {
     design: {
       type: 'figma',
       url: 'https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=web-primitives-button',
     },
   },
-  args: {
-    children: 'Click me',
-    size: 'sm',
-    color: 'primary',
-    isDisabled: false,
-    isLoading: false,
-    showTextWhileLoading: false,
-    noTextPadding: false,
-  },
-  argTypes: {
-    size: { control: 'inline-radio', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
-    color: {
-      control: 'select',
-      options: [
-        'primary',
-        'secondary',
-        'tertiary',
-        'primary-destructive',
-        'secondary-destructive',
-        'tertiary-destructive',
-        'link-color',
-        'link-gray',
-        'link-destructive',
-      ],
-    },
-    isDisabled: { control: 'boolean' },
-    isLoading: { control: 'boolean' },
-    showTextWhileLoading: { control: 'boolean' },
-    noTextPadding: { control: 'boolean' },
-    iconLeading: {
-      control: 'select',
-      options: Object.keys(storybookIcons),
-      mapping: storybookIcons,
-    },
-    iconTrailing: {
-      control: 'select',
-      options: Object.keys(storybookIcons),
-      mapping: storybookIcons,
-    },
-    onClick: { action: 'clicked' },
-  },
-} satisfies Meta<typeof Button>;
+  args,
+  argTypes,
+};
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof Button>;
 
-// Props on the kit Button that are reachable through type-checking but
-// have no useful Storybook control surface. The F6 prop-coverage gate
-// (`src/__tests__/prop-coverage.test.ts`) reads this list to satisfy
-// the "every prop covered" rule without polluting the controls panel.
-export const excludeFromArgs = [
-  // react-aria-components slot binding; only meaningful in `slots`-aware
-  // composites, not as a Storybook knob.
-  'slot',
-  // Forwarded only when the link variant (`href`) is used; not a knob.
-  'routerOptions',
-];
+export const excludeFromArgs = buttonExcludeFromArgs;
+
+export const Default: Story = {};
 
 export const Primary: Story = {
-  args: {
-    color: 'tertiary',
-  },
+  args: { color: 'primary' },
 };
 
 export const Secondary: Story = {
@@ -93,8 +55,20 @@ export const SecondaryDestructive: Story = {
   args: { color: 'secondary-destructive', children: 'Delete' },
 };
 
+export const TertiaryDestructive: Story = {
+  args: { color: 'tertiary-destructive', children: 'Delete' },
+};
+
 export const LinkColor: Story = {
   args: { color: 'link-color', children: 'Read more' },
+};
+
+export const LinkGray: Story = {
+  args: { color: 'link-gray', children: 'Read more' },
+};
+
+export const LinkDestructive: Story = {
+  args: { color: 'link-destructive', children: 'Remove' },
 };
 
 export const Disabled: Story = {
@@ -122,6 +96,18 @@ export const WithLeadingIcon: Story = {
 
 export const WithTrailingIcon: Story = {
   args: { iconTrailing: storybookIcons.arrowRight, children: 'Continue' },
+};
+
+// Icon-only button: kit auto-detects this when `iconLeading` is set
+// AND `children` is empty/undefined — applies square padding via
+// `data-icon-only`. Always pair with `aria-label` so axe `button-name`
+// passes (the visible label is the icon, not text).
+export const IconOnly: Story = {
+  args: {
+    children: undefined,
+    iconLeading: storybookIcons.settings,
+    'aria-label': 'Settings',
+  },
 };
 
 // Matrix stories iterate over a single prop and render every variant

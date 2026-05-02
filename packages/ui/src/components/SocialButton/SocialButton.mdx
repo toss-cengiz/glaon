@@ -1,0 +1,93 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as SocialButtonStories from './SocialButton.stories';
+
+<Meta of={SocialButtonStories} />
+
+# SocialButton
+
+Social-provider sign-in CTA. Use SocialButton inside a sign-in /
+sign-up flow when offering OAuth login through a third-party
+provider. Distinct from the regular [Button](?path=/docs/web-primitives-button--docs)
+because the visual treatment carries the provider's brand and the
+glyph is drawn from the provider's logo.
+
+## When to use
+
+- Sign-in / sign-up forms with OAuth providers (Google, Apple,
+  Facebook, etc.).
+- Account settings: "Connect your Google account" / "Link Twitter".
+- Header sign-in shortcut on marketing pages
+  (`style='icon-only'` row).
+
+## When NOT to use
+
+- **Generic primary CTA** (Save, Continue, Submit) → use [Button](?path=/docs/web-primitives-button--docs).
+- **App store badge** (download on App Store / get on Google Play) → use [AppStoreBadge](?path=/docs/web-primitives-appstorebadge--docs).
+- **Sharing / social-action buttons** (Tweet this, Share on Facebook) → out of scope; use a custom Button with the brand glyph instead.
+
+## Anatomy
+
+<Canvas of={SocialButtonStories.Default} />
+
+A SocialButton has three slots:
+
+- **Brand glyph** — inline SVG matching the `brand` prop (Apple,
+  Dribbble, Facebook, Figma, Google, Twitter / X).
+- **Label** — `Continue with {brand}` by default, or just
+  `{brand}` when `supportingText={false}`. Hidden for
+  `style='icon-only'`.
+- The outer surface uses the provider's brand colour for
+  `style='brand'`, a black-bordered white surface for
+  `'black-outline'`, a white-bordered transparent surface for
+  `'white-outline'`, or a square chip for `'icon-only'`.
+
+```tsx
+<SocialButton brand="google" onPress={signInWithGoogle} />
+
+<SocialButton brand="apple" style="black-outline" supportingText={false}>
+  Apple ile devam et
+</SocialButton>
+
+<SocialButton
+  brand="facebook"
+  style="icon-only"
+  aria-label="Sign in with Facebook"
+  onPress={signInWithFacebook}
+/>
+
+<SocialButton brand="twitter" href={oauthRedirectUrl} />
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The brand glyph is `aria-hidden` — the visible text label is the
+  accessible name (axe `button-name`).
+- For `style='icon-only'`, the label is hidden visually so the
+  visible content is just the glyph. Always pair with `aria-label`
+  (or rely on the auto-derived `Sign in with {brand}` fallback that
+  the wrap forwards). Without one of these, axe flags the icon-only
+  button.
+- For `href` (anchor variant), the same `aria-label` rule applies —
+  link text alone (when icon-only) isn't enough.
+- Brand glyphs use `viewBox="0 0 24 24"` and inherit `currentColor`
+  for monochromatic brands (Apple / Twitter / Facebook); Figma /
+  Google / Dribbble use multicolour SVGs that don't change with
+  theme.
+- For destructive providers (none today; placeholder for `Account
+remove` flows) prefer a confirmation Modal — disconnecting an
+  OAuth provider can lock users out.
+
+## Related components
+
+- [Button](?path=/docs/web-primitives-button--docs) — generic action button (no provider branding).
+- [AppStoreBadge](?path=/docs/web-primitives-appstorebadge--docs) — official store-download badges (App Store / Google Play / etc.).
+- [Avatar](?path=/docs/web-primitives-avatar--docs) — show the connected provider icon next to the user (e.g. "Signed in with Google").

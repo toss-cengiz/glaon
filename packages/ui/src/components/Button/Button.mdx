@@ -1,0 +1,102 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as ButtonStories from './Button.stories';
+
+<Meta of={ButtonStories} />
+
+# Button
+
+Primary action affordance. The kit ships nine `color` variants
+(three hierarchies × destructive variants × link variants) and five
+sizes; the Glaon `<Button>` is a thin wrap exposing them verbatim
+plus shared semantics (loading state, icon-leading / icon-trailing,
+icon-only auto-detection, link-as-anchor via `href`).
+
+Maps Figma's `web-primitives-button` axes:
+
+- `Hierarchy`: `Primary` / `Secondary` / `Tertiary` / `Link` / `Link color` / `Link gray` (`color` prop)
+- `Size`: `xs` / `sm` / `md` / `lg` / `xl`
+- `Theme`: `Brand` / `Color` / `Gray` (link-color = brand tone, link-gray = neutral tone)
+- `Icon only`: auto when `iconLeading` is set without `children`
+- `State`: `Default` / `Hover` / `Focused` / `Loading` / `Disabled` (CSS pseudo + `isLoading` / `isDisabled` props)
+
+## When to use
+
+- Primary CTA in a form / dialog / page hero (`color='primary'`).
+- Secondary actions (`color='secondary'` or `'tertiary'`).
+- Destructive confirmations (`-destructive` suffix; pair with a
+  confirmation Modal for irreversible actions).
+- Inline link-style triggers (`color='link-color'` / `'link-gray'` /
+  `'link-destructive'`).
+- Icon-only utility buttons (toolbar actions, table-row controls;
+  always with `aria-label`).
+- Navigation as a button (`href` prop renders `<a>`; matches
+  shareable / right-clickable expectations).
+
+## When NOT to use
+
+- **Inline status / metadata** → use [Badge](?path=/docs/web-primitives-badge--docs).
+- **Compact dismissal X** → use the `IconOnly` story pattern with `aria-label="Dismiss"`, or a kit `<CloseButton>` directly.
+- **Social-provider sign-in CTA** → use [SocialButton](?path=/docs/web-primitives-socialbutton--docs).
+- **App store badge link** → use [AppStoreBadge](?path=/docs/web-primitives-appstorebadge--docs).
+- **Whole-row click target** → use [Card](?path=/docs/web-primitives-card--docs) `interactive` prop or a [List](?path=/docs/web-primitives-list--docs) row with `onClick`.
+
+## Anatomy
+
+<Canvas of={ButtonStories.Default} />
+
+```tsx
+<Button color="primary" size="md" iconLeading={Plus}>
+  Add item
+</Button>
+
+// Icon-only — square padding, always pair with aria-label
+<Button iconLeading={Settings} aria-label="Settings" />
+
+// Link-as-anchor
+<Button color="primary" href="/dashboard">Open dashboard</Button>
+```
+
+The kit auto-detects icon-only state via the `data-icon-only`
+attribute when `iconLeading` is set AND `children` is empty.
+Padding switches from rectangular to square automatically; you don't
+need a separate `iconOnly` prop.
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The kit renders a real react-aria-components `<Button>` (or
+  `<Link>` when `href` is set); keyboard activation (Space + Enter
+  for buttons, Enter for links), focus ring, and disabled semantics
+  come for free.
+- **Icon-only buttons MUST pass `aria-label`.** Without it, axe
+  `button-name` flags an unlabelled button. The visible label is
+  the icon glyph, which is not a text node screen readers announce.
+- `isLoading` hides the label visually by default — pair with
+  `aria-label` (matching the original label) so screen readers
+  still announce the button's purpose during the loading state. Use
+  `showTextWhileLoading` when the action is long-running and the
+  user needs continuous context.
+- `isDisabled` forwards `disabled` to the underlying element so
+  assistive tech treats it as inert (no focusable, no announceable
+  state change).
+- `link-*` colors render visible underlines on hover via the kit's
+  `*:data-text:underline` selector — colour alone never conveys
+  link-ness.
+- For destructive actions (`-destructive` colors) pair the button
+  with a confirmation Modal — destructive intent is part of the
+  signal, not the only safeguard.
+
+## Related components
+
+- [SocialButton](?path=/docs/web-primitives-socialbutton--docs) — social-provider sign-in CTAs (Apple / Google / Facebook / etc.).
+- [AppStoreBadge](?path=/docs/web-primitives-appstorebadge--docs) — official App Store / Google Play / Galaxy Store / AppGallery badges.
+- [PressableButton](?path=/docs/web-primitives-pressablebutton--docs) — React Native counterpart with the same `color` / `size` API.
+- [Card](?path=/docs/web-primitives-card--docs) — for whole-row click targets (use `interactive` prop).

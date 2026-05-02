@@ -3,6 +3,7 @@
 // and composes its primitives into Glaon-branded components.
 
 export * from './components/Alert';
+export * from './components/AppStoreBadge';
 export * from './components/Avatar';
 export * from './components/Badge';
 export * from './components/BadgeGroup';
@@ -23,6 +24,7 @@ export * from './components/ProgressBar';
 export * from './components/Radio';
 export * from './components/Select';
 export * from './components/SideNav';
+export * from './components/SocialButton';
 export * from './components/Spinner';
 export * from './components/Stat';
 export * from './components/Switch';
