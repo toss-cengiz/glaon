@@ -70,6 +70,57 @@ Compose with these slots:
 </Table>
 ```
 
+## Empty state
+
+`<Table emptyState={…}>` auto-renders a fallback when the body has
+zero rows — pass `<Table.Empty />` for the canonical Glaon layout
+(icon tile + title + description + optional action button) or any
+custom ReactNode to override completely.
+
+```tsx
+<Table
+  aria-label="Team members"
+  emptyState={
+    <Table.Empty
+      icon={Users01}
+      title="No team members yet"
+      description="Invite collaborators to start building together."
+      action={{ label: 'Invite member', icon: Plus, onPress: openInviteModal }}
+    />
+  }
+>
+  <Table.Header>…</Table.Header>
+  <Table.Body items={rows}>{(row) => <Table.Row …/>}</Table.Body>
+</Table>
+```
+
+The wiring is context-based: `<Table emptyState={…}>` writes the
+node into a Glaon-internal context; the wrapped `<Table.Body>`
+reads it and forwards as RAC's `renderEmptyState` callback. Pass
+`renderEmptyState` directly on a body to override the root prop
+locally — useful when a single table surface has multiple bodies
+that each need a different empty fallback.
+
+`<Table.Empty>` itself is also exported as a sub-component, so the
+canonical layout works inside any custom `renderEmptyState`
+callback even without the root prop:
+
+```tsx
+<Table.Body
+  renderEmptyState={() => (
+    <Table.Empty title="Filtered out" description="Try widening the filter." />
+  )}
+>
+```
+
+A11y: `<Table.Empty>` renders with `role="status"` +
+`aria-live="polite"` so the message is announced when the table
+transitions from filled to empty. The optional action button is a
+real `<Button>` — keyboard reachable and screen-reader named.
+
+See [#326](https://github.com/toss-cengiz/glaon/issues/326) for the
+Phase C scope.
+
 ## Header label
 
 `Table.HeadLabel` is the canonical typography wrapper for column
@@ -79,11 +130,7 @@ table renders the same header treatment without consumers
 repeating the class set:
 
 ```tsx
-<Table.Head
-  id="role"
-  allowsSorting
-  tooltip="Default role assigned at invite time."
->
+<Table.Head id="role" allowsSorting tooltip="Default role assigned at invite time.">
   <Table.HeadLabel>Role</Table.HeadLabel>
 </Table.Head>
 ```
