@@ -70,6 +70,65 @@ Compose with these slots:
 </Table>
 ```
 
+## Cell-type catalog
+
+`Table.Cell` is the kit's `<gridcell>` wrapper; in addition to raw
+text / JSX content, Phase A of [#323](https://github.com/toss-cengiz/glaon/issues/323)
+ships 14 namespaced cell-type sub-components covering the Figma
+"Type" axis. Compose them inside a `<Table.Cell>` to keep the row
+chrome predictable while picking the right visual for the data:
+
+| Sub-component               | Use case                                              |
+| --------------------------- | ----------------------------------------------------- |
+| `Table.Cell.Text`           | Primary line + optional secondary line                |
+| `Table.Cell.Avatar`         | Avatar + name + secondary (user listings)             |
+| `Table.Cell.Badge`          | Single status pill                                    |
+| `Table.Cell.BadgesMultiple` | Multi-tag with overflow `+N`                          |
+| `Table.Cell.Trend`          | Value + delta with up/down direction (sales metrics)  |
+| `Table.Cell.Progress`       | Progress bar + label (quota / completion)             |
+| `Table.Cell.StarRating`     | N filled stars / max (reviews)                        |
+| `Table.Cell.ActionButtons`  | Inline button row (edit / delete pairs)               |
+| `Table.Cell.ActionIcons`    | Icon-only button row (compact toolbars)               |
+| `Table.Cell.ActionDropdown` | `…` overflow menu trigger (3+ actions)                |
+| `Table.Cell.FileTypeIcon`   | Extension glyph + filename + size (file listings)     |
+| `Table.Cell.PaymentIcon`    | Method glyph + label + last4 (billing tables)         |
+| `Table.Cell.AvatarGroup`    | Overlapping avatars + `+N` (collaborators column)     |
+| `Table.Cell.SelectDropdown` | Inline editable native select (status / role changer) |
+
+```tsx
+<Table.Row id={member.id}>
+  <Table.Cell>
+    <Table.Cell.Avatar primary={member.name} secondary={member.email} />
+  </Table.Cell>
+  <Table.Cell>
+    <Table.Cell.Badge color="success">{member.role}</Table.Cell.Badge>
+  </Table.Cell>
+  <Table.Cell>
+    <Table.Cell.Progress value={member.quota} />
+  </Table.Cell>
+  <Table.Cell>
+    <Table.Cell.ActionDropdown
+      ariaLabel={`Actions for ${member.name}`}
+      items={[
+        { id: 'edit', label: 'Edit', icon: Edit01 },
+        { id: 'remove', label: 'Remove', icon: Trash01 },
+      ]}
+    />
+  </Table.Cell>
+</Table.Row>
+```
+
+The `CellTypesMatrix` story is the canonical pixel-parity check
+against Figma's "Type" column. `FileTypeIcon` and `PaymentIcon` use
+neutral file / credit-card glyphs today; per-extension and
+per-brand artwork lands with [#309](https://github.com/toss-cengiz/glaon/issues/309)
+Phase D and consumers can swap via the `extensionIcon` /
+`methodIcon` overrides.
+
+Phase B–F follow-ups land header-label sortable indicator, parametric
+empty state, lead-action selection column, card chrome wrapper, and
+mobile breakpoint variants — see [#323](https://github.com/toss-cengiz/glaon/issues/323).
+
 ## Variants
 
 <Stories includePrimary={false} />
