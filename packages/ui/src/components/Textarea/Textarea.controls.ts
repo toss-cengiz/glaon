@@ -7,8 +7,18 @@ import type { ControlSpec } from '../_internal/controls';
 import { excludeFromArgs as defineExcludeFromArgs } from '../_internal/controls';
 
 const sizeOptions = ['sm', 'md'] as const;
+const variantOptions = ['default', 'tags-inner'] as const;
+type TagSeparator = 'Enter' | ',' | ' ';
 
 export const textareaControls = {
+  variant: {
+    type: 'inline-radio',
+    options: variantOptions,
+    default: 'default',
+    description:
+      'Layout. `default` renders the kit textarea verbatim. `tags-inner` splits the surface into a chip list + typing area for multi-value capture (mail recipients, tag clouds). Tags-only props (`tags`, `defaultTags`, `onTagsChange`, `addTagOn`) are ignored when `variant` stays `default`.',
+    category: 'Style',
+  } satisfies ControlSpec<(typeof variantOptions)[number]>,
   label: {
     type: 'text',
     default: 'Description',
@@ -144,6 +154,32 @@ export const textareaControls = {
     description: 'Tailwind override hook for the native `<textarea>` element itself.',
     category: 'Style',
   } satisfies ControlSpec<string>,
+  tags: {
+    type: 'object',
+    description:
+      "Controlled chip list (`variant='tags-inner'`). Pair with `onTagsChange` to manage state outside the field.",
+    category: 'Behavior',
+  } satisfies ControlSpec<string[]>,
+  defaultTags: {
+    type: 'object',
+    description:
+      'Initial chip list for uncontrolled `tags-inner` usage. Storybook\'s `object` control accepts a JSON array (`["alice@example.com", "bob@example.com"]`).',
+    category: 'Behavior',
+  } satisfies ControlSpec<string[]>,
+  onTagsChange: {
+    type: false,
+    action: 'tags-changed',
+    description:
+      'Fires with the next chip list when chips are added (Enter / comma / paste) or removed (Backspace / X). Required for controlled `tags` usage.',
+    category: 'Behavior',
+  } satisfies ControlSpec<unknown>,
+  addTagOn: {
+    type: 'object',
+    default: ['Enter', ','] satisfies TagSeparator[],
+    description:
+      "Keys that confirm the current text into a chip. Defaults to `['Enter', ',']`. Add `' '` for whitespace-as-separator (tag clouds), drop `,` to allow commas inside a single tag (rare). Storybook's `object` control accepts a JSON array.",
+    category: 'Behavior',
+  } satisfies ControlSpec<TagSeparator[]>,
   ref: {
     type: false,
     description: 'Forwarded ref to the kit `<TextField>` wrapper.',

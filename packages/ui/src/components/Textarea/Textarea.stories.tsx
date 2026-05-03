@@ -87,3 +87,79 @@ export const Sizes: Story = {
     </div>
   ),
 };
+
+// `variant='tags-inner'` swaps the multi-line capture surface for a
+// chip-based multi-value input. Confirm a tag with Enter / comma;
+// Backspace on the empty input pops the last chip.
+export const TagsInner: Story = {
+  args: {
+    variant: 'tags-inner',
+    label: 'Recipients',
+    placeholder: 'Add an email and press Enter…',
+    hint: 'Confirm with Enter or comma. Backspace removes the last chip.',
+  },
+};
+
+// Initial chip list rendered via `defaultTags` (uncontrolled). Use
+// for forms that hydrate from server state on mount.
+export const TagsInnerWithValues: Story = {
+  args: {
+    variant: 'tags-inner',
+    label: 'Tags',
+    placeholder: 'Add a tag…',
+    defaultTags: ['design-system', 'phase-1', 'ui'],
+  },
+};
+
+// Combine `tags-inner` with `isInvalid` to surface form validation —
+// the surface ring re-styles red and the hint inherits error styling
+// (the kit's `HintText` flips colour automatically). axe verifies
+// `aria-invalid` + `aria-describedby` plumb through to the typing
+// area below the chips.
+export const TagsInnerWithError: Story = {
+  args: {
+    variant: 'tags-inner',
+    label: 'Recipients',
+    placeholder: 'Add an email…',
+    defaultTags: ['marketing@example.com'],
+    isInvalid: true,
+    hint: 'At least one engineering recipient is required.',
+  },
+};
+
+// `addTagOn` set to `[',']` confirms only on commas — useful for
+// CSV-style input where Enter should drop a newline (e.g. multi-line
+// addresses, paragraph-separated keywords).
+export const TagsInnerComma: Story = {
+  args: {
+    variant: 'tags-inner',
+    label: 'Keywords',
+    placeholder: 'Type a keyword and press , …',
+    defaultTags: ['monorepo'],
+    addTagOn: [','],
+  },
+};
+
+// Side-by-side variant gallery so designers can verify the two
+// surfaces look like family members — same ring + focus + invalid
+// affordances, just two different content layouts.
+export const Variants: Story = {
+  parameters: { controls: { exclude: ['variant', 'label', 'placeholder', 'defaultTags'] } },
+  render: (args) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <Textarea
+        {...args}
+        variant="default"
+        label="Default — free-form description"
+        placeholder="Tell us a bit about yourself…"
+      />
+      <Textarea
+        {...args}
+        variant="tags-inner"
+        label="Tags inner — multi-value capture"
+        placeholder="Add a tag and press Enter…"
+        defaultTags={['frontend', 'tooling']}
+      />
+    </div>
+  ),
+};
