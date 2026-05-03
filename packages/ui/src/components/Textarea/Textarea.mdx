@@ -22,6 +22,7 @@ line — descriptions, comments, free-form notes.
 - **Single-line capture** → use [Input](?path=/docs/web-primitives-input--docs); a Textarea on a single-line value wastes vertical space and confuses keyboard users (Enter inserts a newline instead of submitting).
 - **Code / monospaced editing** → out of scope for Phase 1; queue a Phase 2 CodeEditor primitive.
 - **Rich text with formatting toolbars** → out of scope; queue a Phase 2 RichText primitive.
+- **Single-value picker from a fixed list** → `<Select>`. The `tags-inner` variant exists for free-form multi-value capture, not for constrained option sets.
 
 ## Anatomy
 
@@ -41,6 +42,38 @@ caption that re-styles to red when `isInvalid` is true.
   isRequired
 />
 ```
+
+## Tags inner variant
+
+`variant="tags-inner"` swaps the multi-line capture surface for a
+chip-based multi-value input. Each confirmed value becomes a `<Badge>`
+chip rendered above the typing area; the surrounding container shares
+the same focus ring + invalid styling as the default Textarea.
+
+```tsx
+<Textarea
+  variant="tags-inner"
+  label="Recipients"
+  placeholder="Add an email and press Enter…"
+  defaultTags={['alice@example.com']}
+  onTagsChange={(tags) => setRecipients(tags)}
+  addTagOn={['Enter', ',']}
+/>
+```
+
+Keyboard contract:
+
+- **Enter** / **,** (or any subset configured via `addTagOn`) confirms
+  the current text into a new chip and clears the input.
+- **Backspace** on an empty input pops the last chip — typical
+  chip-input UX so keyboard users prune mistakes without reaching
+  for the X button.
+- **Paste** with the configured separator (e.g. comma-separated email
+  list) splits on the first non-Enter token and bulk-adds.
+
+State is fully controlled (`tags` + `onTagsChange`) or uncontrolled
+(`defaultTags`). Mixing the two is unsupported — `tags` always wins
+when defined. Duplicate values are dropped silently.
 
 ## Variants
 
@@ -68,6 +101,13 @@ caption that re-styles to red when `isInvalid` is true.
   can rely on `rows` plus content scroll instead. Don't disable
   resize via CSS without a strong reason — it removes a useful
   affordance.
+- For `variant="tags-inner"`: every chip is a `<Badge>` with an X
+  remove button (`aria-label="Remove …"`); the chip list is wrapped
+  in `<ul role="list">` so screen readers announce it as a list.
+  The typing area inherits `aria-invalid` / `aria-required` /
+  `aria-describedby` so the same hint / error contract holds — a
+  screen reader hears "Recipients, required, 2 items, edit text"
+  followed by the hint when the field is focused.
 
 ## Related components
 
