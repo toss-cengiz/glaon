@@ -56,6 +56,7 @@
 // and Phase D adds a per-row lead action column.
 
 import { Table as KitTable } from '../application/table/table';
+import { TableHeadLabel } from './parts/HeadLabel';
 import {
   ActionButtonsCell,
   ActionDropdownCell,
@@ -75,6 +76,8 @@ import {
 
 export { TableCard, TableRowActionsDropdown } from '../application/table/table';
 export * from './cells';
+export { TableHeadLabel };
+export type { TableHeadLabelProps } from './parts/HeadLabel';
 
 // The kit's `Table` is itself a namespace (`Table.Header`, `Table.Row`,
 // `Table.Cell`, …). Augment its static properties with the cell-type
@@ -120,8 +123,10 @@ const CellWithCellTypes: CellNamespace = Object.assign(KitTable.Cell, {
 
 type TableNamespace = typeof KitTable & {
   Cell: CellNamespace;
+  HeadLabel: typeof TableHeadLabel;
 };
 
 export const Table: TableNamespace = Object.assign(KitTable, {
   Cell: CellWithCellTypes,
+  HeadLabel: TableHeadLabel,
 });

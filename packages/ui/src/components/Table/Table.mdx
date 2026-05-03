@@ -70,6 +70,39 @@ Compose with these slots:
 </Table>
 ```
 
+## Header label
+
+`Table.HeadLabel` is the canonical typography wrapper for column
+header labels — `font-semibold` + `text-secondary` on a
+single-line span. Drop it inside any `<Table.Head>` so every Glaon
+table renders the same header treatment without consumers
+repeating the class set:
+
+```tsx
+<Table.Head
+  id="role"
+  allowsSorting
+  tooltip="Default role assigned at invite time."
+>
+  <Table.HeadLabel>Role</Table.HeadLabel>
+</Table.Head>
+```
+
+The structural plumbing already lives on `<Table.Head>`:
+
+- **`allowsSorting`** — opts the column into the sort affordance.
+  RAC renders the chevron-selector when no direction is active and
+  swaps to an up / down arrow when the column is the active sort
+  target. `aria-sort` on the `<th>` flows automatically.
+- **`tooltip`** — adds a `?` icon next to the label. Hover or focus
+  opens the kit `<Tooltip>` so the help text is keyboard-reachable
+  without clutter.
+
+The `HeaderLabelStates` story renders the Figma `_Table header label`
+frame's five Arrow / Help-icon variations side by side so designers
+can verify pixel parity. See [#325](https://github.com/toss-cengiz/glaon/issues/325)
+for the Phase B scope.
+
 ## Cell-type catalog
 
 `Table.Cell` is the kit's `<gridcell>` wrapper; in addition to raw
