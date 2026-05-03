@@ -61,6 +61,7 @@ import { createContext, useContext } from 'react';
 import { Table as KitTable } from '../application/table/table';
 import { TableEmpty } from './parts/Empty';
 import { TableHeadLabel } from './parts/HeadLabel';
+import { LeadAction } from './parts/LeadAction';
 import {
   ActionButtonsCell,
   ActionDropdownCell,
@@ -79,6 +80,12 @@ import {
 } from './cells';
 
 export { TableCard, TableRowActionsDropdown } from '../application/table/table';
+export { LeadActionCheckbox, LeadActionRadio, LeadActionToggle } from './parts/LeadAction';
+export type {
+  LeadActionCheckboxProps,
+  LeadActionRadioProps,
+  LeadActionToggleProps,
+} from './parts/LeadAction';
 export * from './cells';
 export { TableEmpty, TableHeadLabel };
 export type { TableEmptyAction, TableEmptyProps } from './parts/Empty';
@@ -183,6 +190,7 @@ type TableNamespace = typeof TableRoot & {
   Cell: CellNamespace;
   HeadLabel: typeof TableHeadLabel;
   Empty: typeof TableEmpty;
+  LeadAction: typeof LeadAction;
 };
 
 export const Table: TableNamespace = Object.assign(TableRoot, {
@@ -193,4 +201,5 @@ export const Table: TableNamespace = Object.assign(TableRoot, {
   Cell: CellWithCellTypes,
   HeadLabel: TableHeadLabel,
   Empty: TableEmpty,
+  LeadAction,
 });

@@ -1,5 +1,6 @@
 import { Edit01, Eye, Plus, Trash01, Users01 } from '@untitledui/icons';
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
+import { useState } from 'react';
 
 import { defineControls } from '../_internal/controls';
 import { Badge } from '../Badge';
@@ -722,4 +723,207 @@ export const SalesMetrics: Story = {
       </Table.Body>
     </Table>
   ),
+};
+
+// === Phase D — lead action column ========================================
+//
+// `Table.LeadAction.{Checkbox|Radio|Toggle}` ships the three
+// lead-column controls from Figma's `Table cell lead action` frame.
+// The kit's `<Table selectionMode="multiple">` already handles the
+// canonical multi-select checkbox column; reach for `LeadAction`
+// when you need radio (single-select with the right glyph), toggle
+// (per-row independent boolean state), or external state for the
+// checkbox column.
+
+interface IntegrationRow {
+  id: string;
+  name: string;
+  description: string;
+}
+
+const integrations: IntegrationRow[] = [
+  { id: 'github', name: 'GitHub', description: 'Sync issues + PRs as Glaon devices.' },
+  { id: 'slack', name: 'Slack', description: 'Forward events to a channel.' },
+  { id: 'pagerduty', name: 'PagerDuty', description: 'Page on-call when a device fails.' },
+];
+
+// `LeadAction.Toggle` — per-row independent boolean state.
+// Canonical use case: feature flag / integration enable list.
+export const WithToggleColumn: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Lead-column `<Switch>` for per-row enable / disable. Independent state per row — no group selection semantics.',
+      },
+    },
+  },
+  render: () => {
+    const ToggleStory = () => {
+      const [enabled, setEnabled] = useState(new Set(['github']));
+      const toggle = (id: string) => {
+        const next = new Set(enabled);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        setEnabled(next);
+      };
+      return (
+        <Table aria-label="Integrations">
+          <Table.Header>
+            <Table.Head id="enabled">
+              <span className="sr-only">Enabled</span>
+            </Table.Head>
+            <Table.Head id="name">
+              <Table.HeadLabel>Integration</Table.HeadLabel>
+            </Table.Head>
+            <Table.Head id="description">
+              <Table.HeadLabel>Description</Table.HeadLabel>
+            </Table.Head>
+          </Table.Header>
+          <Table.Body>
+            {integrations.map((row) => (
+              <Table.Row key={row.id} id={row.id}>
+                <Table.Cell>
+                  <Table.LeadAction.Toggle
+                    value={enabled.has(row.id)}
+                    onChange={() => {
+                      toggle(row.id);
+                    }}
+                    ariaLabel={`Enable ${row.name}`}
+                  />
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="font-medium text-primary">{row.name}</span>
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="text-tertiary">{row.description}</span>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      );
+    };
+    return <ToggleStory />;
+  },
+};
+
+// `LeadAction.Radio` — single-select tables. Group radios across
+// rows by sharing the same `name`.
+export const WithRadioSelection: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Lead-column native radio. Picks exactly one row at a time; canonical "default config" selector pattern.',
+      },
+    },
+  },
+  render: () => {
+    const RadioStory = () => {
+      const [selected, setSelected] = useState('slack');
+      return (
+        <Table aria-label="Default integration">
+          <Table.Header>
+            <Table.Head id="selected">
+              <span className="sr-only">Default</span>
+            </Table.Head>
+            <Table.Head id="name">
+              <Table.HeadLabel>Integration</Table.HeadLabel>
+            </Table.Head>
+            <Table.Head id="description">
+              <Table.HeadLabel>Description</Table.HeadLabel>
+            </Table.Head>
+          </Table.Header>
+          <Table.Body>
+            {integrations.map((row) => (
+              <Table.Row key={row.id} id={row.id}>
+                <Table.Cell>
+                  <Table.LeadAction.Radio
+                    name="default-integration"
+                    formValue={row.id}
+                    value={selected === row.id}
+                    onChange={() => {
+                      setSelected(row.id);
+                    }}
+                    ariaLabel={`Set ${row.name} as default`}
+                  />
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="font-medium text-primary">{row.name}</span>
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="text-tertiary">{row.description}</span>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      );
+    };
+    return <RadioStory />;
+  },
+};
+
+// `LeadAction.Checkbox` — externally-controlled checkbox column.
+// Reach for it when RAC's built-in `selectionMode="multiple"` doesn't
+// fit (e.g. server-paginated dataset where the selection set lives
+// outside the table). For pure RAC selection prefer the kit prop.
+export const WithCheckboxColumn: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Externally-controlled lead-column checkbox. Use when RAC `selectionMode="multiple"` doesn\'t fit (e.g. server-paginated rows where the selection set is owned by a query hook).',
+      },
+    },
+  },
+  render: () => {
+    const CheckboxStory = () => {
+      const [selected, setSelected] = useState(new Set(['github']));
+      const toggle = (id: string) => {
+        const next = new Set(selected);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        setSelected(next);
+      };
+      return (
+        <Table aria-label="Bulk-action integrations">
+          <Table.Header>
+            <Table.Head id="selected">
+              <span className="sr-only">Select</span>
+            </Table.Head>
+            <Table.Head id="name">
+              <Table.HeadLabel>Integration</Table.HeadLabel>
+            </Table.Head>
+            <Table.Head id="description">
+              <Table.HeadLabel>Description</Table.HeadLabel>
+            </Table.Head>
+          </Table.Header>
+          <Table.Body>
+            {integrations.map((row) => (
+              <Table.Row key={row.id} id={row.id}>
+                <Table.Cell>
+                  <Table.LeadAction.Checkbox
+                    value={selected.has(row.id)}
+                    onChange={() => {
+                      toggle(row.id);
+                    }}
+                    ariaLabel={`Select ${row.name}`}
+                  />
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="font-medium text-primary">{row.name}</span>
+                </Table.Cell>
+                <Table.Cell>
+                  <span className="text-tertiary">{row.description}</span>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      );
+    };
+    return <CheckboxStory />;
+  },
 };
