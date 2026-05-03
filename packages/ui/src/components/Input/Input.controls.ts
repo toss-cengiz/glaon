@@ -9,8 +9,26 @@ import { storybookIcons } from '../../icons/storybook';
 
 const sizeOptions = ['sm', 'md', 'lg'] as const;
 const typeOptions = ['text', 'email', 'password', 'number', 'tel', 'url'] as const;
+const variantOptions = [
+  'default',
+  'leading-text',
+  'trailing-button',
+  'leading-dropdown',
+  'trailing-dropdown',
+  'payment',
+  'tags-inner',
+] as const;
+type TagSeparator = 'Enter' | ',' | ' ';
 
 export const inputControls = {
+  variant: {
+    type: 'select',
+    options: variantOptions,
+    default: 'default',
+    description:
+      "Layout discriminator. `default` is the kit input verbatim. The other six swap slot composition (leading text / trailing button / leading-or-trailing dropdown / payment masking / tags-inner chips) while sharing the same surface ring. Variant-only props (`leadingText`, `dropdownOptions`, `trailingButtonLabel`, `tags`, …) are ignored when they don't apply.",
+    category: 'Style',
+  } satisfies ControlSpec<(typeof variantOptions)[number]>,
   label: {
     type: 'text',
     default: 'Email address',
@@ -174,6 +192,97 @@ export const inputControls = {
     description: 'Forwarded ref to the input group element (input + leading icon + shortcut).',
     category: 'Behavior',
   } satisfies ControlSpec<unknown>,
+  inputRef: {
+    type: false,
+    description:
+      'Forwarded ref to the inner `<input>` element (Glaon variants only — the kit Input variant uses `ref` for this).',
+    category: 'Behavior',
+  } satisfies ControlSpec<unknown>,
+  leadingText: {
+    type: 'text',
+    description:
+      "Static prefix shown inside the surface, before the input (e.g. `https://`, `+90`). Only honoured when `variant='leading-text'`.",
+    category: 'Content',
+  } satisfies ControlSpec<string>,
+  dropdownOptions: {
+    type: 'object',
+    description:
+      "Option list (`{ value, label }[]`) for the inline `<select>` slot. Used by `variant='leading-dropdown'` and `variant='trailing-dropdown'`.",
+    category: 'Content',
+  } satisfies ControlSpec<{ value: string; label: string }[]>,
+  dropdownValue: {
+    type: 'text',
+    description: 'Controlled dropdown value. Pair with `onDropdownChange`.',
+    category: 'Behavior',
+  } satisfies ControlSpec<string>,
+  defaultDropdownValue: {
+    type: 'text',
+    description:
+      'Initial dropdown value (uncontrolled). Defaults to the first option when omitted.',
+    category: 'Behavior',
+  } satisfies ControlSpec<string>,
+  onDropdownChange: {
+    type: false,
+    action: 'dropdown-changed',
+    description: 'Fires when the inline `<select>` value changes.',
+    category: 'Behavior',
+  } satisfies ControlSpec<unknown>,
+  dropdownAriaLabel: {
+    type: 'text',
+    description:
+      'Accessible label for the inline `<select>` (e.g. "Country code"). Required when the visible label belongs to the input rather than the dropdown.',
+    category: 'A11y',
+  } satisfies ControlSpec<string>,
+  trailingButtonLabel: {
+    type: 'text',
+    description:
+      "Inline submit-style button label (e.g. `Send`, `Apply`, `Search`). Only honoured when `variant='trailing-button'`.",
+    category: 'Content',
+  } satisfies ControlSpec<string>,
+  onTrailingButtonPress: {
+    type: false,
+    action: 'trailing-button-pressed',
+    description: 'Inline button click handler.',
+    category: 'Behavior',
+  } satisfies ControlSpec<unknown>,
+  trailingButtonIconLeading: {
+    type: 'select',
+    options: Object.keys(storybookIcons),
+    mapping: storybookIcons,
+    description: 'Optional leading icon for the inline button.',
+    category: 'Content',
+  } satisfies ControlSpec<unknown>,
+  onPaymentBrandDetected: {
+    type: false,
+    action: 'brand-detected',
+    description:
+      "Fires with the auto-detected card brand (`'visa' | 'mastercard' | 'amex' | 'discover' | 'unknown'`) for `variant='payment'`. Use to render a brand logo elsewhere or customise surrounding form copy.",
+    category: 'Behavior',
+  } satisfies ControlSpec<unknown>,
+  tags: {
+    type: 'object',
+    description: "Controlled chip list (`variant='tags-inner'`). Pair with `onTagsChange`.",
+    category: 'Behavior',
+  } satisfies ControlSpec<string[]>,
+  defaultTags: {
+    type: 'object',
+    description:
+      'Initial chip list for uncontrolled `tags-inner` usage. JSON array literal in the controls panel.',
+    category: 'Behavior',
+  } satisfies ControlSpec<string[]>,
+  onTagsChange: {
+    type: false,
+    action: 'tags-changed',
+    description: 'Fires with the next chip list when chips are added or removed.',
+    category: 'Behavior',
+  } satisfies ControlSpec<unknown>,
+  addTagOn: {
+    type: 'object',
+    default: ['Enter', ','] satisfies TagSeparator[],
+    description:
+      "Keys that confirm the current text into a chip. Defaults to `['Enter', ',']`. Mirror's `<Textarea variant='tags-inner'>` configuration.",
+    category: 'Behavior',
+  } satisfies ControlSpec<TagSeparator[]>,
 } as const;
 
 // react-aria-components forwards a number of props from RAC TextField
