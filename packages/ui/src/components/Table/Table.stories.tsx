@@ -471,8 +471,13 @@ export const TeamMembers: Story = {
         <Table.Head id="status">Status</Table.Head>
         <Table.Head id="quota">Quota</Table.Head>
         <Table.Head id="rating">Rating</Table.Head>
-        <Table.Head id="actions" aria-label="Actions">
-          {' '}
+        <Table.Head id="actions">
+          {/* Visually hidden — the column reads "Actions" to screen
+              readers but the visible header stays blank. axe
+              `empty-table-header` rejects whitespace-only `<th>`s,
+              and `aria-label` on the kit `<Column>` isn't forwarded
+              onto the rendered header element. */}
+          <span className="sr-only">Actions</span>
         </Table.Head>
       </Table.Header>
       <Table.Body>
