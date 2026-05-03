@@ -36,4 +36,5 @@ export * from './components/Textarea';
 export * from './components/Toast';
 export * from './components/Tooltip';
 export * from './components/TopBar';
+export * from './components/VerificationCodeInput';
 export * from './theme';

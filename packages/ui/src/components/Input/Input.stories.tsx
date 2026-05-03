@@ -115,3 +115,165 @@ export const Sizes: Story = {
     </div>
   ),
 };
+
+// `variant='leading-text'` — static prefix inside the surface. Use
+// for fixed URL prefixes, country codes, or any decoration that
+// should sit visually attached to the input.
+export const WithLeadingText: Story = {
+  args: {
+    variant: 'leading-text',
+    label: 'Website',
+    leadingText: 'https://',
+    placeholder: 'example.com',
+  },
+};
+
+// `variant='trailing-button'` — inline submit button. Use for
+// inline coupon redeem, search submit, or quick-send actions.
+export const WithTrailingButton: Story = {
+  args: {
+    variant: 'trailing-button',
+    label: 'Promo code',
+    placeholder: 'GLAON-2026',
+    trailingButtonLabel: 'Apply',
+  },
+};
+
+// `variant='leading-dropdown'` — inline `<select>` on the leading
+// edge. Pair with phone numbers (country code), URLs (scheme), or
+// any prefix that comes from a fixed enum.
+export const WithLeadingDropdown: Story = {
+  args: {
+    variant: 'leading-dropdown',
+    label: 'Phone',
+    placeholder: '555 555 55 55',
+    dropdownAriaLabel: 'Country code',
+    defaultDropdownValue: '+90',
+    dropdownOptions: [
+      { value: '+90', label: 'TR +90' },
+      { value: '+44', label: 'UK +44' },
+      { value: '+1', label: 'US +1' },
+      { value: '+49', label: 'DE +49' },
+    ],
+  },
+};
+
+// `variant='trailing-dropdown'` — inline `<select>` on the trailing
+// edge. Currency / unit pickers attached to a numeric input are the
+// canonical use case.
+export const WithTrailingDropdown: Story = {
+  args: {
+    variant: 'trailing-dropdown',
+    label: 'Amount',
+    placeholder: '0.00',
+    type: 'number',
+    dropdownAriaLabel: 'Currency',
+    defaultDropdownValue: 'USD',
+    dropdownOptions: [
+      { value: 'USD', label: 'USD' },
+      { value: 'EUR', label: 'EUR' },
+      { value: 'GBP', label: 'GBP' },
+      { value: 'TRY', label: 'TRY' },
+    ],
+  },
+};
+
+// `variant='payment'` — masked card number with brand auto-detect.
+// AMEX uses 4-6-5 grouping; everyone else gets 4-4-4-4. The
+// detected brand surfaces via `aria-label` and the
+// `onPaymentBrandDetected` callback.
+export const PaymentInput: Story = {
+  args: {
+    variant: 'payment',
+    label: 'Card number',
+    placeholder: '1234 1234 1234 1234',
+    defaultValue: '4242424242424242',
+  },
+};
+
+// `variant='tags-inner'` — chip-based multi-value capture sharing
+// the same surface ring as the default Input. Mirrors the
+// `<Textarea variant='tags-inner'>` keyboard contract: Enter / `,`
+// confirms, Backspace on empty pops last, Paste with separator
+// bulk-adds.
+export const TagsInner: Story = {
+  args: {
+    variant: 'tags-inner',
+    label: 'Recipients',
+    placeholder: 'Add an email and press Enter…',
+    defaultTags: ['alice@example.com', 'bob@example.com'],
+  },
+};
+
+// Side-by-side variant gallery so designers can verify the seven
+// surfaces look like family members — same ring + focus + invalid
+// affordances, just different slot layouts.
+export const Variants: Story = {
+  parameters: {
+    controls: {
+      exclude: [
+        'variant',
+        'label',
+        'placeholder',
+        'leadingText',
+        'dropdownOptions',
+        'defaultDropdownValue',
+        'dropdownAriaLabel',
+        'trailingButtonLabel',
+        'defaultTags',
+        'defaultValue',
+      ],
+    },
+  },
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <Input variant="default" label="Default" placeholder="Plain input" />
+      <Input
+        variant="leading-text"
+        label="Leading text"
+        leadingText="https://"
+        placeholder="example.com"
+      />
+      <Input
+        variant="trailing-button"
+        label="Trailing button"
+        placeholder="Coupon code"
+        trailingButtonLabel="Apply"
+      />
+      <Input
+        variant="leading-dropdown"
+        label="Leading dropdown"
+        placeholder="555 555 55 55"
+        dropdownAriaLabel="Country code"
+        defaultDropdownValue="+90"
+        dropdownOptions={[
+          { value: '+90', label: 'TR +90' },
+          { value: '+44', label: 'UK +44' },
+        ]}
+      />
+      <Input
+        variant="trailing-dropdown"
+        label="Trailing dropdown"
+        placeholder="0.00"
+        dropdownAriaLabel="Currency"
+        defaultDropdownValue="USD"
+        dropdownOptions={[
+          { value: 'USD', label: 'USD' },
+          { value: 'EUR', label: 'EUR' },
+        ]}
+      />
+      <Input
+        variant="payment"
+        label="Payment"
+        placeholder="1234 1234 1234 1234"
+        defaultValue="4242424242424242"
+      />
+      <Input
+        variant="tags-inner"
+        label="Tags inner"
+        placeholder="Add a tag…"
+        defaultTags={['frontend', 'tooling']}
+      />
+    </div>
+  ),
+};

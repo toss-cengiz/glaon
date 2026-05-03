@@ -3,6 +3,11 @@ export {
   InputBase,
   TextField,
   type InputBaseProps,
+  type InputDropdownOption,
   type InputProps,
-  type TextFieldProps,
+  type InputSize,
+  type InputTagSeparator,
+  type InputVariant,
+  type KitTextFieldProps,
+  type PaymentBrand,
 } from './Input';

@@ -1,0 +1,88 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as VerificationCodeInputStories from './VerificationCodeInput.stories';
+
+<Meta of={VerificationCodeInputStories} />
+
+# VerificationCodeInput
+
+OTP / SMS confirmation primitive — a row of single-character cells
+that auto-advance focus on input and auto-retreat on Backspace. Each
+cell is a real `<input>`, so keyboard navigation, autofill (via
+`autocomplete="one-time-code"`), and password-manager integrations
+work without extra wiring.
+
+## When to use
+
+- Two-factor confirm flows (login + SMS code).
+- Email magic-link confirm pages.
+- Account recovery / device pairing flows.
+
+## When NOT to use
+
+- **Free-form numeric input** → `<Input type="number">`. The cell row
+  is for short, fixed-length codes, not arbitrary numbers.
+- **Single-line capture** → `<Input>`. The cell row only makes sense
+  for codes that fit a known cell count.
+- **Multi-line PIN entry** → not a real pattern; if you want this,
+  reconsider why the value isn't a single Input.
+
+## Anatomy
+
+<Canvas of={VerificationCodeInputStories.Default} />
+
+```tsx
+<VerificationCodeInput
+  label="Verification code"
+  digits={6}
+  hint="We sent a code to +90 555 555 55 55"
+  onComplete={(code) => verifyCode(code)}
+/>
+```
+
+## Keyboard contract
+
+- **Type a digit** — fills the focused cell, advances focus to the
+  next cell.
+- **Backspace** — clears the focused cell. If already empty, retreats
+  focus to the previous cell and clears it (typical OTP UX).
+- **Arrow Left / Right** — moves focus between cells without changing
+  values.
+- **Paste** — accepts a full code from any cell; non-digit characters
+  are stripped, the result is split across the cells, and focus lands
+  on the last filled cell.
+
+## Autofill
+
+The first cell carries `autocomplete="one-time-code"` so iOS Safari
+and Android Chrome can offer the latest SMS code as a one-tap suggestion.
+Other cells stay `autocomplete="off"` so the autofill prompt only
+fires once per row.
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- Wrapper renders as `<div role="group">` with the consumer's
+  `ariaLabel` (defaults to `'Verification code'`) so the row is
+  announced as a unit.
+- Each cell carries `aria-label="Verification code digit N of M"`,
+  so screen readers can position the user inside the row even when
+  cells are tabbed individually.
+- `isInvalid` re-styles every cell to the error ring AND wires
+  `aria-invalid` per cell. Pair with `hint` so the failure reason
+  is announced via `aria-describedby`.
+- `isDisabled` on the parent disables every cell — the row becomes
+  un-tabbable in one shot.
+
+## Related components
+
+- [Input](?path=/docs/web-primitives-input--docs) — single-line text
+  field; use for codes whose length is unknown or where `tel` /
+  `email` semantics matter.

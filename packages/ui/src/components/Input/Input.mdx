@@ -48,6 +48,68 @@ caption that re-styles to red when `isInvalid` is true.
 />
 ```
 
+## Variant matrix
+
+`variant` swaps the slot composition while every variant keeps the
+same surface ring and focus / invalid affordances.
+
+| Variant              | Anatomy                                                   | Use case                                  |
+| -------------------- | --------------------------------------------------------- | ----------------------------------------- |
+| `default`            | input + leading icon + trailing shortcut                  | The general form input.                   |
+| `leading-text`       | static prefix + input                                     | Fixed URL prefix (`https://`), `+90` code |
+| `trailing-button`    | input + inline submit button                              | Coupon redeem, search, inline send        |
+| `leading-dropdown`   | inline `<select>` + input                                 | Country code + phone, scheme + URL        |
+| `trailing-dropdown`  | input + inline `<select>`                                 | Currency picker, unit picker              |
+| `payment`            | brand glyph + masked card-number input                    | Credit card capture                       |
+| `tags-inner`         | chip list (wrap) + input inside same surface              | Mail recipients, tag clouds               |
+
+```tsx
+<Input variant="leading-text" leadingText="https://" placeholder="example.com" label="URL" />
+<Input
+  variant="leading-dropdown"
+  dropdownOptions={[
+    { value: '+90', label: '🇹🇷 +90' },
+    { value: '+44', label: '🇬🇧 +44' },
+  ]}
+  defaultDropdownValue="+90"
+  dropdownAriaLabel="Country code"
+  placeholder="555 555 55 55"
+  label="Phone"
+/>
+<Input
+  variant="payment"
+  placeholder="1234 1234 1234 1234"
+  label="Card number"
+  onPaymentBrandDetected={(brand) => console.log(brand)}
+/>
+<Input
+  variant="tags-inner"
+  label="Recipients"
+  placeholder="Add a recipient and press Enter…"
+  defaultTags={['alice@example.com']}
+  onTagsChange={setRecipients}
+/>
+```
+
+### Tags-inner keyboard contract
+
+Mirrors `<Textarea variant="tags-inner">`:
+
+- **Enter** / **,** confirms the current text into a chip (configurable
+  via `addTagOn`).
+- **Backspace** on an empty input pops the last chip.
+- **Paste** with the configured separator splits and bulk-adds.
+- Duplicates are dropped silently.
+
+### Payment auto-detect
+
+The `payment` variant auto-detects the card brand from the digits
+and applies the right group mask (4-4-4-4 default, 4-6-5 for AMEX).
+Brand changes flow back via `onPaymentBrandDetected`. The leading
+glyph is a neutral credit-card icon today; per-brand artwork lands
+when [#309](https://github.com/toss-cengiz/glaon/issues/309) (BrandIcon
+registry) ships.
+
 ## Variants
 
 <Stories includePrimary={false} />
@@ -76,6 +138,7 @@ caption that re-styles to red when `isInvalid` is true.
 
 ## Related components
 
-- [Textarea](?path=/docs/web-primitives-textarea--docs) — multi-line counterpart with the same label / hint / validation contract.
+- [Textarea](?path=/docs/web-primitives-textarea--docs) — multi-line counterpart with the same label / hint / validation contract; shares the `tags-inner` chip pattern.
+- [VerificationCodeInput](?path=/docs/web-primitives-verificationcodeinput--docs) — OTP / SMS confirmation cells with auto-advance focus.
 - [Checkbox](?path=/docs/web-primitives-checkbox--docs) / [Radio](?path=/docs/web-primitives-radio--docs) / [Switch](?path=/docs/web-primitives-switch--docs) — boolean form controls when an Input would be overkill.
 - [Select](?path=/docs/web-primitives-select--docs) — when the value comes from a fixed set of options instead of free text.
