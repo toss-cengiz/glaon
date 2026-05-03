@@ -55,7 +55,11 @@
 // sortable `Table.HeadLabel`, Phase C ships a parametric empty state,
 // and Phase D adds a per-row lead action column.
 
+import type { ComponentProps, ReactNode } from 'react';
+import { createContext, useContext } from 'react';
+
 import { Table as KitTable } from '../application/table/table';
+import { TableEmpty } from './parts/Empty';
 import { TableHeadLabel } from './parts/HeadLabel';
 import {
   ActionButtonsCell,
@@ -76,8 +80,16 @@ import {
 
 export { TableCard, TableRowActionsDropdown } from '../application/table/table';
 export * from './cells';
-export { TableHeadLabel };
+export { TableEmpty, TableHeadLabel };
+export type { TableEmptyAction, TableEmptyProps } from './parts/Empty';
 export type { TableHeadLabelProps } from './parts/HeadLabel';
+
+// Empty-state context — `<Table emptyState={…}>` writes the node;
+// the wrapped `<Table.Body>` reads it and forwards as
+// `renderEmptyState` so consumers don't need to hand-wire the
+// callback. Per-body `renderEmptyState` overrides the context if
+// both are set.
+const EmptyStateContext = createContext<ReactNode | undefined>(undefined);
 
 // The kit's `Table` is itself a namespace (`Table.Header`, `Table.Row`,
 // `Table.Cell`, …). Augment its static properties with the cell-type
@@ -121,12 +133,64 @@ const CellWithCellTypes: CellNamespace = Object.assign(KitTable.Cell, {
   SelectDropdown: SelectDropdownCell,
 });
 
-type TableNamespace = typeof KitTable & {
+// Glaon `<Table>` wraps the kit primitive to surface a root
+// `emptyState` prop — when set, the wrapped `<Table.Body>` reads it
+// from context and forwards as `renderEmptyState` so consumers don't
+// re-wire the callback per usage. Body-level `renderEmptyState`
+// overrides the root prop if both are passed.
+type KitTableProps = ComponentProps<typeof KitTable>;
+export interface TableProps extends Omit<KitTableProps, 'children'> {
+  /**
+   * Auto-rendered empty-state node when the body has zero rows.
+   * Pass `<Table.Empty …/>` for the canonical layout, or any custom
+   * ReactNode to override completely. Per-body `renderEmptyState`
+   * still wins if both are set.
+   */
+  emptyState?: ReactNode;
+  children?: ReactNode;
+}
+
+function TableRoot({ emptyState, children, ...props }: TableProps) {
+  return (
+    <EmptyStateContext.Provider value={emptyState}>
+      <KitTable {...props}>{children}</KitTable>
+    </EmptyStateContext.Provider>
+  );
+}
+
+type KitBodyProps = ComponentProps<typeof KitTable.Body>;
+function TableBodyWithEmpty(props: KitBodyProps) {
+  const contextEmpty = useContext(EmptyStateContext);
+  // Spread `renderEmptyState` conditionally — RAC's body type rejects
+  // an explicit `undefined` under `exactOptionalPropertyTypes`. Body-
+  // level `renderEmptyState` always wins; only fall back to context
+  // when the body didn't supply its own.
+  if (props.renderEmptyState !== undefined) {
+    return <KitTable.Body {...props} />;
+  }
+  if (contextEmpty !== undefined) {
+    return <KitTable.Body {...props} renderEmptyState={() => contextEmpty} />;
+  }
+  return <KitTable.Body {...props} />;
+}
+TableBodyWithEmpty.displayName = 'Table.Body';
+
+type TableNamespace = typeof TableRoot & {
+  Header: (typeof KitTable)['Header'];
+  Head: (typeof KitTable)['Head'];
+  Row: (typeof KitTable)['Row'];
+  Body: typeof TableBodyWithEmpty;
   Cell: CellNamespace;
   HeadLabel: typeof TableHeadLabel;
+  Empty: typeof TableEmpty;
 };
 
-export const Table: TableNamespace = Object.assign(KitTable, {
+export const Table: TableNamespace = Object.assign(TableRoot, {
+  Header: KitTable.Header,
+  Head: KitTable.Head,
+  Row: KitTable.Row,
+  Body: TableBodyWithEmpty,
   Cell: CellWithCellTypes,
   HeadLabel: TableHeadLabel,
+  Empty: TableEmpty,
 });

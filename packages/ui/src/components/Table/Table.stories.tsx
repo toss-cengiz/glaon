@@ -1,4 +1,4 @@
-import { Edit01, Eye, Trash01 } from '@untitledui/icons';
+import { Edit01, Eye, Plus, Trash01, Users01 } from '@untitledui/icons';
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
 import { defineControls } from '../_internal/controls';
@@ -261,24 +261,85 @@ export const WithSelection: Story = {
   ),
 };
 
+// Phase C empty-state — `<Table emptyState={…}>` auto-wires
+// `renderEmptyState` on the body via context. `<Table.Empty>`
+// ships the canonical Glaon layout (icon tile + title +
+// description + optional action button).
 export const Empty: Story = {
   render: (args) => (
-    <Table {...args}>
+    <Table
+      {...args}
+      emptyState={
+        <Table.Empty
+          title="No devices yet"
+          description="Pair your first device to start automating."
+        />
+      }
+    >
       <Table.Header>
         <Table.Head id="name">Device</Table.Head>
         <Table.Head id="room">Room</Table.Head>
         <Table.Head id="status">Status</Table.Head>
       </Table.Header>
-      <Table.Body
-        renderEmptyState={() => (
-          <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
-            <p className="text-base font-semibold text-primary">No devices yet</p>
-            <p className="text-sm text-tertiary">Pair your first device to start automating.</p>
-          </div>
-        )}
-      >
-        {[]}
-      </Table.Body>
+      <Table.Body>{[]}</Table.Body>
+    </Table>
+  ),
+};
+
+// Empty state with action — domain-specific icon (`Users01`) +
+// CTA button (`onPress`) shows the canonical "fix this" affordance
+// for empty listings.
+export const EmptyWithAction: Story = {
+  render: (args) => (
+    <Table
+      {...args}
+      aria-label="Team members"
+      emptyState={
+        <Table.Empty
+          icon={Users01}
+          title="No team members yet"
+          description="Invite collaborators to start building together."
+          action={{
+            label: 'Invite member',
+            icon: Plus,
+            onPress: () => undefined,
+          }}
+        />
+      }
+    >
+      <Table.Header>
+        <Table.Head id="name">Name</Table.Head>
+        <Table.Head id="role">Role</Table.Head>
+        <Table.Head id="status">Status</Table.Head>
+      </Table.Header>
+      <Table.Body>{[]}</Table.Body>
+    </Table>
+  ),
+};
+
+// Custom empty-state node — pass any ReactNode to `emptyState` to
+// bypass the default `<Table.Empty>` layout (e.g. when the empty
+// case warrants an illustration or a multi-row layout the default
+// can't express).
+export const EmptyCustom: Story = {
+  render: (args) => (
+    <Table
+      {...args}
+      emptyState={
+        <div className="flex flex-col items-center gap-3 px-6 py-12 text-center">
+          <p className="text-2xl">🎉</p>
+          <p className="text-md font-semibold text-primary">Inbox zero!</p>
+          <p className="text-sm text-tertiary">
+            Treat yourself &mdash; there&apos;s nothing to triage.
+          </p>
+        </div>
+      }
+    >
+      <Table.Header>
+        <Table.Head id="subject">Subject</Table.Head>
+        <Table.Head id="from">From</Table.Head>
+      </Table.Header>
+      <Table.Body>{[]}</Table.Body>
     </Table>
   ),
 };

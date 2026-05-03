@@ -1,3 +1,3 @@
-export { Table, TableCard, TableHeadLabel, TableRowActionsDropdown } from './Table';
-export type { TableHeadLabelProps } from './Table';
+export { Table, TableCard, TableEmpty, TableHeadLabel, TableRowActionsDropdown } from './Table';
+export type { TableEmptyAction, TableEmptyProps, TableHeadLabelProps, TableProps } from './Table';
 export * from './cells';
