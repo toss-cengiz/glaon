@@ -16,20 +16,34 @@ export interface ProgressCellProps extends CellBaseProps {
    * `${value}/${max}` if `max` is not 100). Hide entirely with `''`.
    */
   label?: string;
+  /**
+   * Accessible label for the progress bar — surfaces in axe
+   * `aria-progressbar-name`. When omitted, derives from the visible
+   * label (e.g. `"Progress: 72%"`). Override when the cell sits in a
+   * column whose meaning isn't `progress` (`"Quota usage"` etc).
+   */
+  ariaLabel?: string;
 }
 
 export function ProgressCell({
   value,
   max = 100,
   label,
+  ariaLabel,
   size = 'md',
   className,
 }: ProgressCellProps) {
   const computedLabel =
     label ?? (max === 100 ? `${value.toString()}%` : `${value.toString()}/${max.toString()}`);
+  // The kit `ProgressBarBase` renders `role="progressbar"` and axe
+  // `aria-progressbar-name` requires every progressbar to carry a
+  // name. Derive a sensible default from the visible label so cells
+  // that pass `label=""` still satisfy axe.
+  const accessibleLabel =
+    ariaLabel ?? (computedLabel.length > 0 ? `Progress: ${computedLabel}` : 'Progress');
   return (
     <div className={joinClasses('flex items-center gap-3', className)}>
-      <ProgressBarBase value={value} max={max} className="flex-1" />
+      <ProgressBarBase value={value} max={max} aria-label={accessibleLabel} className="flex-1" />
       {computedLabel.length > 0 ? (
         <span
           className={joinClasses(

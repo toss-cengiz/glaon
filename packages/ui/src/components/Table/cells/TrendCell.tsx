@@ -35,10 +35,20 @@ export function TrendCell({ value, delta, direction, size = 'md', className }: T
       >
         {value}
       </span>
+      {/*
+        Use `utility-(green|red)-700` (darker than the kit's
+        `fg-success-primary` / `fg-error-primary` which resolve to
+        `*-600`). The kit foreground tokens are tuned for icon /
+        accent backgrounds where contrast piggy-backs on surrounding
+        ink; on a plain white table cell they fall below WCAG AA
+        4.5:1 for body-text size (axe `color-contrast` failed at
+        3.21:1 for `green-600` on white). The `-700` shade meets AA
+        in both light and dark theme bindings.
+      */}
       <span
         className={joinClasses(
-          'inline-flex items-center gap-1',
-          direction === 'positive' ? 'text-fg-success-primary' : 'text-fg-error-primary',
+          'inline-flex items-center gap-1 font-medium',
+          direction === 'positive' ? 'text-utility-green-700' : 'text-utility-red-700',
           size === 'sm' ? 'text-xs' : 'text-sm',
         )}
       >
