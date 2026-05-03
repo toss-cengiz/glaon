@@ -22,7 +22,6 @@
 //   - `paste` splits on the first separator in `addTagOn` ↦ bulk add.
 
 import type {
-  ChangeEventHandler,
   ClipboardEventHandler,
   FocusEventHandler,
   KeyboardEventHandler,
@@ -30,7 +29,7 @@ import type {
   Ref,
 } from 'react';
 import { useCallback, useId, useRef, useState } from 'react';
-import { TextField as AriaTextField } from 'react-aria-components';
+import { TextArea as AriaTextArea, TextField as AriaTextField } from 'react-aria-components';
 
 import { HintText } from '../base/input/hint-text';
 import { Label } from '../base/input/label';
@@ -325,10 +324,6 @@ function TagsInnerTextarea(props: TagsInnerProps) {
     [addTagOn, currentTags, isDisabled, isReadOnly, updateTags],
   );
 
-  const handleDraftChange: ChangeEventHandler<HTMLTextAreaElement> = useCallback((event) => {
-    setDraftValue(event.currentTarget.value);
-  }, []);
-
   const surfaceClass = joinClasses(
     tagsInnerSurface,
     tagsInnerSizes[size],
@@ -340,12 +335,17 @@ function TagsInnerTextarea(props: TagsInnerProps) {
   // RAC explicit `undefined` for an optional prop (exactOptionalPropertyTypes).
   // RAC's TextField generics for the render-prop `className` resist a
   // narrow object literal type here, so we type the bag as `unknown`
-  // and cast on the spread.
+  // and cast on the spread. Drive `value` + `onChange` at the field
+  // level so RAC binds the label / aria-describedby plumbing to
+  // `<AriaTextArea>` automatically — a plain `<textarea>` falls outside
+  // RAC's scan and trips axe `label-title-only`.
   const fieldProps: Record<string, unknown> = {
     isInvalid,
     isDisabled,
     isReadOnly,
     isRequired,
+    value: draftValue,
+    onChange: setDraftValue,
     className: joinClasses(
       'group flex h-max w-full flex-col items-start justify-start gap-1.5',
       className,
@@ -383,6 +383,7 @@ function TagsInnerTextarea(props: TagsInnerProps) {
                   size={size}
                   color="gray"
                   icon="close"
+                  closeLabel={`Remove ${tag}`}
                   onClose={() => {
                     removeTag(tag);
                   }}
@@ -394,19 +395,13 @@ function TagsInnerTextarea(props: TagsInnerProps) {
           </ul>
         )}
 
-        <textarea
+        <AriaTextArea
           ref={setTextAreaRef}
           rows={rows ?? 1}
           {...(cols !== undefined ? { cols } : {})}
           {...(currentTags.length === 0 && placeholder !== undefined ? { placeholder } : {})}
-          value={draftValue}
-          onChange={handleDraftChange}
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
-          disabled={isDisabled}
-          readOnly={isReadOnly}
-          aria-invalid={isInvalid}
-          aria-required={isRequired}
           {...(hint !== undefined ? { 'aria-describedby': hintId } : {})}
           className={joinClasses(
             'w-full resize-none border-0 bg-transparent text-current outline-hidden focus:outline-hidden placeholder:text-placeholder',
