@@ -116,14 +116,16 @@ export const WithSortableHeader: Story = {
     <Table {...args}>
       <Table.Header>
         <Table.Head id="name" allowsSorting>
-          Device
+          <Table.HeadLabel>Device</Table.HeadLabel>
         </Table.Head>
         <Table.Head id="room" allowsSorting>
-          Room
+          <Table.HeadLabel>Room</Table.HeadLabel>
         </Table.Head>
-        <Table.Head id="status">Status</Table.Head>
+        <Table.Head id="status">
+          <Table.HeadLabel>Status</Table.HeadLabel>
+        </Table.Head>
         <Table.Head id="lastSeen" allowsSorting>
-          Last seen
+          <Table.HeadLabel>Last seen</Table.HeadLabel>
         </Table.Head>
       </Table.Header>
       <Table.Body>
@@ -137,6 +139,99 @@ export const WithSortableHeader: Story = {
             <Table.Cell>{device.lastSeen}</Table.Cell>
           </Table.Row>
         ))}
+      </Table.Body>
+    </Table>
+  ),
+};
+
+// `Table.HeadLabel` + `tooltip` prop on `<Table.Head>` — the kit
+// renders a `?` icon next to the label that opens the help tooltip
+// on hover / focus. Pair with `allowsSorting` for "this column can
+// be sorted, here's what it means" affordances.
+export const WithHelpIcon: Story = {
+  render: (args) => (
+    <Table {...args}>
+      <Table.Header>
+        <Table.Head id="name">
+          <Table.HeadLabel>Device</Table.HeadLabel>
+        </Table.Head>
+        <Table.Head
+          id="room"
+          allowsSorting
+          tooltip="The room the device is paired with — change in device settings."
+        >
+          <Table.HeadLabel>Room</Table.HeadLabel>
+        </Table.Head>
+        <Table.Head
+          id="status"
+          tooltip="Online means the device responded within the last 5 minutes."
+        >
+          <Table.HeadLabel>Status</Table.HeadLabel>
+        </Table.Head>
+        <Table.Head id="lastSeen" allowsSorting>
+          <Table.HeadLabel>Last seen</Table.HeadLabel>
+        </Table.Head>
+      </Table.Header>
+      <Table.Body>
+        {devices.map((device) => (
+          <Table.Row key={device.id} id={device.id}>
+            <Table.Cell>
+              <span className="font-medium text-primary">{device.name}</span>
+            </Table.Cell>
+            <Table.Cell>{device.room}</Table.Cell>
+            <Table.Cell>{statusBadge(device.status)}</Table.Cell>
+            <Table.Cell>{device.lastSeen}</Table.Cell>
+          </Table.Row>
+        ))}
+      </Table.Body>
+    </Table>
+  ),
+};
+
+// Header label gallery — Figma `Arrow` axis variants (none /
+// chevron-selector / down-arrow / up-arrow) shown in a single
+// canvas so designers can verify pixel parity. RAC renders the
+// chevron-selector when `allowsSorting` is set but no direction is
+// active, and an `ArrowDown` (rotated 180° for ascending) when the
+// column matches the table's `sortDescriptor`. The `sorted` column
+// in this story shows the descending state.
+export const HeaderLabelStates: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Header label states — plain / sortable (chevron) / sorted (arrow) / with tooltip / sorted + tooltip.',
+      },
+    },
+  },
+  args: { sortDescriptor: { column: 'sorted', direction: 'descending' as const } },
+  render: (args) => (
+    <Table {...args} aria-label="Header label states">
+      <Table.Header>
+        <Table.Head id="plain">
+          <Table.HeadLabel>Plain label</Table.HeadLabel>
+        </Table.Head>
+        <Table.Head id="sortable" allowsSorting>
+          <Table.HeadLabel>Sortable</Table.HeadLabel>
+        </Table.Head>
+        <Table.Head id="sorted" allowsSorting>
+          <Table.HeadLabel>Sorted</Table.HeadLabel>
+        </Table.Head>
+        <Table.Head id="tooltip" tooltip="Inline help text — hover or focus to read.">
+          <Table.HeadLabel>With tooltip</Table.HeadLabel>
+        </Table.Head>
+        <Table.Head id="combo" allowsSorting tooltip="Sortable column with extra context.">
+          <Table.HeadLabel>Combo</Table.HeadLabel>
+        </Table.Head>
+      </Table.Header>
+      <Table.Body>
+        <Table.Row id="r1">
+          <Table.Cell>—</Table.Cell>
+          <Table.Cell>—</Table.Cell>
+          <Table.Cell>—</Table.Cell>
+          <Table.Cell>—</Table.Cell>
+          <Table.Cell>—</Table.Cell>
+        </Table.Row>
       </Table.Body>
     </Table>
   ),
