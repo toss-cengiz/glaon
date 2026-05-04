@@ -1117,3 +1117,102 @@ export const EmptyWithChrome: Story = {
     </Table.Card>
   ),
 };
+
+// === Phase F — dividers + mobile ===========================================
+//
+// `dividers='alternating-fills'` zebra-stripes rows for dense
+// numeric grids. Mobile column hiding is consumer-driven via
+// Tailwind responsive utilities on `<Table.Head>` / `<Table.Cell>`
+// — drop the high-bandwidth columns at narrow breakpoints rather
+// than wrapping every cell.
+
+// `dividers='alternating-fills'` — even rows pick up `bg-secondary`
+// so the eye can track values across wide tables. Compare against
+// `Default` (the kit's `divider-line` treatment) for the canonical
+// contrast pair.
+export const AlternatingFills: Story = {
+  args: { dividers: 'alternating-fills' },
+  render: (args) => (
+    <Table {...args}>
+      <Table.Header>
+        <Table.Head id="name">
+          <Table.HeadLabel>Device</Table.HeadLabel>
+        </Table.Head>
+        <Table.Head id="room">
+          <Table.HeadLabel>Room</Table.HeadLabel>
+        </Table.Head>
+        <Table.Head id="status">
+          <Table.HeadLabel>Status</Table.HeadLabel>
+        </Table.Head>
+        <Table.Head id="lastSeen">
+          <Table.HeadLabel>Last seen</Table.HeadLabel>
+        </Table.Head>
+      </Table.Header>
+      <Table.Body>
+        {devices.map((device) => (
+          <Table.Row key={device.id} id={device.id}>
+            <Table.Cell>
+              <span className="font-medium text-primary">{device.name}</span>
+            </Table.Cell>
+            <Table.Cell>{device.room}</Table.Cell>
+            <Table.Cell>{statusBadge(device.status)}</Table.Cell>
+            <Table.Cell>{device.lastSeen}</Table.Cell>
+          </Table.Row>
+        ))}
+      </Table.Body>
+    </Table>
+  ),
+};
+
+// Mobile responsive — drop secondary columns at narrow breakpoints
+// using Tailwind's `hidden sm:table-cell` utility on the matching
+// `<Table.Head>` + `<Table.Cell>` pair. Open Storybook's viewport
+// addon (mobile preset) to see the effect; on a desktop viewport
+// every column stays visible.
+//
+// V1 ships this as a **convention** rather than a Glaon prop because
+// column-priority rules are deeply context-specific (which columns
+// drop vs. stay depends on the data). A `data-priority` axis +
+// container query layer can land in a follow-up if a one-size-fits-
+// all default emerges.
+export const Mobile: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+    docs: {
+      description: {
+        story:
+          "Mobile-friendly table — secondary columns hide below `sm` via Tailwind `hidden sm:table-cell`. Use Storybook's viewport addon to switch between mobile / desktop and watch columns drop / re-appear.",
+      },
+    },
+  },
+  render: () => (
+    <Table aria-label="Devices (responsive)">
+      <Table.Header>
+        <Table.Head id="name">
+          <Table.HeadLabel>Device</Table.HeadLabel>
+        </Table.Head>
+        <Table.Head id="room" className="hidden sm:table-cell">
+          <Table.HeadLabel>Room</Table.HeadLabel>
+        </Table.Head>
+        <Table.Head id="status">
+          <Table.HeadLabel>Status</Table.HeadLabel>
+        </Table.Head>
+        <Table.Head id="lastSeen" className="hidden md:table-cell">
+          <Table.HeadLabel>Last seen</Table.HeadLabel>
+        </Table.Head>
+      </Table.Header>
+      <Table.Body>
+        {devices.map((device) => (
+          <Table.Row key={device.id} id={device.id}>
+            <Table.Cell>
+              <span className="font-medium text-primary">{device.name}</span>
+            </Table.Cell>
+            <Table.Cell className="hidden sm:table-cell">{device.room}</Table.Cell>
+            <Table.Cell>{statusBadge(device.status)}</Table.Cell>
+            <Table.Cell className="hidden md:table-cell">{device.lastSeen}</Table.Cell>
+          </Table.Row>
+        ))}
+      </Table.Body>
+    </Table>
+  ),
+};

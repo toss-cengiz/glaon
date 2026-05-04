@@ -70,6 +70,49 @@ Compose with these slots:
 </Table>
 ```
 
+## Dividers + mobile (Phase F)
+
+`dividers` controls the row separator treatment:
+
+- `'divider-line'` (default) — a 1px hairline between rows; the
+  kit's standard treatment.
+- `'alternating-fills'` — every even row picks up `bg-secondary`,
+  giving a zebra band that helps the eye track values across dense
+  numeric grids. Mirrors Figma's Tables-page `Dividers=Alternating
+  fills` axis.
+
+```tsx
+<Table dividers="alternating-fills" aria-label="Sales">
+  …
+</Table>
+```
+
+**Mobile column hiding** is consumer-driven via Tailwind responsive
+utilities on the matching `<Table.Head>` + `<Table.Cell>` pair —
+drop the high-bandwidth columns at narrow breakpoints rather than
+wrapping every cell:
+
+```tsx
+<Table.Head id="lastSeen" className="hidden md:table-cell">
+  <Table.HeadLabel>Last seen</Table.HeadLabel>
+</Table.Head>
+…
+<Table.Cell className="hidden md:table-cell">{row.lastSeen}</Table.Cell>
+```
+
+V1 ships this as a **convention**, not a Glaon prop — column-
+priority rules are context-specific (which column drops depends on
+the data), so a `data-priority` axis + container-query layer would
+prescribe more than the API can deliver. A follow-up issue can add
+the helper if a clear default emerges.
+
+The `Mobile` story uses Storybook's viewport addon (`mobile1`
+preset) to demonstrate the responsive shift. The `AlternatingFills`
+story renders the zebra-stripe variant.
+
+See [#329](https://github.com/toss-cengiz/glaon/issues/329) for the
+Phase F scope.
+
 ## Card chrome
 
 `Table.Card.{Root, Header, Filters, Pagination}` wraps a table in
