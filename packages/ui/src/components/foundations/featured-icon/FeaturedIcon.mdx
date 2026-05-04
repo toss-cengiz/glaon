@@ -1,0 +1,123 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks';
+
+import * as FeaturedIconStories from './FeaturedIcon.stories';
+
+<Meta of={FeaturedIconStories} />
+
+# Featured Icon
+
+Iconographic chip used to anchor a piece of UI to a semantic meaning —
+the round / squircle frame around an icon you see on Alerts,
+Notifications, empty-state panels, and dashboard tiles. FeaturedIcon
+owns its own size, colour, and theme treatment; consumers only supply
+the inner glyph.
+
+This page documents the kit-raw primitive that ships under
+`packages/ui/src/components/foundations/featured-icon/`. It is not yet
+publicly exported through `@glaon/ui`'s barrel — components like
+`Alert` and `Notification` consume it directly today. Promotion to a
+publicly-exported wrap is a separate concern (UUI Source Rule); this
+page is scoped to documenting the existing internal surface.
+
+## When to use
+
+- **Alert / Notification icon slot** — match `theme="light"` with the
+  matching `color` (`error`, `warning`, `success`, `brand`, `gray`).
+- **Empty-state panel** — pair `theme="modern"` with a larger size
+  (`lg` or `xl`) to anchor a "no data" message.
+- **Dashboard tile** — `theme="modern-neue"` provides a raised chip
+  on a primary surface; `xl` reads as a hero glyph.
+- **Marketing / branded sections** — `theme="gradient"` or
+  `theme="dark"` give richer visual weight; reserve for hero areas,
+  not chrome.
+
+## When NOT to use
+
+- **Inline icon next to text** → use `@untitledui/icons` directly,
+  no chip frame.
+- **Pure decorative bullet** → `<DotIcon>` (sibling foundation
+  primitive) is lighter weight.
+- **Brand glyph next to a button label** → use the brand registry
+  (`@glaon/ui` `Apple`, `Google`, `Figma`, …) — those carry
+  brand-correct colour fills and don't want a semantic theme.
+
+## Anatomy
+
+<Canvas of={FeaturedIconStories.Default} />
+
+The chip wraps any icon component or React node. Glyph sizing flows
+from the chip's `size` prop — a `sm` chip auto-scales the inner glyph
+to 16px, `md` to 20px, `lg` to 24px, `xl` to 28px.
+
+```tsx
+import { FeaturedIcon } from '@glaon/ui/components/foundations/featured-icon';
+import { Lightbulb02 } from '@untitledui/icons';
+
+<FeaturedIcon icon={Lightbulb02} theme="light" color="brand" size="md" />;
+```
+
+## Variants
+
+### Themes
+
+<Canvas of={FeaturedIconStories.ThemeMatrix} />
+
+Six themes ship with the kit. Pair with the surrounding surface:
+
+- **`light`** — tinted background, low visual weight. Default for
+  dense UI (alerts, list rows).
+- **`modern`** — raised chip on the primary surface. Use for
+  dashboard tiles and settings groups.
+- **`modern-neue`** — softer raise with a subtle inner shadow. Use
+  for elevated content panels.
+- **`outline`** — stroked frame, hollow background. Reserved for
+  marketing sections that need negative space.
+- **`gradient`** — bold gradient fill. Marketing / hero only.
+- **`dark`** — dark fill against light surfaces. Marketing / hero
+  only.
+
+### Colours × themes
+
+<Canvas of={FeaturedIconStories.ColorMatrix} />
+
+Five semantic colours map to Glaon's brand + state palette. Pick the
+colour by **meaning**, not visual weight — `error` always means
+"something went wrong" regardless of theme.
+
+### Sizes
+
+<Canvas of={FeaturedIconStories.SizeScale} />
+
+Four sizes (32 / 40 / 48 / 56 px). The size also controls the inner
+glyph's stroke width on `sm` to keep optical balance — don't try to
+override.
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The chip itself is decorative and rendered as a `<div>` with no ARIA
+  role; the surrounding component (Alert, Notification, …) is
+  responsible for the announceable label.
+- The inner glyph carries `data-icon` and inherits `currentColor`
+  from the chip's text colour for single-colour icons. Brand glyphs
+  (multi-colour) shipped through the brand registry retain their
+  fixed brand fills regardless of theme.
+- If you use FeaturedIcon stand-alone (rare), wrap it in an element
+  with the right ARIA semantics — `<button>`, `<a>`, or a labelled
+  `<div role="img" aria-label="…">`.
+
+## Related
+
+- [`Alert`](?path=/docs/web-primitives-alert--docs) and
+  [`Notification`](?path=/docs/web-primitives-notification--docs) —
+  the most common consumers; both wire FeaturedIcon to their colour
+  prop automatically.
+- [Brand Icons](?path=/docs/foundations-brand-icons--catalog) —
+  brand glyphs (Apple, Google, Figma, …) you'd pass to `icon` for
+  social-context featured chips.
+- [Icons / General](?path=/docs/foundations-icons-general--catalog) —
+  full `@untitledui/icons` browser; pick a glyph here, then wire it
+  through `icon`.
