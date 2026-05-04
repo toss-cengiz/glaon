@@ -8,15 +8,19 @@
 // brand + style + label.
 //
 // Maps Figma's `web-primitives-social-button` axes 1:1:
-//   - `Social`:         apple / dribbble / facebook / figma / google / twitter (6)
+//   - `Social`:         apple / discord / dribbble / facebook / figma /
+//                       github / gitlab / google / linkedin / microsoft /
+//                       slack / twitter (12 — Phase A + A.2.1 Tier-1
+//                       auth providers)
 //   - `Style`:          brand / black-outline / white-outline / icon-only (4)
 //   - `Supporting text`: "Continue with X" vs "X" (boolean)
 //   - `Size`:           sm / md / lg
 //
 // Brand glyphs come from the central registry under
 // `packages/ui/src/icons/brand/` (see #309). The registry phases in
-// the remaining 28 platforms — when Phase A.2 lands, expand the
-// `SocialBrand` union here and add the matching `brandTokens` row.
+// the remaining 22 platforms — when Phase A.2.2 / A.2.3 land,
+// extend the `SocialBrand` union below and add a matching
+// `brandTokens` row per platform.
 //
 // Usage:
 //
@@ -28,15 +32,33 @@ import type { MouseEventHandler, ReactNode } from 'react';
 
 import {
   Apple,
+  Discord,
   Dribbble,
   Facebook,
   Figma,
+  Github,
+  Gitlab,
   Google,
+  Linkedin,
+  Microsoft,
+  Slack,
   Twitter,
   type BrandIconProps,
 } from '../../icons/brand';
 
-export type SocialBrand = 'apple' | 'dribbble' | 'facebook' | 'figma' | 'google' | 'twitter';
+export type SocialBrand =
+  | 'apple'
+  | 'discord'
+  | 'dribbble'
+  | 'facebook'
+  | 'figma'
+  | 'github'
+  | 'gitlab'
+  | 'google'
+  | 'linkedin'
+  | 'microsoft'
+  | 'slack'
+  | 'twitter';
 export type SocialStyle = 'brand' | 'black-outline' | 'white-outline' | 'icon-only';
 export type SocialSize = 'sm' | 'md' | 'lg';
 
@@ -133,6 +155,56 @@ const brandTokens: Record<SocialBrand, BrandTokens> = {
     label: 'Twitter',
     brandClass: 'bg-utility-neutral-900 text-white hover:bg-utility-neutral-800',
     Glyph: Twitter,
+  },
+  // --- Phase A.2.1 — Tier-1 auth providers ---
+  github: {
+    label: 'GitHub',
+    // GitHub's brand bg for sign-in CTAs is canonical black; the
+    // single-color Octocat inherits `currentColor` from the
+    // surrounding white text.
+    brandClass: 'bg-utility-neutral-900 text-white hover:bg-utility-neutral-800',
+    Glyph: Github,
+  },
+  gitlab: {
+    label: 'GitLab',
+    // GitLab ships a multi-colour tanuki on a dark surface so the
+    // canonical orange / red triad reads against the bg. White
+    // text label keeps the wordmark legible.
+    brandClass: 'bg-utility-neutral-900 text-white hover:bg-utility-neutral-800',
+    Glyph: Gitlab,
+  },
+  microsoft: {
+    label: 'Microsoft',
+    // Microsoft's Sign-In spec mandates the four-square mark on a
+    // white surface with dark text; the four-colour glyph is
+    // brand-canonical and isn't recolour-friendly.
+    brandClass: 'bg-primary text-secondary ring-1 ring-inset ring-primary hover:bg-primary_hover',
+    Glyph: Microsoft,
+  },
+  linkedin: {
+    label: 'LinkedIn',
+    // LinkedIn's brand bg is `#0A66C2` (Glaon's `utility-blue-700`
+    // is the closest token in the design system). White
+    // single-colour glyph + label.
+    brandClass: 'bg-utility-blue-700 text-white hover:bg-utility-blue-800',
+    Glyph: Linkedin,
+  },
+  discord: {
+    label: 'Discord',
+    // Discord's brand `Blurple` (`#5865F2`) doesn't have a perfect
+    // Glaon utility token; pair the multi-colour Clyde glyph with
+    // a neutral-dark surface so it stays brand-recognisable on
+    // both light and dark page bg.
+    brandClass: 'bg-utility-indigo-700 text-white hover:bg-utility-indigo-800',
+    Glyph: Discord,
+  },
+  slack: {
+    label: 'Slack',
+    // Slack ships a multi-colour 4-arm hashtag — keep on a white
+    // surface so all four brand fills read clearly. Mirrors the
+    // Google + Microsoft "white surface" pattern.
+    brandClass: 'bg-primary text-secondary ring-1 ring-inset ring-primary hover:bg-primary_hover',
+    Glyph: Slack,
   },
 };
 
