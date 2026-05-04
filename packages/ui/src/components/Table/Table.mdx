@@ -70,6 +70,74 @@ Compose with these slots:
 </Table>
 ```
 
+## Card chrome
+
+`Table.Card.{Root, Header, Filters, Pagination}` wraps a table in
+the canonical Glaon card surface — title row, optional filters bar,
+the table body, optional pagination. Mirrors the Tables-page Figma
+frames where every realistic table renders inside this chrome.
+
+```tsx
+<Table.Card>
+  <Table.Card.Header
+    title="Team members"
+    description="Manage your team and their account permissions."
+    actions={<Button color="primary">Invite member</Button>}
+  />
+  <Table.Card.Filters>
+    <ButtonGroup defaultValue="all" aria-label="Status filter">
+      <ButtonGroup.Item value="all">All</ButtonGroup.Item>
+      <ButtonGroup.Item value="active">Active</ButtonGroup.Item>
+    </ButtonGroup>
+    <Button color="secondary" iconLeading={Filter}>Filter</Button>
+  </Table.Card.Filters>
+  <Table aria-label="Team members">
+    <Table.Header>…</Table.Header>
+    <Table.Body items={rows}>{(row) => <Table.Row …/>}</Table.Body>
+  </Table>
+  <Table.Card.Pagination
+    page={page}
+    pageCount={pageCount}
+    onPageChange={setPage}
+    perPage={perPage}
+    perPageOptions={[10, 20, 50]}
+    onPerPageChange={setPerPage}
+  />
+</Table.Card>
+```
+
+Sub-components:
+
+- **`Table.Card`** (alias `Table.Card.Root`) — the rounded outer
+  surface with shadow + border. Re-exports the kit `TableCard.Root`
+  primitive.
+- **`Table.Card.Header`** — title + description + optional `badge`
+  + `actions` slot (typically primary CTA + dropdown). Re-uses the
+  kit `TableCard.Header`'s `contentTrailing` slot under the
+  Glaon-friendly `actions` prop name.
+- **`Table.Card.Filters`** — slot for consumer-composed filter
+  controls (ButtonGroup, Tabs, Select, Button mix). Flex row that
+  wraps on narrow viewports.
+- **`Table.Card.Pagination`** — Prev / page-count / Next paginator
+  with optional per-page selector. The V1 paginator covers the
+  common "page X of Y" case; Phase 2's `DataTable` swaps in a
+  richer paginator with virtualisation hooks.
+
+A11y:
+- The header `<h2>` semantic is provided by the kit primitive.
+- `<Table.Card.Pagination>` renders as `<nav aria-label>`; consumers
+  can override the label via `ariaLabel` when the table sits next
+  to multiple paginators.
+- Filters bar leaves ARIA to the consumer's controls — `<ButtonGroup
+  aria-label="Status filter">` etc.
+
+Server-side pagination integration is consumer-orchestrated (wire
+`page` / `pageCount` to TanStack Query state); the paginator only
+emits `onPageChange` events.
+
+See [#328](https://github.com/toss-cengiz/glaon/issues/328) for the
+Phase E scope.
+
 ## Empty state
 
 `<Table emptyState={…}>` auto-renders a fallback when the body has

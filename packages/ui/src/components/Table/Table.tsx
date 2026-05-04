@@ -59,6 +59,7 @@ import type { ComponentProps, ReactNode } from 'react';
 import { createContext, useContext } from 'react';
 
 import { Table as KitTable } from '../application/table/table';
+import { TableCard } from './parts/Card';
 import { TableEmpty } from './parts/Empty';
 import { TableHeadLabel } from './parts/HeadLabel';
 import { LeadAction } from './parts/LeadAction';
@@ -79,7 +80,7 @@ import {
   TrendCell,
 } from './cells';
 
-export { TableCard, TableRowActionsDropdown } from '../application/table/table';
+export { TableRowActionsDropdown } from '../application/table/table';
 export { LeadActionCheckbox, LeadActionRadio, LeadActionToggle } from './parts/LeadAction';
 export type {
   LeadActionCheckboxProps,
@@ -88,6 +89,14 @@ export type {
 } from './parts/LeadAction';
 export * from './cells';
 export { TableEmpty, TableHeadLabel };
+export {
+  TableCard,
+  TableCardFilters,
+  TableCardHeader,
+  TableCardPagination,
+  TableCardRoot,
+} from './parts/Card';
+export type { TableCardPaginationProps } from './parts/Card';
 export type { TableEmptyAction, TableEmptyProps } from './parts/Empty';
 export type { TableHeadLabelProps } from './parts/HeadLabel';
 
@@ -191,6 +200,7 @@ type TableNamespace = typeof TableRoot & {
   HeadLabel: typeof TableHeadLabel;
   Empty: typeof TableEmpty;
   LeadAction: typeof LeadAction;
+  Card: typeof TableCard;
 };
 
 export const Table: TableNamespace = Object.assign(TableRoot, {
@@ -202,4 +212,5 @@ export const Table: TableNamespace = Object.assign(TableRoot, {
   HeadLabel: TableHeadLabel,
   Empty: TableEmpty,
   LeadAction,
+  Card: TableCard,
 });

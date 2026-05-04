@@ -1,9 +1,11 @@
-import { Edit01, Eye, Plus, Trash01, Users01 } from '@untitledui/icons';
+import { Edit01, Eye, FilterFunnel01, Plus, SearchSm, Trash01, Users01 } from '@untitledui/icons';
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 import { useState } from 'react';
 
 import { defineControls } from '../_internal/controls';
 import { Badge } from '../Badge';
+import { Button } from '../Button';
+import { ButtonGroup } from '../ButtonGroup';
 import { Table } from './Table';
 import { tableControls, tableExcludeFromArgs } from './Table.controls';
 
@@ -926,4 +928,192 @@ export const WithCheckboxColumn: Story = {
     };
     return <CheckboxStory />;
   },
+};
+
+// === Phase E — Card chrome wrapper =======================================
+//
+// `Table.Card.{Root, Header, Filters, Pagination}` wraps a table in
+// the canonical Glaon card surface — title row, optional filters
+// bar, the table body, optional pagination. Matches Figma's Tables-
+// page chrome composition exactly.
+
+interface PaginatedDevice {
+  id: string;
+  name: string;
+  status: 'active' | 'archived';
+  region: string;
+}
+
+const REGIONS = ['EMEA', 'AMER', 'APAC'] as const;
+const allDevices: PaginatedDevice[] = Array.from({ length: 27 }, (_, i) => ({
+  id: `dev-${(i + 1).toString()}`,
+  name: `Device #${(i + 1).toString().padStart(2, '0')}`,
+  status: i % 4 === 0 ? 'archived' : 'active',
+  region: REGIONS[i % REGIONS.length] ?? REGIONS[0],
+}));
+
+// Realistic full chrome — header (title + description + actions),
+// filters bar (ButtonGroup status filter + search + filter button),
+// the table body, pagination. Mirrors the Team members frame from
+// Figma's Tables page.
+export const WithCardChrome: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Full Card chrome — header + filters bar + paginated table. The composition the Tables page Figma frame ships as the canonical primary use case.',
+      },
+    },
+  },
+  render: () => {
+    const ChromeStory = () => {
+      const [page, setPage] = useState(1);
+      const [perPage, setPerPage] = useState(5);
+      const [statusFilter, setStatusFilter] = useState('all');
+      const filtered =
+        statusFilter === 'all' ? allDevices : allDevices.filter((d) => d.status === statusFilter);
+      const total = filtered.length;
+      const pageCount = Math.max(1, Math.ceil(total / perPage));
+      const start = (page - 1) * perPage;
+      const visible = filtered.slice(start, start + perPage);
+      return (
+        <Table.Card>
+          <Table.Card.Header
+            title="Devices"
+            description="Pair, archive, and reassign devices across regions."
+            badge={<Badge color="brand">{`${total.toString()} devices`}</Badge>}
+            actions={
+              <Button color="primary" size="sm" iconLeading={Plus}>
+                Pair device
+              </Button>
+            }
+          />
+          <Table.Card.Filters>
+            <ButtonGroup
+              defaultValue="all"
+              aria-label="Status filter"
+              onChange={(value) => {
+                setStatusFilter(value);
+                setPage(1);
+              }}
+            >
+              <ButtonGroup.Item value="all">All</ButtonGroup.Item>
+              <ButtonGroup.Item value="active">Active</ButtonGroup.Item>
+              <ButtonGroup.Item value="archived">Archived</ButtonGroup.Item>
+            </ButtonGroup>
+            <div className="flex items-center gap-2">
+              <Button color="secondary" size="sm" iconLeading={SearchSm}>
+                Search
+              </Button>
+              <Button color="secondary" size="sm" iconLeading={FilterFunnel01}>
+                Filter
+              </Button>
+            </div>
+          </Table.Card.Filters>
+          <Table aria-label="Devices">
+            <Table.Header>
+              <Table.Head id="name">
+                <Table.HeadLabel>Device</Table.HeadLabel>
+              </Table.Head>
+              <Table.Head id="status">
+                <Table.HeadLabel>Status</Table.HeadLabel>
+              </Table.Head>
+              <Table.Head id="region">
+                <Table.HeadLabel>Region</Table.HeadLabel>
+              </Table.Head>
+            </Table.Header>
+            <Table.Body>
+              {visible.map((device) => (
+                <Table.Row key={device.id} id={device.id}>
+                  <Table.Cell>
+                    <span className="font-medium text-primary">{device.name}</span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Table.Cell.Badge color={device.status === 'active' ? 'success' : 'gray'}>
+                      {device.status}
+                    </Table.Cell.Badge>
+                  </Table.Cell>
+                  <Table.Cell>{device.region}</Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+          <Table.Card.Pagination
+            page={page}
+            pageCount={pageCount}
+            onPageChange={setPage}
+            perPage={perPage}
+            perPageOptions={[5, 10, 20]}
+            onPerPageChange={(next) => {
+              setPerPage(next);
+              setPage(1);
+            }}
+          />
+        </Table.Card>
+      );
+    };
+    return <ChromeStory />;
+  },
+};
+
+// Phase C `<Table.Empty>` rendered inside Card chrome — typical
+// empty-state UX where filters / header stay visible so users can
+// adjust the filter and see the table re-populate.
+export const EmptyWithChrome: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Empty state inside Card chrome — header + filters stay visible so users can change the filter and refill the body without leaving the page.',
+      },
+    },
+  },
+  render: () => (
+    <Table.Card>
+      <Table.Card.Header
+        title="Team members"
+        description="Manage your team and their account permissions."
+        actions={
+          <Button color="primary" size="sm" iconLeading={Plus}>
+            Invite member
+          </Button>
+        }
+      />
+      <Table.Card.Filters>
+        <ButtonGroup defaultValue="all" aria-label="Status filter">
+          <ButtonGroup.Item value="all">All</ButtonGroup.Item>
+          <ButtonGroup.Item value="active">Active</ButtonGroup.Item>
+          <ButtonGroup.Item value="archived">Archived</ButtonGroup.Item>
+        </ButtonGroup>
+      </Table.Card.Filters>
+      <Table
+        aria-label="Team members"
+        emptyState={
+          <Table.Empty
+            icon={Users01}
+            title="No team members yet"
+            description="Invite collaborators to start building together."
+            action={{
+              label: 'Invite member',
+              icon: Plus,
+              onPress: () => undefined,
+            }}
+          />
+        }
+      >
+        <Table.Header>
+          <Table.Head id="name">
+            <Table.HeadLabel>Name</Table.HeadLabel>
+          </Table.Head>
+          <Table.Head id="role">
+            <Table.HeadLabel>Role</Table.HeadLabel>
+          </Table.Head>
+          <Table.Head id="status">
+            <Table.HeadLabel>Status</Table.HeadLabel>
+          </Table.Head>
+        </Table.Header>
+        <Table.Body>{[]}</Table.Body>
+      </Table>
+    </Table.Card>
+  ),
 };
