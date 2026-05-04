@@ -1,0 +1,41 @@
+# Glaon dev fixture — minimal Home Assistant config.
+#
+# On first boot HA runs the onboarding wizard at http://localhost:8123 — see
+# docs/home-assistant-dev.md for the walk-through. After onboarding, the
+# `demo:` platform exposes ~30 entities across light / switch / climate /
+# cover / media_player so Glaon clients have something to render.
+#
+# Reset to a clean fixture with `pnpm ha:reset`.
+
+homeassistant:
+  name: Glaon Dev
+  unit_system: metric
+  time_zone: Europe/Istanbul
+  country: TR
+  internal_url: http://localhost:8123
+
+# default_config bundles auth, websocket_api, frontend, recorder, history,
+# logbook, sun, system_health, etc. — everything Glaon's client needs to
+# authenticate and stream entity state.
+default_config:
+
+# Demo platform: pre-seeded entities so the dev fixture is not empty.
+demo:
+
+# CORS for Glaon dev clients. Add new dev origins here as new app ports come
+# online (cloud client, Storybook integration, etc.).
+http:
+  cors_allowed_origins:
+    - http://localhost:5173 # Vite (apps/web)
+    - http://localhost:6006 # Storybook (packages/ui)
+    - http://localhost:8081 # Expo Metro (apps/mobile)
+    - http://localhost:19006 # Expo Web
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 127.0.0.1
+    - ::1
+
+logger:
+  default: info
+  logs:
+    homeassistant.components.http: warning

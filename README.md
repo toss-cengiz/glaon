@@ -55,6 +55,10 @@ pnpm --filter @glaon/mobile dev
 # Tip kontrolü + lint
 pnpm type-check
 pnpm lint
+
+# Lokal Home Assistant dev fixture (Phase 2 OAuth/WS/service çağrılarını
+# karşı çalıştırmak için; ayrıntı: docs/home-assistant-dev.md)
+pnpm ha:up
 ```
 
 ## Dokümantasyon
@@ -63,6 +67,7 @@ pnpm lint
 - [Güvenlik](docs/SECURITY.md)
 - [Yol Haritası](docs/ROADMAP.md)
 - [Dev Container](docs/devcontainer.md)
+- [Lokal Home Assistant Dev Fixture](docs/home-assistant-dev.md)
 - [HA Add-on](addon/README.md)
 
 ## Lisans

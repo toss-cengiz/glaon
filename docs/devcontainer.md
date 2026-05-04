@@ -29,13 +29,14 @@ Glaon'un lokal geliştirme ortamı `.devcontainer/devcontainer.json` ile pinlenm
 
 ## Port'lar
 
-| Port | Ne için?                                   | Auto-forward |
-| ---- | ------------------------------------------ | ------------ |
-| 5173 | Vite dev server (web)                      | notify       |
-| 6006 | Storybook                                  | notify       |
-| 8099 | HA add-on nginx (lokal add-on test'i için) | silent       |
+| Port | Ne için?                                        | Auto-forward |
+| ---- | ----------------------------------------------- | ------------ |
+| 5173 | Vite dev server (web)                           | notify       |
+| 6006 | Storybook                                       | notify       |
+| 8099 | HA add-on nginx (lokal add-on test'i için)      | silent       |
+| 8123 | Lokal Home Assistant dev fixture (`pnpm ha:up`) | notify       |
 
-Codespaces otomatik HTTPS proxy URL'si üretir; lokal container'da `localhost:<port>` ile erişilir.
+Codespaces otomatik HTTPS proxy URL'si üretir; lokal container'da `localhost:<port>` ile erişilir. 8123 dev fixture'ı için ayrıntı: [docs/home-assistant-dev.md](home-assistant-dev.md). Container `docker-outside-of-docker` ile host daemon'ı kullandığı için `pnpm ha:up` Dev Container'ın **içinden de** koşar.
 
 ## VS Code extension'ları
 
