@@ -1,0 +1,9 @@
+{
+  "name": "@glaon/dev-ha",
+  "version": "0.0.0",
+  "description": "Local Home Assistant dev fixture for Glaon (docker compose + seeded config).",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf .turbo"
+  }
+}

@@ -1,0 +1,7 @@
+# Glaon dev HA fixture — keep only seed config in git. Everything HA writes
+# at runtime (storage, sqlite, logs, derived YAML) stays local.
+
+*
+
+!.gitignore
+!configuration.yaml

@@ -1,0 +1,23 @@
+# Glaon local Home Assistant dev fixture.
+# Spec: docs/home-assistant-dev.md.
+#
+# Image is digest-pinned for reproducibility; Renovate keeps it current
+# (renovate.json extends config:best-practices, which pins Docker tags).
+
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable@sha256:c1e5f0147f4cb51ccb05bb30b62a1269cc1bd48a6274792d3b38a77ab274dfd2
+    container_name: glaon-dev-ha
+    restart: unless-stopped
+    ports:
+      - '8123:8123'
+    volumes:
+      - ./config:/config
+    environment:
+      TZ: Europe/Istanbul
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q --spider http://localhost:8123 || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
