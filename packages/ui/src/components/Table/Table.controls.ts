@@ -87,4 +87,16 @@ export const tableExcludeFromArgs = defineExcludeFromArgs([
   'dragAndDropHooks',
   'isDisabled',
   'escapeKeyBehavior',
+  // F6 gate's docgen treats the first re-exported component with
+  // props as the file's "primary" component. Since `Table.tsx` re-
+  // exports `LeadActionCheckbox` (Phase D) and the kit `Table` props
+  // get propFilter-stripped, docgen lands on LeadActionCheckbox's
+  // surface. The four props below come from LeadActionCheckboxProps;
+  // they're documented in MDX + exercised in the dedicated stories
+  // (`WithCheckboxColumn` / `WithRadioSelection` / `WithToggleColumn`),
+  // so the controls-panel knobs would be redundant noise.
+  'value',
+  'onChange',
+  'isIndeterminate',
+  'ariaLabel',
 ] as const);
