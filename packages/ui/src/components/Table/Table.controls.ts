@@ -8,6 +8,7 @@ import { excludeFromArgs as defineExcludeFromArgs } from '../_internal/controls'
 
 const sizeOptions = ['sm', 'md'] as const;
 const selectionModeOptions = ['none', 'single', 'multiple'] as const;
+const dividersOptions = ['divider-line', 'alternating-fills'] as const;
 
 export const tableControls = {
   'aria-label': {
@@ -32,6 +33,14 @@ export const tableControls = {
       '`none` (default) for read-only data, `single` for radio-style row selection, `multiple` for checkbox column with optional select-all in the header.',
     category: 'Behavior',
   } satisfies ControlSpec<(typeof selectionModeOptions)[number]>,
+  dividers: {
+    type: 'inline-radio',
+    options: dividersOptions,
+    default: 'divider-line',
+    description:
+      'Row separator treatment. `divider-line` (default) draws a 1px hairline between rows; `alternating-fills` zebra-stripes by painting every even row with `bg-secondary`. Use the latter for dense numeric grids where the eye benefits from a row-band.',
+    category: 'Style',
+  } satisfies ControlSpec<(typeof dividersOptions)[number]>,
   onRowAction: {
     type: false,
     action: 'row-action',

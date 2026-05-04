@@ -155,7 +155,18 @@ const CellWithCellTypes: CellNamespace = Object.assign(KitTable.Cell, {
 // re-wire the callback per usage. Body-level `renderEmptyState`
 // overrides the root prop if both are passed.
 type KitTableProps = ComponentProps<typeof KitTable>;
-export interface TableProps extends Omit<KitTableProps, 'children'> {
+
+/**
+ * Row-divider treatment. Mirrors Figma's Tables-page `Dividers`
+ * axis. `divider-line` (default) renders a 1px hairline between
+ * rows; `alternating-fills` zebra-stripes the rows by painting
+ * every even `<tr>` with `bg-secondary`. Use `alternating-fills`
+ * for dense numeric grids where the eye benefits from a row-band
+ * to track values across columns.
+ */
+export type TableDividers = 'divider-line' | 'alternating-fills';
+
+export interface TableProps extends Omit<KitTableProps, 'children' | 'className'> {
   /**
    * Auto-rendered empty-state node when the body has zero rows.
    * Pass `<Table.Empty …/>` for the canonical layout, or any custom
@@ -163,13 +174,30 @@ export interface TableProps extends Omit<KitTableProps, 'children'> {
    * still wins if both are set.
    */
   emptyState?: ReactNode;
+  /** @default 'divider-line' */
+  dividers?: TableDividers;
+  className?: string;
   children?: ReactNode;
 }
 
-function TableRoot({ emptyState, children, ...props }: TableProps) {
+function TableRoot({ emptyState, dividers, className, children, ...props }: TableProps) {
+  // Phase F: zebra-stripe rows via Tailwind's `[& tbody …]` arbitrary
+  // child selector when `dividers='alternating-fills'`. The kit
+  // forwards `className` onto the underlying `<table>` element so the
+  // selector resolves through the rendered DOM. `divider-line` (the
+  // default) keeps the kit's bottom-border-per-row treatment.
+  const dividerClass =
+    dividers === 'alternating-fills' ? '[&_tbody_tr:nth-child(even)]:bg-secondary' : undefined;
+  const mergedClass = [dividerClass, className].filter(Boolean).join(' ') || undefined;
   return (
     <EmptyStateContext.Provider value={emptyState}>
-      <KitTable {...props}>{children}</KitTable>
+      {mergedClass !== undefined ? (
+        <KitTable {...props} className={mergedClass}>
+          {children}
+        </KitTable>
+      ) : (
+        <KitTable {...props}>{children}</KitTable>
+      )}
     </EmptyStateContext.Provider>
   );
 }
