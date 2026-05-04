@@ -121,6 +121,63 @@ real `<Button>` — keyboard reachable and screen-reader named.
 See [#326](https://github.com/toss-cengiz/glaon/issues/326) for the
 Phase C scope.
 
+## Lead action column
+
+`Table.LeadAction.{Checkbox|Radio|Toggle}` ships the three lead-
+column controls from Figma's `Table cell lead action` frame
+(`Property 1` axis). When to use each:
+
+- **Checkbox** — external-state multi-select. The kit's
+  `<Table selectionMode="multiple">` already auto-renders the
+  canonical multi-select checkbox column; reach for
+  `Table.LeadAction.Checkbox` only when the row's selection state
+  lives outside RAC (e.g. server-paginated dataset where the
+  selected ids are owned by a TanStack Query hook).
+- **Radio** — single-select. The kit's `selectionMode="single"`
+  renders a checkbox glyph that's functionally radio-correct but
+  visually wrong; this primitive draws the canonical radio shape.
+  Group radios across rows by sharing the same `name`.
+- **Toggle** — per-row independent boolean state. NOT a "selection"
+  semantic — each row's state is independent. Canonical use case:
+  feature flag tables, integration enable / disable lists.
+
+Compose into the first `<Table.Cell>` of every row (and matching
+`<Table.Head>` so the column is announced to screen readers — use
+`<span className="sr-only">…</span>` since the visible header is
+typically blank):
+
+```tsx
+<Table aria-label="Integrations">
+  <Table.Header>
+    <Table.Head id="enabled"><span className="sr-only">Enabled</span></Table.Head>
+    <Table.Head id="name"><Table.HeadLabel>Integration</Table.HeadLabel></Table.Head>
+  </Table.Header>
+  <Table.Body items={integrations}>
+    {(row) => (
+      <Table.Row id={row.id}>
+        <Table.Cell>
+          <Table.LeadAction.Toggle
+            value={enabled.has(row.id)}
+            onChange={(next) => toggle(row.id, next)}
+            ariaLabel={`Enable ${row.name}`}
+          />
+        </Table.Cell>
+        <Table.Cell>{row.name}</Table.Cell>
+      </Table.Row>
+    )}
+  </Table.Body>
+</Table>
+```
+
+A11y: every variant requires `ariaLabel`. Checkbox / Radio render
+via Glaon `<Checkbox>` / native radio input; Toggle wraps Glaon
+`<Switch>`. Each forwards `aria-label` onto the underlying input so
+axe `button-name` / `label` / `aria-input-field-name` stay green.
+
+See [#327](https://github.com/toss-cengiz/glaon/issues/327) for the
+Phase D scope; the Phase D.2 follow-up will wire a root `actionType`
+prop that auto-renders the lead column without consumer composition.
+
 ## Header label
 
 `Table.HeadLabel` is the canonical typography wrapper for column
