@@ -8,19 +8,20 @@
 // brand + style + label.
 //
 // Maps Figma's `web-primitives-social-button` axes 1:1:
-//   - `Social`:         apple / discord / dribbble / facebook / figma /
-//                       github / gitlab / google / linkedin / microsoft /
-//                       slack / twitter (12 — Phase A + A.2.1 Tier-1
-//                       auth providers)
+//   - `Social`:         apple / asana / atlassian / bitbucket / discord /
+//                       dribbble / facebook / figma / github / gitlab /
+//                       google / linkedin / microsoft / notion / slack /
+//                       telegram / trello / twitter (18 — Phase A +
+//                       A.2.1 Tier-1 auth + A.2.2 Tier-2 collaboration)
 //   - `Style`:          brand / black-outline / white-outline / icon-only (4)
 //   - `Supporting text`: "Continue with X" vs "X" (boolean)
 //   - `Size`:           sm / md / lg
 //
 // Brand glyphs come from the central registry under
 // `packages/ui/src/icons/brand/` (see #309). The registry phases in
-// the remaining 22 platforms — when Phase A.2.2 / A.2.3 land,
-// extend the `SocialBrand` union below and add a matching
-// `brandTokens` row per platform.
+// the remaining 16 platforms — when Phase A.2.3 lands, extend the
+// `SocialBrand` union below and add a matching `brandTokens` row
+// per platform.
 //
 // Usage:
 //
@@ -32,6 +33,9 @@ import type { MouseEventHandler, ReactNode } from 'react';
 
 import {
   Apple,
+  Asana,
+  Atlassian,
+  Bitbucket,
   Discord,
   Dribbble,
   Facebook,
@@ -41,13 +45,19 @@ import {
   Google,
   Linkedin,
   Microsoft,
+  Notion,
   Slack,
+  Telegram,
+  Trello,
   Twitter,
   type BrandIconProps,
 } from '../../icons/brand';
 
 export type SocialBrand =
   | 'apple'
+  | 'asana'
+  | 'atlassian'
+  | 'bitbucket'
   | 'discord'
   | 'dribbble'
   | 'facebook'
@@ -57,7 +67,10 @@ export type SocialBrand =
   | 'google'
   | 'linkedin'
   | 'microsoft'
+  | 'notion'
   | 'slack'
+  | 'telegram'
+  | 'trello'
   | 'twitter';
 export type SocialStyle = 'brand' | 'black-outline' | 'white-outline' | 'icon-only';
 export type SocialSize = 'sm' | 'md' | 'lg';
@@ -205,6 +218,54 @@ const brandTokens: Record<SocialBrand, BrandTokens> = {
     // Google + Microsoft "white surface" pattern.
     brandClass: 'bg-primary text-secondary ring-1 ring-inset ring-primary hover:bg-primary_hover',
     Glyph: Slack,
+  },
+  // --- Phase A.2.2 — Tier-2 collaboration platforms ---
+  notion: {
+    label: 'Notion',
+    // Notion's brand-CTA convention is white surface + black text;
+    // the single-colour `N` glyph follows currentColor so it reads
+    // dark against the white bg. Same pattern as Google / Microsoft.
+    brandClass: 'bg-primary text-secondary ring-1 ring-inset ring-primary hover:bg-primary_hover',
+    Glyph: Notion,
+  },
+  trello: {
+    label: 'Trello',
+    // Trello's brand-blue is `#0079BF` — closest Glaon utility
+    // token is `utility-blue-700`. The two-list-stack glyph reads
+    // white against that surface.
+    brandClass: 'bg-utility-blue-700 text-white hover:bg-utility-blue-800',
+    Glyph: Trello,
+  },
+  asana: {
+    label: 'Asana',
+    // Asana ships a multi-colour three-dot mark (red / coral /
+    // orange triad). Keep on white so the warm-toned fills don't
+    // collide with a coloured bg.
+    brandClass: 'bg-primary text-secondary ring-1 ring-inset ring-primary hover:bg-primary_hover',
+    Glyph: Asana,
+  },
+  atlassian: {
+    label: 'Atlassian',
+    // Atlassian ships a multi-colour blue-gradient mark — the
+    // canonical chevron pair. White surface + dark text label
+    // keeps the gradient blue legible.
+    brandClass: 'bg-primary text-secondary ring-1 ring-inset ring-primary hover:bg-primary_hover',
+    Glyph: Atlassian,
+  },
+  bitbucket: {
+    label: 'Bitbucket',
+    // Bitbucket sits under the Atlassian brand bar — same surface
+    // treatment so the multi-colour bucket glyph reads correctly.
+    brandClass: 'bg-primary text-secondary ring-1 ring-inset ring-primary hover:bg-primary_hover',
+    Glyph: Bitbucket,
+  },
+  telegram: {
+    label: 'Telegram',
+    // Telegram's brand-CTA convention is a circular blue surface
+    // (`#229ED9`); `utility-blue-700` is the closest Glaon token.
+    // The white paper-plane glyph inherits via `currentColor`.
+    brandClass: 'bg-utility-blue-700 text-white hover:bg-utility-blue-800',
+    Glyph: Telegram,
   },
 };
 
