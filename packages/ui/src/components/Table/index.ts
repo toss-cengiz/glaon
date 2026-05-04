@@ -17,6 +17,7 @@ export type {
   LeadActionRadioProps,
   LeadActionToggleProps,
   TableCardPaginationProps,
+  TableDividers,
   TableEmptyAction,
   TableEmptyProps,
   TableHeadLabelProps,
