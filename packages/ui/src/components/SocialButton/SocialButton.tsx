@@ -8,20 +8,23 @@
 // brand + style + label.
 //
 // Maps Figma's `web-primitives-social-button` axes 1:1:
-//   - `Social`:         apple / asana / atlassian / bitbucket / discord /
-//                       dribbble / facebook / figma / github / gitlab /
-//                       google / linkedin / microsoft / notion / slack /
-//                       telegram / trello / twitter (18 — Phase A +
-//                       A.2.1 Tier-1 auth + A.2.2 Tier-2 collaboration)
+//   - `Social`:         33 platforms — Phase A (apple / dribbble /
+//                       facebook / figma / google / twitter), A.2.1
+//                       Tier-1 auth (discord / github / gitlab /
+//                       linkedin / microsoft / slack), A.2.2 Tier-2
+//                       collaboration (asana / atlassian / bitbucket /
+//                       notion / telegram / trello), A.2.3 Tier-3
+//                       long tail (angellist / clubhouse / dropbox /
+//                       medium / pinterest / reddit / snapchat /
+//                       spotify / stackoverflow / tiktok / tumblr /
+//                       twitch / vimeo / whatsapp / youtube).
 //   - `Style`:          brand / black-outline / white-outline / icon-only (4)
 //   - `Supporting text`: "Continue with X" vs "X" (boolean)
 //   - `Size`:           sm / md / lg
 //
 // Brand glyphs come from the central registry under
-// `packages/ui/src/icons/brand/` (see #309). The registry phases in
-// the remaining 16 platforms — when Phase A.2.3 lands, extend the
-// `SocialBrand` union below and add a matching `brandTokens` row
-// per platform.
+// `packages/ui/src/icons/brand/` (see #309). Registry now ships
+// every Figma `Social icon` frame entry — A.2 completes #365.
 //
 // Usage:
 //
@@ -32,46 +35,76 @@
 import type { MouseEventHandler, ReactNode } from 'react';
 
 import {
+  AngelList,
   Apple,
   Asana,
   Atlassian,
   Bitbucket,
+  Clubhouse,
   Discord,
   Dribbble,
+  Dropbox,
   Facebook,
   Figma,
   Github,
   Gitlab,
   Google,
   Linkedin,
+  Medium,
   Microsoft,
   Notion,
+  Pinterest,
+  Reddit,
   Slack,
+  Snapchat,
+  Spotify,
+  StackOverflow,
   Telegram,
+  TikTok,
   Trello,
+  Tumblr,
+  Twitch,
   Twitter,
+  Vimeo,
+  WhatsApp,
+  YouTube,
   type BrandIconProps,
 } from '../../icons/brand';
 
 export type SocialBrand =
+  | 'angellist'
   | 'apple'
   | 'asana'
   | 'atlassian'
   | 'bitbucket'
+  | 'clubhouse'
   | 'discord'
   | 'dribbble'
+  | 'dropbox'
   | 'facebook'
   | 'figma'
   | 'github'
   | 'gitlab'
   | 'google'
   | 'linkedin'
+  | 'medium'
   | 'microsoft'
   | 'notion'
+  | 'pinterest'
+  | 'reddit'
   | 'slack'
+  | 'snapchat'
+  | 'spotify'
+  | 'stackoverflow'
   | 'telegram'
+  | 'tiktok'
   | 'trello'
-  | 'twitter';
+  | 'tumblr'
+  | 'twitch'
+  | 'twitter'
+  | 'vimeo'
+  | 'whatsapp'
+  | 'youtube';
 export type SocialStyle = 'brand' | 'black-outline' | 'white-outline' | 'icon-only';
 export type SocialSize = 'sm' | 'md' | 'lg';
 
@@ -266,6 +299,106 @@ const brandTokens: Record<SocialBrand, BrandTokens> = {
     // The white paper-plane glyph inherits via `currentColor`.
     brandClass: 'bg-utility-blue-700 text-white hover:bg-utility-blue-800',
     Glyph: Telegram,
+  },
+  // --- Phase A.2.3 — Tier-3 long-tail platforms ---
+  angellist: {
+    label: 'AngelList',
+    // AngelList's brand-CTA is dark surface + white halo glyph.
+    brandClass: 'bg-utility-neutral-900 text-white hover:bg-utility-neutral-800',
+    Glyph: AngelList,
+  },
+  clubhouse: {
+    label: 'Clubhouse',
+    // Clubhouse uses warm beige (`#F1EFE6`) but the closest Glaon
+    // token surface treatment is white + dark text.
+    brandClass: 'bg-primary text-secondary ring-1 ring-inset ring-primary hover:bg-primary_hover',
+    Glyph: Clubhouse,
+  },
+  dropbox: {
+    label: 'Dropbox',
+    // Dropbox's brand `#0061FF` ≈ `utility-blue-700`. White glyph
+    // on brand-blue surface.
+    brandClass: 'bg-utility-blue-700 text-white hover:bg-utility-blue-800',
+    Glyph: Dropbox,
+  },
+  medium: {
+    label: 'Medium',
+    // Medium's canonical CTA pairing is white surface + black ink.
+    brandClass: 'bg-primary text-secondary ring-1 ring-inset ring-primary hover:bg-primary_hover',
+    Glyph: Medium,
+  },
+  pinterest: {
+    label: 'Pinterest',
+    // Pinterest's brand red (`#E60023`) — closest Glaon token in
+    // the 400–700 utility range is `utility-red-600`. Bump to 700
+    // on hover for the canonical darker-on-press treatment.
+    brandClass: 'bg-utility-red-600 text-white hover:bg-utility-red-700',
+    Glyph: Pinterest,
+  },
+  reddit: {
+    label: 'Reddit',
+    // Reddit's brand orange (`#FF4500`) ≈ `utility-orange-600`.
+    brandClass: 'bg-utility-orange-600 text-white hover:bg-utility-orange-700',
+    Glyph: Reddit,
+  },
+  snapchat: {
+    label: 'Snapchat',
+    // Snapchat's signature yellow (`#FFFC00`) ≈ `utility-yellow-400`.
+    // Black glyph on bright yellow per the canonical pairing.
+    brandClass: 'bg-utility-yellow-400 text-utility-neutral-900 hover:bg-utility-yellow-500',
+    Glyph: Snapchat,
+  },
+  spotify: {
+    label: 'Spotify',
+    // Spotify's brand green (`#1DB954`) ≈ `utility-green-600`.
+    brandClass: 'bg-utility-green-600 text-white hover:bg-utility-green-700',
+    Glyph: Spotify,
+  },
+  stackoverflow: {
+    label: 'Stack Overflow',
+    // SO's brand orange (`#F48024`) ≈ `utility-orange-500`.
+    brandClass: 'bg-utility-orange-500 text-white hover:bg-utility-orange-600',
+    Glyph: StackOverflow,
+  },
+  tiktok: {
+    label: 'TikTok',
+    // TikTok ships a multi-colour music-note (cyan + magenta) —
+    // pair with a black surface so the brand colours pop.
+    brandClass: 'bg-utility-neutral-900 text-white hover:bg-utility-neutral-800',
+    Glyph: TikTok,
+  },
+  tumblr: {
+    label: 'Tumblr',
+    // Tumblr's signature navy (`#36465D`) is darker than the
+    // 400–700 utility range provides; pair with `utility-neutral-900`
+    // so the white glyph reads correctly against the dark surface.
+    brandClass: 'bg-utility-neutral-900 text-white hover:bg-utility-neutral-800',
+    Glyph: Tumblr,
+  },
+  twitch: {
+    label: 'Twitch',
+    // Twitch's brand purple (`#9146FF`) ≈ `utility-purple-600`.
+    // Bump to 700 on hover for the canonical darker-on-press feel.
+    brandClass: 'bg-utility-purple-600 text-white hover:bg-utility-purple-700',
+    Glyph: Twitch,
+  },
+  vimeo: {
+    label: 'Vimeo',
+    // Vimeo's brand cyan (`#1AB7EA`) ≈ `utility-blue-500`.
+    brandClass: 'bg-utility-blue-500 text-white hover:bg-utility-blue-600',
+    Glyph: Vimeo,
+  },
+  whatsapp: {
+    label: 'WhatsApp',
+    // WhatsApp's brand green (`#25D366`) ≈ `utility-green-600`.
+    brandClass: 'bg-utility-green-600 text-white hover:bg-utility-green-700',
+    Glyph: WhatsApp,
+  },
+  youtube: {
+    label: 'YouTube',
+    // YouTube's brand red (`#FF0000`) ≈ `utility-red-600`.
+    brandClass: 'bg-utility-red-600 text-white hover:bg-utility-red-700',
+    Glyph: YouTube,
   },
 };
 
