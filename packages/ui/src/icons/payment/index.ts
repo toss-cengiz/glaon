@@ -8,15 +8,15 @@
 // artwork.
 //
 // Phase scope:
-//   - **D.2.a (this) :** Card networks — Visa, MasterCard, AMEX,
-//                        Discover, JCB, UnionPay.
-//   - D.2.b (next)   :   Digital wallets — ApplePay, GooglePay,
-//                        SamsungPay, AmazonPay, PayPal, Venmo,
-//                        ShopPay, LinkPay.
-//   - D.2.c          :   BNPL — Affirm, Afterpay, Klarna, Sezzle,
-//                        Zip, Splitit.
-//   - D.2.d          :   Regional rails — Alipay, WeChat,
-//                        MercadoPago, iDEAL, Bancontact, Sofort, …
+//   - D.2.a (#377 ✓): Card networks — Visa, MasterCard, AMEX,
+//                     Discover, JCB, UnionPay.
+//   - D.2.b         : Digital wallets — ApplePay, GooglePay,
+//                     SamsungPay, AmazonPay, PayPal, Venmo,
+//                     ShopPay, LinkPay.
+//   - **D.2.c (this):** BNPL — Affirm, Afterpay, Klarna, Sezzle,
+//                       Zip, Splitit.
+//   - D.2.d         : Regional rails — Alipay, WeChat,
+//                     MercadoPago, iDEAL, Bancontact, Sofort, …
 //
 // Each glyph component accepts the narrow `PaymentIconProps`
 // (`className`, `aria-hidden` default true, `aria-label`). Payment
@@ -27,6 +27,12 @@
 
 import type { ComponentType } from 'react';
 
+import { Affirm } from './bnpl/Affirm';
+import { Afterpay } from './bnpl/Afterpay';
+import { Klarna } from './bnpl/Klarna';
+import { Sezzle } from './bnpl/Sezzle';
+import { Splitit } from './bnpl/Splitit';
+import { Zip } from './bnpl/Zip';
 import { Amex } from './networks/Amex';
 import { Discover } from './networks/Discover';
 import { Jcb } from './networks/Jcb';
@@ -39,7 +45,20 @@ import type { PaymentBrand, PaymentIconCatalogEntry, PaymentIconProps } from './
 // the package barrel via that primitive — re-exporting it here too
 // would collide. Consumers `import { type PaymentBrand } from '@glaon/ui'`.
 export type { PaymentIconCatalogEntry, PaymentIconProps } from './types';
-export { Amex, Discover, Jcb, Mastercard, UnionPay, Visa };
+export {
+  Affirm,
+  Afterpay,
+  Amex,
+  Discover,
+  Jcb,
+  Klarna,
+  Mastercard,
+  Sezzle,
+  Splitit,
+  UnionPay,
+  Visa,
+  Zip,
+};
 
 /**
  * Maps a `PaymentBrand` (the auto-detected card brand from
@@ -76,10 +95,18 @@ export function paymentIconForBrand(
  * Future phases (D.2.b–d) append.
  */
 export const paymentCatalog: readonly PaymentIconCatalogEntry[] = [
+  // --- D.2.a Networks ---
   { id: 'amex', label: 'American Express', category: 'networks', Icon: Amex },
   { id: 'discover', label: 'Discover', category: 'networks', Icon: Discover },
   { id: 'jcb', label: 'JCB', category: 'networks', Icon: Jcb },
   { id: 'mastercard', label: 'Mastercard', category: 'networks', Icon: Mastercard },
   { id: 'unionpay', label: 'UnionPay', category: 'networks', Icon: UnionPay },
   { id: 'visa', label: 'Visa', category: 'networks', Icon: Visa },
+  // --- D.2.c BNPL ---
+  { id: 'affirm', label: 'Affirm', category: 'bnpl', Icon: Affirm },
+  { id: 'afterpay', label: 'Afterpay', category: 'bnpl', Icon: Afterpay },
+  { id: 'klarna', label: 'Klarna', category: 'bnpl', Icon: Klarna },
+  { id: 'sezzle', label: 'Sezzle', category: 'bnpl', Icon: Sezzle },
+  { id: 'splitit', label: 'Splitit', category: 'bnpl', Icon: Splitit },
+  { id: 'zip', label: 'Zip', category: 'bnpl', Icon: Zip },
 ];
