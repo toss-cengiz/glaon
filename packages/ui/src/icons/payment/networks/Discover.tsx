@@ -1,6 +1,10 @@
 // Discover card-network glyph. Multi-color brand mark — ships
-// fixed brand fills (white surface + Discover orange wordmark
-// + the canonical orange circle) per Discover's brand-CTA spec.
+// fixed brand fills (white surface + Discover orange wordmark +
+// the canonical orange dot) per Discover's brand-CTA spec.
+// Uses a centred `<text>` wordmark with Discover's brand orange
+// accent dot replacing the `O`-as-globe in the official mark
+// (close enough for a 32×24 icon slot; full kit-art reproduces
+// the globe pictogram which doesn't read at this scale).
 
 import type { PaymentIconProps } from '../types';
 
@@ -12,11 +16,19 @@ export function Discover({
   return (
     <svg viewBox="0 0 32 24" fill="none" aria-hidden={ariaHidden} className={className} {...rest}>
       <rect width="32" height="24" rx="3" fill="#FFFFFF" stroke="#D1D5DB" strokeWidth="0.5" />
-      <path d="M0 16 L32 16 L32 21 a3 3 0 0 1 -3 3 L3 24 a3 3 0 0 1 -3 -3 Z" fill="#FF6000" />
-      <text x="6" y="14" fontSize="3" fontWeight="700" fill="#1F2937" fontFamily="system-ui">
+      <text
+        x="16"
+        y="14"
+        textAnchor="middle"
+        fontSize="3.6"
+        fontWeight="800"
+        fill="#1F2937"
+        fontFamily="system-ui, -apple-system, sans-serif"
+        letterSpacing="0.15"
+      >
         DISCOVER
       </text>
-      <circle cx="22" cy="12" r="2.6" fill="#FF6000" />
+      <circle cx="16" cy="18" r="1.8" fill="#FF6000" />
     </svg>
   );
 }
