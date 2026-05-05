@@ -45,6 +45,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.3
 
+  apps/dev-ha: {}
+
   apps/mobile:
     dependencies:
       '@glaon/core':
@@ -88,7 +90,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/config
       '@types/react':
-        specifier: ~19.2.0
+        specifier: 19.2.14
         version: 19.2.14
       typescript:
         specifier: ~5.7.2
@@ -125,10 +127,10 @@ importers:
         specifier: ^16.1.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@types/react':
-        specifier: ^19.2.0
+        specifier: 19.2.14
         version: 19.2.14
       '@types/react-dom':
-        specifier: ^19.2.0
+        specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.14)
       '@vitejs/plugin-react':
         specifier: 6.0.1
@@ -258,10 +260,10 @@ importers:
         specifier: ^16.1.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@types/react':
-        specifier: ^19.2.0
+        specifier: 19.2.14
         version: 19.2.14
       '@types/react-dom':
-        specifier: ^19.2.0
+        specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.14)
       '@vitejs/plugin-react':
         specifier: 6.0.1
@@ -288,13 +290,13 @@ importers:
         specifier: ^1.59.1
         version: 1.59.1
       react:
-        specifier: ^19.2.5
+        specifier: 19.2.5
         version: 19.2.5
       react-docgen-typescript:
         specifier: ^2.4.0
         version: 2.4.0(typescript@5.7.3)
       react-dom:
-        specifier: ^19.2.5
+        specifier: 19.2.5
         version: 19.2.5(react@19.2.5)
       react-native:
         specifier: ^0.85.2
@@ -6398,10 +6400,12 @@ packages:
 
   uuid@7.0.3:
     resolution: {integrity: sha512-DPSke0pXhTZgoF/d+WSt2QaKMCFSfx7QegxEWT+JOuHF5aWrKEn0G+ztjuJg/gG8/ItK+rbPCD/yNv8yyih6Cg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   valibot@1.2.0:
