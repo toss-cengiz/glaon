@@ -7,13 +7,13 @@
 // for per-extension artwork.
 //
 // Phase scope (from #370):
-//   - **D.4.a (this):** Document + Spreadsheet + Presentation —
+//   - D.4.a (shipped): Document + Spreadsheet + Presentation —
 //                       PDF, DOCX, DOC, PAGES, TXT, MD, RTF,
 //                       XLSX, XLS, NUMBERS, CSV, PPTX, KEY (13).
-//   - D.4.b (next)  :   Image + Audio + Video — PNG, JPG, GIF,
-//                       SVG, WEBP, HEIC, MP3, WAV, FLAC, AAC,
-//                       MP4, MOV, AVI, MKV, WEBM.
-//   - D.4.c         :   Archive + Code + Other — ZIP, RAR, TAR,
+//   - **D.4.b (this):** Image + Audio + Video — PNG, JPG, GIF,
+//                       SVG, WEBP, HEIC, RAW, MP3, WAV, FLAC, AAC,
+//                       MP4, MOV, AVI, MKV, WEBM (16).
+//   - D.4.c (next)  :   Archive + Code + Other — ZIP, RAR, TAR,
 //                       7z, JS, TS, JSON, YAML, XML, HTML, CSS,
 //                       PY, RB, GO, RS, DMG, EXE, APK.
 //
@@ -23,10 +23,14 @@
 // which renders a "file with corner fold" silhouette + a coloured
 // extension band — per-category palette keeps a directory listing
 // scannable at a glance (blue=document, green=spreadsheet,
-// orange=presentation, …).
+// orange=presentation, emerald=image, purple=audio, pink=video).
 
 import type { ComponentType } from 'react';
 
+import { AacFile } from './audio/AacFile';
+import { FlacFile } from './audio/FlacFile';
+import { Mp3File } from './audio/Mp3File';
+import { WavFile } from './audio/WavFile';
 import { DocFile } from './document/DocFile';
 import { DocxFile } from './document/DocxFile';
 import { MdFile } from './document/MdFile';
@@ -34,27 +38,55 @@ import { PagesFile } from './document/PagesFile';
 import { PdfFile } from './document/PdfFile';
 import { RtfFile } from './document/RtfFile';
 import { TxtFile } from './document/TxtFile';
+import { GifFile } from './image/GifFile';
+import { HeicFile } from './image/HeicFile';
+import { JpgFile } from './image/JpgFile';
+import { PngFile } from './image/PngFile';
+import { RawFile } from './image/RawFile';
+import { SvgFile } from './image/SvgFile';
+import { WebpFile } from './image/WebpFile';
 import { KeyFile } from './presentation/KeyFile';
 import { PptxFile } from './presentation/PptxFile';
 import { CsvFile } from './spreadsheet/CsvFile';
 import { NumbersFile } from './spreadsheet/NumbersFile';
 import { XlsFile } from './spreadsheet/XlsFile';
 import { XlsxFile } from './spreadsheet/XlsxFile';
+import { AviFile } from './video/AviFile';
+import { MkvFile } from './video/MkvFile';
+import { MovFile } from './video/MovFile';
+import { Mp4File } from './video/Mp4File';
+import { WebmFile } from './video/WebmFile';
 import type { FileTypeIconCatalogEntry, FileTypeIconProps } from './types';
 
 export type { FileTypeCategory, FileTypeIconCatalogEntry, FileTypeIconProps } from './types';
 export {
+  AacFile,
+  AviFile,
   CsvFile,
   DocFile,
   DocxFile,
+  FlacFile,
+  GifFile,
+  HeicFile,
+  JpgFile,
   KeyFile,
   MdFile,
+  MkvFile,
+  MovFile,
+  Mp3File,
+  Mp4File,
   NumbersFile,
   PagesFile,
   PdfFile,
+  PngFile,
   PptxFile,
+  RawFile,
   RtfFile,
+  SvgFile,
   TxtFile,
+  WavFile,
+  WebmFile,
+  WebpFile,
   XlsFile,
   XlsxFile,
 };
@@ -105,6 +137,49 @@ export function fileTypeIconForExtension(
     case 'key':
     case 'keynote':
       return KeyFile;
+    // Image
+    case 'png':
+      return PngFile;
+    case 'jpg':
+    case 'jpeg':
+      return JpgFile;
+    case 'gif':
+      return GifFile;
+    case 'svg':
+      return SvgFile;
+    case 'webp':
+      return WebpFile;
+    case 'heic':
+    case 'heif':
+      return HeicFile;
+    case 'raw':
+    case 'cr2':
+    case 'nef':
+    case 'arw':
+    case 'dng':
+      return RawFile;
+    // Audio
+    case 'mp3':
+      return Mp3File;
+    case 'wav':
+      return WavFile;
+    case 'flac':
+      return FlacFile;
+    case 'aac':
+    case 'm4a':
+      return AacFile;
+    // Video
+    case 'mp4':
+    case 'm4v':
+      return Mp4File;
+    case 'mov':
+      return MovFile;
+    case 'avi':
+      return AviFile;
+    case 'mkv':
+      return MkvFile;
+    case 'webm':
+      return WebmFile;
     default:
       return undefined;
   }
@@ -114,7 +189,7 @@ export function fileTypeIconForExtension(
  * Searchable catalog used by the `Foundations / File Type Icons`
  * Storybook docs page. Order is alphabetical within each category
  * so the rendered grid stays predictable for snapshot tests.
- * Future phases (D.4.b–c) append.
+ * Future phases (D.4.c) append.
  */
 export const fileTypeCatalog: readonly FileTypeIconCatalogEntry[] = [
   // --- D.4.a Document ---
@@ -133,4 +208,23 @@ export const fileTypeCatalog: readonly FileTypeIconCatalogEntry[] = [
   // --- D.4.a Presentation ---
   { id: 'key', label: 'Keynote', category: 'presentation', Icon: KeyFile },
   { id: 'pptx', label: 'PPTX', category: 'presentation', Icon: PptxFile },
+  // --- D.4.b Image ---
+  { id: 'gif', label: 'GIF', category: 'image', Icon: GifFile },
+  { id: 'heic', label: 'HEIC', category: 'image', Icon: HeicFile },
+  { id: 'jpg', label: 'JPG', category: 'image', Icon: JpgFile },
+  { id: 'png', label: 'PNG', category: 'image', Icon: PngFile },
+  { id: 'raw', label: 'RAW', category: 'image', Icon: RawFile },
+  { id: 'svg', label: 'SVG', category: 'image', Icon: SvgFile },
+  { id: 'webp', label: 'WEBP', category: 'image', Icon: WebpFile },
+  // --- D.4.b Audio ---
+  { id: 'aac', label: 'AAC', category: 'audio', Icon: AacFile },
+  { id: 'flac', label: 'FLAC', category: 'audio', Icon: FlacFile },
+  { id: 'mp3', label: 'MP3', category: 'audio', Icon: Mp3File },
+  { id: 'wav', label: 'WAV', category: 'audio', Icon: WavFile },
+  // --- D.4.b Video ---
+  { id: 'avi', label: 'AVI', category: 'video', Icon: AviFile },
+  { id: 'mkv', label: 'MKV', category: 'video', Icon: MkvFile },
+  { id: 'mov', label: 'MOV', category: 'video', Icon: MovFile },
+  { id: 'mp4', label: 'MP4', category: 'video', Icon: Mp4File },
+  { id: 'webm', label: 'WEBM', category: 'video', Icon: WebmFile },
 ];
