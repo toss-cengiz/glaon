@@ -40,4 +40,5 @@ export * from './components/VerificationCodeInput';
 export * from './icons/brand';
 export * from './icons/emoji';
 export * from './icons/integration';
+export * from './icons/payment';
 export * from './theme';
