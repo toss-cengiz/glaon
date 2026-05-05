@@ -8,15 +8,15 @@
 // artwork.
 //
 // Phase scope:
-//   - **D.2.a (this) :** Card networks — Visa, MasterCard, AMEX,
-//                        Discover, JCB, UnionPay.
-//   - D.2.b (next)   :   Digital wallets — ApplePay, GooglePay,
-//                        SamsungPay, AmazonPay, PayPal, Venmo,
-//                        ShopPay, LinkPay.
-//   - D.2.c          :   BNPL — Affirm, Afterpay, Klarna, Sezzle,
-//                        Zip, Splitit.
-//   - D.2.d          :   Regional rails — Alipay, WeChat,
-//                        MercadoPago, iDEAL, Bancontact, Sofort, …
+//   - D.2.a (#377 ✓): Card networks — Visa, MasterCard, AMEX,
+//                     Discover, JCB, UnionPay.
+//   - **D.2.b (this):** Digital wallets — ApplePay, GooglePay,
+//                       SamsungPay, AmazonPay, PayPal, Venmo,
+//                       ShopPay, LinkPay.
+//   - D.2.c (next)  :   BNPL — Affirm, Afterpay, Klarna, Sezzle,
+//                       Zip, Splitit.
+//   - D.2.d         :   Regional rails — Alipay, WeChat,
+//                       MercadoPago, iDEAL, Bancontact, Sofort, …
 //
 // Each glyph component accepts the narrow `PaymentIconProps`
 // (`className`, `aria-hidden` default true, `aria-label`). Payment
@@ -33,13 +33,36 @@ import { Jcb } from './networks/Jcb';
 import { Mastercard } from './networks/Mastercard';
 import { UnionPay } from './networks/UnionPay';
 import { Visa } from './networks/Visa';
+import { AmazonPay } from './wallets/AmazonPay';
+import { ApplePay } from './wallets/ApplePay';
+import { GooglePay } from './wallets/GooglePay';
+import { LinkPay } from './wallets/LinkPay';
+import { PayPal } from './wallets/PayPal';
+import { SamsungPay } from './wallets/SamsungPay';
+import { ShopPay } from './wallets/ShopPay';
+import { Venmo } from './wallets/Venmo';
 import type { PaymentBrand, PaymentIconCatalogEntry, PaymentIconProps } from './types';
 
 // `PaymentBrand` is owned by `<Input>` (#313) and re-exported from
 // the package barrel via that primitive — re-exporting it here too
 // would collide. Consumers `import { type PaymentBrand } from '@glaon/ui'`.
 export type { PaymentIconCatalogEntry, PaymentIconProps } from './types';
-export { Amex, Discover, Jcb, Mastercard, UnionPay, Visa };
+export {
+  AmazonPay,
+  Amex,
+  ApplePay,
+  Discover,
+  GooglePay,
+  Jcb,
+  LinkPay,
+  Mastercard,
+  PayPal,
+  SamsungPay,
+  ShopPay,
+  UnionPay,
+  Venmo,
+  Visa,
+};
 
 /**
  * Maps a `PaymentBrand` (the auto-detected card brand from
@@ -76,10 +99,20 @@ export function paymentIconForBrand(
  * Future phases (D.2.b–d) append.
  */
 export const paymentCatalog: readonly PaymentIconCatalogEntry[] = [
+  // --- D.2.a Networks ---
   { id: 'amex', label: 'American Express', category: 'networks', Icon: Amex },
   { id: 'discover', label: 'Discover', category: 'networks', Icon: Discover },
   { id: 'jcb', label: 'JCB', category: 'networks', Icon: Jcb },
   { id: 'mastercard', label: 'Mastercard', category: 'networks', Icon: Mastercard },
   { id: 'unionpay', label: 'UnionPay', category: 'networks', Icon: UnionPay },
   { id: 'visa', label: 'Visa', category: 'networks', Icon: Visa },
+  // --- D.2.b Wallets ---
+  { id: 'amazon-pay', label: 'Amazon Pay', category: 'wallets', Icon: AmazonPay },
+  { id: 'apple-pay', label: 'Apple Pay', category: 'wallets', Icon: ApplePay },
+  { id: 'google-pay', label: 'Google Pay', category: 'wallets', Icon: GooglePay },
+  { id: 'link-pay', label: 'Link', category: 'wallets', Icon: LinkPay },
+  { id: 'paypal', label: 'PayPal', category: 'wallets', Icon: PayPal },
+  { id: 'samsung-pay', label: 'Samsung Pay', category: 'wallets', Icon: SamsungPay },
+  { id: 'shop-pay', label: 'Shop Pay', category: 'wallets', Icon: ShopPay },
+  { id: 'venmo', label: 'Venmo', category: 'wallets', Icon: Venmo },
 ];
