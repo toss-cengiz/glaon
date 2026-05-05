@@ -10,6 +10,7 @@
 // Phase scope:
 //   - D.2.a (#377 ✓): Card networks — Visa, MasterCard, AMEX,
 //                     Discover, JCB, UnionPay.
+
 //   - D.2.b (#381 ✓): Digital wallets — ApplePay, GooglePay,
 //                     SamsungPay, AmazonPay, PayPal, Venmo,
 //                     ShopPay, LinkPay.
@@ -27,6 +28,12 @@
 
 import type { ComponentType } from 'react';
 
+import { Affirm } from './bnpl/Affirm';
+import { Afterpay } from './bnpl/Afterpay';
+import { Klarna } from './bnpl/Klarna';
+import { Sezzle } from './bnpl/Sezzle';
+import { Splitit } from './bnpl/Splitit';
+import { Zip } from './bnpl/Zip';
 import { Amex } from './networks/Amex';
 import { Discover } from './networks/Discover';
 import { Jcb } from './networks/Jcb';
@@ -73,7 +80,7 @@ export {
   UnionPay,
   Venmo,
   Visa,
-  WeChatPay,
+  WeChatPay
 };
 
 /**
@@ -118,6 +125,13 @@ export const paymentCatalog: readonly PaymentIconCatalogEntry[] = [
   { id: 'mastercard', label: 'Mastercard', category: 'networks', Icon: Mastercard },
   { id: 'unionpay', label: 'UnionPay', category: 'networks', Icon: UnionPay },
   { id: 'visa', label: 'Visa', category: 'networks', Icon: Visa },
+  // --- D.2.c BNPL ---
+  { id: 'affirm', label: 'Affirm', category: 'bnpl', Icon: Affirm },
+  { id: 'afterpay', label: 'Afterpay', category: 'bnpl', Icon: Afterpay },
+  { id: 'klarna', label: 'Klarna', category: 'bnpl', Icon: Klarna },
+  { id: 'sezzle', label: 'Sezzle', category: 'bnpl', Icon: Sezzle },
+  { id: 'splitit', label: 'Splitit', category: 'bnpl', Icon: Splitit },
+  { id: 'zip', label: 'Zip', category: 'bnpl', Icon: Zip },
   // --- D.2.b Wallets ---
   { id: 'amazon-pay', label: 'Amazon Pay', category: 'wallets', Icon: AmazonPay },
   { id: 'apple-pay', label: 'Apple Pay', category: 'wallets', Icon: ApplePay },
