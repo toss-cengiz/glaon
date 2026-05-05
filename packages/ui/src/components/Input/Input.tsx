@@ -22,6 +22,8 @@
 // need it.
 
 import { CreditCard02 } from '@untitledui/icons';
+
+import { paymentIconForBrand } from '../../icons/payment';
 import type {
   ChangeEventHandler,
   ClipboardEventHandler,
@@ -488,17 +490,18 @@ function PaymentInputVariant(props: InputProps) {
     [brand, isControlled, onChange],
   );
 
-  // V1 ships a single neutral credit-card glyph for every brand —
-  // visa / mastercard / amex / discover SVGs land in the BrandIcon
-  // registry (#309) and the variant will swap to per-brand artwork
-  // once that's merged. The inline glyph stays decorative
-  // (`aria-hidden`) until per-brand artwork lands; axe's
-  // `aria-prohibited-attr` rejects `aria-label` on a plain `<span>`
-  // without a role, so the detected brand surfaces only via the
-  // `onPaymentBrandDetected` callback for now.
+  // The leading glyph swaps to per-brand artwork via the payment
+  // registry's `paymentIconForBrand` helper (#368 D.2.a). When the
+  // detected brand is `unknown` the helper returns `undefined` and
+  // we fall back to the kit's neutral `CreditCard02`.
+  const BrandGlyph = paymentIconForBrand(brand);
   const leading = (
     <span aria-hidden="true" className="flex items-center pl-3 text-fg-quaternary">
-      <CreditCard02 className="size-5" />
+      {BrandGlyph !== undefined ? (
+        <BrandGlyph className="h-5" />
+      ) : (
+        <CreditCard02 className="size-5" />
+      )}
     </span>
   );
 
