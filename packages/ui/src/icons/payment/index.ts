@@ -10,13 +10,13 @@
 // Phase scope:
 //   - D.2.a (#377 ✓): Card networks — Visa, MasterCard, AMEX,
 //                     Discover, JCB, UnionPay.
-//   - **D.2.b (this):** Digital wallets — ApplePay, GooglePay,
-//                       SamsungPay, AmazonPay, PayPal, Venmo,
-//                       ShopPay, LinkPay.
-//   - D.2.c (next)  :   BNPL — Affirm, Afterpay, Klarna, Sezzle,
-//                       Zip, Splitit.
-//   - D.2.d         :   Regional rails — Alipay, WeChat,
-//                       MercadoPago, iDEAL, Bancontact, Sofort, …
+//   - D.2.b (#381 ✓): Digital wallets — ApplePay, GooglePay,
+//                     SamsungPay, AmazonPay, PayPal, Venmo,
+//                     ShopPay, LinkPay.
+//   - D.2.c (#384 ⏳): BNPL — Affirm, Afterpay, Klarna, Sezzle,
+//                     Zip, Splitit.
+//   - **D.2.d (this):** Regional rails — Alipay, WeChat Pay,
+//                       MercadoPago, iDEAL, Bancontact, SOFORT.
 //
 // Each glyph component accepts the narrow `PaymentIconProps`
 // (`className`, `aria-hidden` default true, `aria-label`). Payment
@@ -33,6 +33,12 @@ import { Jcb } from './networks/Jcb';
 import { Mastercard } from './networks/Mastercard';
 import { UnionPay } from './networks/UnionPay';
 import { Visa } from './networks/Visa';
+import { Alipay } from './regional/Alipay';
+import { Bancontact } from './regional/Bancontact';
+import { Ideal } from './regional/Ideal';
+import { MercadoPago } from './regional/MercadoPago';
+import { Sofort } from './regional/Sofort';
+import { WeChatPay } from './regional/WeChatPay';
 import { AmazonPay } from './wallets/AmazonPay';
 import { ApplePay } from './wallets/ApplePay';
 import { GooglePay } from './wallets/GooglePay';
@@ -48,20 +54,26 @@ import type { PaymentBrand, PaymentIconCatalogEntry, PaymentIconProps } from './
 // would collide. Consumers `import { type PaymentBrand } from '@glaon/ui'`.
 export type { PaymentIconCatalogEntry, PaymentIconProps } from './types';
 export {
+  Alipay,
   AmazonPay,
   Amex,
   ApplePay,
+  Bancontact,
   Discover,
   GooglePay,
+  Ideal,
   Jcb,
   LinkPay,
   Mastercard,
+  MercadoPago,
   PayPal,
   SamsungPay,
   ShopPay,
+  Sofort,
   UnionPay,
   Venmo,
   Visa,
+  WeChatPay,
 };
 
 /**
@@ -115,4 +127,11 @@ export const paymentCatalog: readonly PaymentIconCatalogEntry[] = [
   { id: 'samsung-pay', label: 'Samsung Pay', category: 'wallets', Icon: SamsungPay },
   { id: 'shop-pay', label: 'Shop Pay', category: 'wallets', Icon: ShopPay },
   { id: 'venmo', label: 'Venmo', category: 'wallets', Icon: Venmo },
+  // --- D.2.d Regional rails ---
+  { id: 'alipay', label: 'Alipay', category: 'regional', Icon: Alipay },
+  { id: 'bancontact', label: 'Bancontact', category: 'regional', Icon: Bancontact },
+  { id: 'ideal', label: 'iDEAL', category: 'regional', Icon: Ideal },
+  { id: 'mercado-pago', label: 'Mercado Pago', category: 'regional', Icon: MercadoPago },
+  { id: 'sofort', label: 'SOFORT', category: 'regional', Icon: Sofort },
+  { id: 'wechat-pay', label: 'WeChat Pay', category: 'regional', Icon: WeChatPay },
 ];
