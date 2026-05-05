@@ -10,12 +10,12 @@
 //   - D.4.a (shipped): Document + Spreadsheet + Presentation —
 //                       PDF, DOCX, DOC, PAGES, TXT, MD, RTF,
 //                       XLSX, XLS, NUMBERS, CSV, PPTX, KEY (13).
-//   - **D.4.b (this):** Image + Audio + Video — PNG, JPG, GIF,
+//   - D.4.b (shipped): Image + Audio + Video — PNG, JPG, GIF,
 //                       SVG, WEBP, HEIC, RAW, MP3, WAV, FLAC, AAC,
 //                       MP4, MOV, AVI, MKV, WEBM (16).
-//   - D.4.c (next)  :   Archive + Code + Other — ZIP, RAR, TAR,
+//   - **D.4.c (this):** Archive + Code + Other — ZIP, RAR, TAR,
 //                       7z, JS, TS, JSON, YAML, XML, HTML, CSS,
-//                       PY, RB, GO, RS, DMG, EXE, APK.
+//                       PY, RB, GO, RS, DMG, EXE, APK (18).
 //
 // Each glyph component accepts the narrow `FileTypeIconProps`
 // (`className`, `aria-hidden` default true, `aria-label`). All
@@ -23,14 +23,30 @@
 // which renders a "file with corner fold" silhouette + a coloured
 // extension band — per-category palette keeps a directory listing
 // scannable at a glance (blue=document, green=spreadsheet,
-// orange=presentation, emerald=image, purple=audio, pink=video).
+// orange=presentation, emerald=image, purple=audio, pink=video,
+// red=archive, sky=code, gray=other).
 
 import type { ComponentType } from 'react';
 
+import { RarFile } from './archive/RarFile';
+import { SevenZipFile } from './archive/SevenZipFile';
+import { TarFile } from './archive/TarFile';
+import { ZipFile } from './archive/ZipFile';
 import { AacFile } from './audio/AacFile';
 import { FlacFile } from './audio/FlacFile';
 import { Mp3File } from './audio/Mp3File';
 import { WavFile } from './audio/WavFile';
+import { CssFile } from './code/CssFile';
+import { GoFile } from './code/GoFile';
+import { HtmlFile } from './code/HtmlFile';
+import { JsFile } from './code/JsFile';
+import { JsonFile } from './code/JsonFile';
+import { PyFile } from './code/PyFile';
+import { RbFile } from './code/RbFile';
+import { RsFile } from './code/RsFile';
+import { TsFile } from './code/TsFile';
+import { XmlFile } from './code/XmlFile';
+import { YamlFile } from './code/YamlFile';
 import { DocFile } from './document/DocFile';
 import { DocxFile } from './document/DocxFile';
 import { MdFile } from './document/MdFile';
@@ -45,6 +61,9 @@ import { PngFile } from './image/PngFile';
 import { RawFile } from './image/RawFile';
 import { SvgFile } from './image/SvgFile';
 import { WebpFile } from './image/WebpFile';
+import { ApkFile } from './other/ApkFile';
+import { DmgFile } from './other/DmgFile';
+import { ExeFile } from './other/ExeFile';
 import { KeyFile } from './presentation/KeyFile';
 import { PptxFile } from './presentation/PptxFile';
 import { CsvFile } from './spreadsheet/CsvFile';
@@ -61,14 +80,22 @@ import type { FileTypeIconCatalogEntry, FileTypeIconProps } from './types';
 export type { FileTypeCategory, FileTypeIconCatalogEntry, FileTypeIconProps } from './types';
 export {
   AacFile,
+  ApkFile,
   AviFile,
+  CssFile,
   CsvFile,
+  DmgFile,
   DocFile,
   DocxFile,
+  ExeFile,
   FlacFile,
   GifFile,
+  GoFile,
   HeicFile,
+  HtmlFile,
   JpgFile,
+  JsFile,
+  JsonFile,
   KeyFile,
   MdFile,
   MkvFile,
@@ -80,15 +107,25 @@ export {
   PdfFile,
   PngFile,
   PptxFile,
+  PyFile,
+  RarFile,
   RawFile,
+  RbFile,
+  RsFile,
   RtfFile,
+  SevenZipFile,
   SvgFile,
+  TarFile,
+  TsFile,
   TxtFile,
   WavFile,
   WebmFile,
   WebpFile,
   XlsFile,
   XlsxFile,
+  XmlFile,
+  YamlFile,
+  ZipFile,
 };
 
 /**
@@ -180,6 +217,54 @@ export function fileTypeIconForExtension(
       return MkvFile;
     case 'webm':
       return WebmFile;
+    // Archive
+    case 'zip':
+      return ZipFile;
+    case 'rar':
+      return RarFile;
+    case 'tar':
+    case 'tgz':
+    case 'gz':
+      return TarFile;
+    case '7z':
+      return SevenZipFile;
+    // Code
+    case 'js':
+    case 'mjs':
+    case 'cjs':
+    case 'jsx':
+      return JsFile;
+    case 'ts':
+    case 'tsx':
+      return TsFile;
+    case 'json':
+      return JsonFile;
+    case 'yaml':
+    case 'yml':
+      return YamlFile;
+    case 'xml':
+      return XmlFile;
+    case 'html':
+    case 'htm':
+      return HtmlFile;
+    case 'css':
+      return CssFile;
+    case 'py':
+      return PyFile;
+    case 'rb':
+      return RbFile;
+    case 'go':
+      return GoFile;
+    case 'rs':
+      return RsFile;
+    // Other
+    case 'dmg':
+      return DmgFile;
+    case 'exe':
+    case 'msi':
+      return ExeFile;
+    case 'apk':
+      return ApkFile;
     default:
       return undefined;
   }
@@ -189,7 +274,8 @@ export function fileTypeIconForExtension(
  * Searchable catalog used by the `Foundations / File Type Icons`
  * Storybook docs page. Order is alphabetical within each category
  * so the rendered grid stays predictable for snapshot tests.
- * Future phases (D.4.c) append.
+ * Phase D.4 ships all categories; new aliases land in the helper
+ * switch above without changing the catalog.
  */
 export const fileTypeCatalog: readonly FileTypeIconCatalogEntry[] = [
   // --- D.4.a Document ---
@@ -227,4 +313,25 @@ export const fileTypeCatalog: readonly FileTypeIconCatalogEntry[] = [
   { id: 'mov', label: 'MOV', category: 'video', Icon: MovFile },
   { id: 'mp4', label: 'MP4', category: 'video', Icon: Mp4File },
   { id: 'webm', label: 'WEBM', category: 'video', Icon: WebmFile },
+  // --- D.4.c Archive ---
+  { id: '7z', label: '7z', category: 'archive', Icon: SevenZipFile },
+  { id: 'rar', label: 'RAR', category: 'archive', Icon: RarFile },
+  { id: 'tar', label: 'TAR', category: 'archive', Icon: TarFile },
+  { id: 'zip', label: 'ZIP', category: 'archive', Icon: ZipFile },
+  // --- D.4.c Code ---
+  { id: 'css', label: 'CSS', category: 'code', Icon: CssFile },
+  { id: 'go', label: 'Go', category: 'code', Icon: GoFile },
+  { id: 'html', label: 'HTML', category: 'code', Icon: HtmlFile },
+  { id: 'js', label: 'JS', category: 'code', Icon: JsFile },
+  { id: 'json', label: 'JSON', category: 'code', Icon: JsonFile },
+  { id: 'py', label: 'Python', category: 'code', Icon: PyFile },
+  { id: 'rb', label: 'Ruby', category: 'code', Icon: RbFile },
+  { id: 'rs', label: 'Rust', category: 'code', Icon: RsFile },
+  { id: 'ts', label: 'TS', category: 'code', Icon: TsFile },
+  { id: 'xml', label: 'XML', category: 'code', Icon: XmlFile },
+  { id: 'yaml', label: 'YAML', category: 'code', Icon: YamlFile },
+  // --- D.4.c Other ---
+  { id: 'apk', label: 'APK', category: 'other', Icon: ApkFile },
+  { id: 'dmg', label: 'DMG', category: 'other', Icon: DmgFile },
+  { id: 'exe', label: 'EXE', category: 'other', Icon: ExeFile },
 ];

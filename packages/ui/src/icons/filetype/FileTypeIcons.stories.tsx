@@ -119,7 +119,9 @@ function CatalogGrid({ search, category }: { search: string; category: CategoryF
 function componentName(id: string): string {
   // ids are bare file extensions; component names are PascalCase
   // with `File` suffix (e.g. `pdf` → `PdfFile`, `numbers` →
-  // `NumbersFile`).
+  // `NumbersFile`). Identifiers can't begin with a digit, so the
+  // 7z archive ships as `SevenZipFile`.
+  if (id === '7z') return 'SevenZipFile';
   const head = id.charAt(0);
   const titleCase = head.length > 0 ? head.toUpperCase() + id.slice(1) : '';
   return `${titleCase}File`;
