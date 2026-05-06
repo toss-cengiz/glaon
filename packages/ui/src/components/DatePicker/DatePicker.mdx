@@ -1,0 +1,97 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as DatePickerStories from './DatePicker.stories';
+
+<Meta of={DatePickerStories} />
+
+# DatePicker
+
+Single-date picker — a calendar-icon button that opens an anchored
+popover containing the inline `Calendar`. Built on react-aria-
+components' `<DatePicker>` + `<Calendar>` chain via the Untitled UI
+kit; locale-aware formatting flows through `@internationalized/date`
+and `useDateFormatter`.
+
+## When to use
+
+- Form fields that capture a single calendar date (start date, due
+  date, birthday).
+- Filter row triggers anchored to a button (analytics dashboards,
+  log range pickers).
+- Settings panels that store a single date preference.
+
+## When NOT to use
+
+- **Date range** → use [DateRangePicker](?path=/docs/web-primitives-daterangepicker--docs); it bundles a two-month calendar and presets.
+- **Inline calendar without a trigger** → use [Calendar](?path=/docs/web-primitives-calendar--docs).
+- **Free-text date entry without a calendar UI** → use [Input](?path=/docs/web-primitives-input--docs) with a date format mask.
+
+## Anatomy
+
+<Canvas of={DatePickerStories.Default} />
+
+A `<Button>` trigger pre-decorated with the kit calendar icon, plus
+a `<Popover>` anchored beneath it that wraps the inline `Calendar`
+and the Apply / Cancel CTAs.
+
+```tsx
+import { DatePicker } from '@glaon/ui';
+import { today, getLocalTimeZone } from '@internationalized/date';
+
+<DatePicker
+  defaultValue={today(getLocalTimeZone())}
+  onApply={() => commit()}
+  onCancel={() => discard()}
+/>;
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Locale and formatting
+
+Date formatting (the trigger label, the calendar grid headings, the
+month/year title) flows through React Aria's `useDateFormatter`,
+which respects the active `<I18nProvider>` locale. The kit uses
+`{ month: 'short', day: 'numeric', year: 'numeric' }` for the
+trigger label — override at the application root with a custom
+`I18nProvider` if a different format is required.
+
+## Constraints
+
+- `minValue` / `maxValue` cap the selectable range; days outside
+  the bounds render disabled.
+- `isDateUnavailable: (date) => boolean` blocks specific calendar
+  cells (blackout days, exclusion windows). Both stack — a date is
+  available only when it satisfies all three.
+- `isReadOnly` keeps the trigger focusable and the calendar grid
+  visible but suppresses selection — pair with a value-display
+  layout where the date is shown for review only.
+
+## Accessibility
+
+- The kit forwards `role="application"` + `aria-label="Date picker"`
+  on the dialog so screen readers announce the popover purpose.
+  Override with `aria-label` / `aria-labelledby` when embedded in a
+  surrounding form-row label.
+- Keyboard contract (RAC):
+  - Trigger: Space / Enter opens the popover.
+  - Calendar grid: arrow keys move focus between days; PageUp /
+    PageDown jump months; Home / End jump to the start / end of
+    the row; Enter selects the focused day.
+  - Apply / Cancel: Tab cycles between them; Escape closes the
+    popover (alias for Cancel).
+- `isInvalid` re-styles the trigger AND wires `aria-invalid="true"`
+  so screen readers announce the error. Pair with a sibling error
+  message in the surrounding form-row.
+
+## Related components
+
+- [DateRangePicker](?path=/docs/web-primitives-daterangepicker--docs) — start + end date with a two-month calendar and preset buttons.
+- [Calendar](?path=/docs/web-primitives-calendar--docs) — inline calendar without a trigger.
+- [Input](?path=/docs/web-primitives-input--docs) — free-form text capture; pair with a date format mask if calendar UI isn't appropriate.
