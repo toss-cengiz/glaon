@@ -131,7 +131,10 @@ export const CardWithTrailing: Story = {
           label="Pro"
           description="$30 / month"
           trailing={
-            <span className="rounded-full bg-brand-primary px-2 py-0.5 text-xs font-semibold text-white">
+            // `bg-brand-solid` is the opaque dark-brand chip surface;
+            // `bg-brand-primary` is a tinted/light token that fails axe
+            // `color-contrast` against `text-white` (1.92:1).
+            <span className="rounded-full bg-brand-solid px-2 py-0.5 text-xs font-semibold text-white">
               Popular
             </span>
           }
