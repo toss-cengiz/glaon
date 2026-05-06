@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
+import { AlertTriangle, CheckCircle, InfoCircle, Trash01, Zap } from '@untitledui/icons';
 
 import { defineControls } from '../_internal/controls';
 import { Button } from '../Button';
@@ -51,8 +52,8 @@ export const excludeFromArgs = modalExcludeFromArgs;
 
 const SampleHeader = () => (
   <>
-    <h2 className="text-lg font-semibold text-primary">Confirm action</h2>
-    <p className="text-sm text-tertiary">This will permanently apply the change.</p>
+    <Modal.Title>Confirm action</Modal.Title>
+    <Modal.Description>This will permanently apply the change.</Modal.Description>
   </>
 );
 
@@ -303,8 +304,8 @@ export const Confirmation: Story = {
       </Modal.Trigger>
       <Modal.Content size="sm">
         <Modal.Header>
-          <h2 className="text-lg font-semibold text-primary">Delete project?</h2>
-          <p className="text-sm text-tertiary">This action cannot be undone.</p>
+          <Modal.Title>Delete project?</Modal.Title>
+          <Modal.Description>This action cannot be undone.</Modal.Description>
         </Modal.Header>
         <Modal.Footer>
           <Button color="secondary" size="sm">
@@ -312,6 +313,307 @@ export const Confirmation: Story = {
           </Button>
           <Button color="primary-destructive" size="sm">
             Delete
+          </Button>
+        </Modal.Footer>
+      </Modal.Content>
+    </Modal>
+  ),
+};
+
+export const SizeXl: Story = {
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Trigger>
+        <Button color="secondary" size="sm">
+          Extra large
+        </Button>
+      </Modal.Trigger>
+      <Modal.Content size="xl">
+        <Modal.Header>
+          <Modal.Title>Extra-large modal</Modal.Title>
+          <Modal.Description>
+            Wider than `lg`; useful for split panes or rich previews.
+          </Modal.Description>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="text-sm text-secondary">
+            Use sparingly — desktop only flows where the content genuinely benefits from extra
+            horizontal real estate.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button color="primary" size="sm">
+            OK
+          </Button>
+        </Modal.Footer>
+      </Modal.Content>
+    </Modal>
+  ),
+};
+
+// ─── New sub-component stories ───────────────────────────────────────────
+//
+// Modal.CloseButton renders an X affordance in the top-right corner
+// using RAC `slot="close"` so the dialog closes via the click-target
+// without consumer wiring. Modal.FeaturedIcon renders a colored chip
+// above the title for intent-themed dialogs (success / warning /
+// error / info / brand). Pair them with Modal.Title +
+// Modal.Description so RAC's `aria-labelledby` /
+// `aria-describedby` slots wire up automatically.
+
+export const WithCloseButton: Story = {
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Trigger>
+        <Button color="secondary" size="sm">
+          Open with X
+        </Button>
+      </Modal.Trigger>
+      <Modal.Content>
+        <Modal.CloseButton />
+        <Modal.Header>
+          <Modal.Title>Settings updated</Modal.Title>
+          <Modal.Description>
+            Your preferences were saved. Close the dialog when you&apos;re done reviewing.
+          </Modal.Description>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="text-sm text-secondary">
+            The X in the top-right closes via RAC&apos;s &ldquo;slot=close&rdquo; contract — no
+            onPress wiring required.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button color="primary" size="sm">
+            Got it
+          </Button>
+        </Modal.Footer>
+      </Modal.Content>
+    </Modal>
+  ),
+};
+
+export const WithFeaturedIconBrand: Story = {
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Trigger>
+        <Button color="primary" size="sm">
+          Upgrade plan
+        </Button>
+      </Modal.Trigger>
+      <Modal.Content>
+        <Modal.CloseButton />
+        <Modal.Header>
+          <Modal.FeaturedIcon icon={Zap} color="brand" theme="light" />
+          <Modal.Title>Upgrade to Pro</Modal.Title>
+          <Modal.Description>
+            Unlock priority support, advanced analytics, and unlimited integrations.
+          </Modal.Description>
+        </Modal.Header>
+        <Modal.Footer>
+          <Button color="secondary" size="sm">
+            Maybe later
+          </Button>
+          <Button color="primary" size="sm">
+            Upgrade
+          </Button>
+        </Modal.Footer>
+      </Modal.Content>
+    </Modal>
+  ),
+};
+
+export const IntentSuccess: Story = {
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Trigger>
+        <Button color="secondary" size="sm">
+          Show success
+        </Button>
+      </Modal.Trigger>
+      <Modal.Content size="sm">
+        <Modal.Header>
+          <Modal.FeaturedIcon icon={CheckCircle} color="success" theme="light" />
+          <Modal.Title>Payment received</Modal.Title>
+          <Modal.Description>
+            Your invoice has been settled and a receipt was sent to your email.
+          </Modal.Description>
+        </Modal.Header>
+        <Modal.Footer align="center">
+          <Button color="primary" size="sm">
+            Done
+          </Button>
+        </Modal.Footer>
+      </Modal.Content>
+    </Modal>
+  ),
+};
+
+export const IntentWarning: Story = {
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Trigger>
+        <Button color="secondary" size="sm">
+          Show warning
+        </Button>
+      </Modal.Trigger>
+      <Modal.Content size="sm">
+        <Modal.Header>
+          <Modal.FeaturedIcon icon={AlertTriangle} color="warning" theme="light" />
+          <Modal.Title>Unsaved changes</Modal.Title>
+          <Modal.Description>
+            Leaving now will discard the changes you made to this device profile.
+          </Modal.Description>
+        </Modal.Header>
+        <Modal.Footer>
+          <Button color="secondary" size="sm">
+            Stay
+          </Button>
+          <Button color="primary" size="sm">
+            Discard
+          </Button>
+        </Modal.Footer>
+      </Modal.Content>
+    </Modal>
+  ),
+};
+
+export const IntentError: Story = {
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Trigger>
+        <Button color="primary-destructive" size="sm">
+          Delete project
+        </Button>
+      </Modal.Trigger>
+      <Modal.Content size="sm">
+        <Modal.Header>
+          <Modal.FeaturedIcon icon={Trash01} color="error" theme="light" />
+          <Modal.Title>Delete project?</Modal.Title>
+          <Modal.Description>
+            This action cannot be undone. All devices and automations under this project will be
+            removed.
+          </Modal.Description>
+        </Modal.Header>
+        <Modal.Footer>
+          <Button color="secondary" size="sm">
+            Cancel
+          </Button>
+          <Button color="primary-destructive" size="sm">
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal.Content>
+    </Modal>
+  ),
+};
+
+export const IntentInfo: Story = {
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Trigger>
+        <Button color="secondary" size="sm">
+          Show info
+        </Button>
+      </Modal.Trigger>
+      <Modal.Content size="sm">
+        <Modal.Header>
+          <Modal.FeaturedIcon icon={InfoCircle} color="brand" theme="modern" />
+          <Modal.Title>What&apos;s new in Glaon 1.4</Modal.Title>
+          <Modal.Description>
+            We&apos;ve added device groups, scene previews, and faster pairing for Matter devices.
+          </Modal.Description>
+        </Modal.Header>
+        <Modal.Footer align="center">
+          <Button color="primary" size="sm">
+            Got it
+          </Button>
+        </Modal.Footer>
+      </Modal.Content>
+    </Modal>
+  ),
+};
+
+// ─── Footer alignment variants ───────────────────────────────────────────
+
+export const FooterCenter: Story = {
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Trigger>
+        <Button color="secondary" size="sm">
+          Centered actions
+        </Button>
+      </Modal.Trigger>
+      <Modal.Content size="sm">
+        <Modal.Header>
+          <Modal.FeaturedIcon icon={CheckCircle} color="success" theme="light" />
+          <Modal.Title>All synced</Modal.Title>
+          <Modal.Description>Single CTA, centred under a featured icon.</Modal.Description>
+        </Modal.Header>
+        <Modal.Footer align="center">
+          <Button color="primary" size="sm">
+            Done
+          </Button>
+        </Modal.Footer>
+      </Modal.Content>
+    </Modal>
+  ),
+};
+
+export const FooterBetween: Story = {
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Trigger>
+        <Button color="secondary" size="sm">
+          Step navigation
+        </Button>
+      </Modal.Trigger>
+      <Modal.Content>
+        <Modal.Header>
+          <Modal.Title>Step 2 of 3</Modal.Title>
+          <Modal.Description>Configure the device&apos;s network settings.</Modal.Description>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="text-sm text-secondary">
+            Use align=&ldquo;between&rdquo; for wizard-style flows where the back action lives on
+            the left and the forward action on the right.
+          </p>
+        </Modal.Body>
+        <Modal.Footer align="between">
+          <Button color="secondary" size="sm">
+            Back
+          </Button>
+          <Button color="primary" size="sm">
+            Continue
+          </Button>
+        </Modal.Footer>
+      </Modal.Content>
+    </Modal>
+  ),
+};
+
+export const FooterStacked: Story = {
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Trigger>
+        <Button color="secondary" size="sm">
+          Mobile-style stack
+        </Button>
+      </Modal.Trigger>
+      <Modal.Content size="sm">
+        <Modal.Header>
+          <Modal.FeaturedIcon icon={AlertTriangle} color="warning" theme="light" />
+          <Modal.Title>Replace existing scene?</Modal.Title>
+          <Modal.Description>
+            A scene with this name already exists. The new one will overwrite it.
+          </Modal.Description>
+        </Modal.Header>
+        <Modal.Footer align="stacked">
+          <Button color="primary" size="sm">
+            Replace
+          </Button>
+          <Button color="secondary" size="sm">
+            Cancel
           </Button>
         </Modal.Footer>
       </Modal.Content>

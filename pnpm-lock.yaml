@@ -45,6 +45,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.3
 
+  apps/dev-ha: {}
+
   apps/mobile:
     dependencies:
       '@glaon/core':
@@ -205,6 +207,12 @@ importers:
 
   packages/ui:
     dependencies:
+      '@internationalized/date':
+        specifier: ^3.12.0
+        version: 3.12.1
+      '@react-stately/utils':
+        specifier: ^3.11.0
+        version: 3.12.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@react-types/shared':
         specifier: ^3.34.0
         version: 3.34.0(react@19.2.5)
@@ -1772,6 +1780,12 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  '@react-stately/utils@3.12.0':
+    resolution: {integrity: sha512-7q+iHz9cENvro1dVKgdTxNh1i1mtWuLUI6UHp10TAgpxM9DyRDvmuN35zLXYCmMDgx3WLY2xkwqoez8xd+CdxQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+      react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
   '@react-types/shared@3.34.0':
     resolution: {integrity: sha512-gp6xo/s2lX54AlTjOiqwDnxA7UW79BNvI9dB9pr3LZTzRKCd1ZA+ZbgKw/ReIiWuvvVw/8QFJpnqeeFyLocMcQ==}
@@ -8475,6 +8489,13 @@ snapshots:
       react-native: 0.85.2(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5)
     optionalDependencies:
       '@types/react': 19.2.14
+
+  '@react-stately/utils@3.12.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      '@swc/helpers': 0.5.21
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
+      react-stately: 3.46.0(react@19.2.5)
 
   '@react-types/shared@3.34.0(react@19.2.5)':
     dependencies:

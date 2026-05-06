@@ -1,0 +1,96 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as DateRangePickerStories from './DateRangePicker.stories';
+
+<Meta of={DateRangePickerStories} />
+
+# DateRangePicker
+
+Date range picker — a calendar-icon button labelled with the
+formatted start ↔ end range that opens an anchored popover
+containing a two-month `RangeCalendar` plus a preset side panel
+(Today / Yesterday / This week / Last week / This month / Last
+month / This year / Last year). Built on react-aria-components'
+`<DateRangePicker>` + `<RangeCalendar>` chain via the Untitled UI
+kit; locale-aware formatting flows through
+`@internationalized/date` and `useDateFormatter`.
+
+## When to use
+
+- Filter rows that scope dashboards / reports / logs to a date
+  window (analytics, billing cycles, audit trails).
+- Forms capturing a project / event start ↔ end pair.
+- Settings panels that store a single span (subscription dates,
+  trial windows).
+
+## When NOT to use
+
+- **Single date** → use [DatePicker](?path=/docs/web-primitives-datepicker--docs).
+- **Two unrelated dates** that aren't an interval → use two
+  separate `<DatePicker>`s.
+- **Open-ended ranges** (no end date) → use a single `<DatePicker>`
+  for the start plus a separate text affordance — DateRangePicker
+  always commits a closed `{ start, end }` pair.
+
+## Anatomy
+
+<Canvas of={DateRangePickerStories.WithDefaultRange} />
+
+A `<Button>` trigger pre-decorated with the kit calendar icon and
+labelled with the formatted "Mar 12 – Mar 19, 2025" range, plus a
+`<Popover>` containing a side panel of presets and a `RangeCalendar`
+with two visible months. Apply / Cancel CTAs sit at the bottom.
+
+```tsx
+import { DateRangePicker } from '@glaon/ui';
+import { today, getLocalTimeZone } from '@internationalized/date';
+
+const now = today(getLocalTimeZone());
+
+<DateRangePicker
+  defaultValue={{ start: now.subtract({ days: 7 }), end: now }}
+  onApply={() => commit()}
+  onCancel={() => discard()}
+/>;
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Presets
+
+The kit ships with eight locale-aware preset rows (Today / Yesterday
+/ This week / Last week / This month / Last month / This year / Last
+year). Selecting a preset highlights the row and pre-fills the
+calendar selection — the user can then tweak the days before
+clicking Apply, or accept the preset as-is.
+
+Custom preset lists aren't yet exposed via the wrap; the kit
+hard-codes the eight rows in
+`application/date-picker/date-range-picker.tsx`. Track via the issue
+follow-up if a project surfaces a need for custom ranges.
+
+## Accessibility
+
+- The kit forwards `role="application"` on the dialog so screen
+  readers announce the popover purpose.
+- Keyboard contract (RAC):
+  - Trigger: Space / Enter opens the popover.
+  - RangeCalendar: arrow keys move focus between days; Enter starts
+    the range, a second Enter completes it; Shift + arrows extend
+    the in-progress range; PageUp / PageDown jump months.
+  - Preset list: Tab cycles, Enter / Space picks.
+  - Apply / Cancel: Tab cycles between them; Escape closes the
+    popover (alias for Cancel).
+- `isInvalid` re-styles the trigger AND wires `aria-invalid="true"`
+  so screen readers announce the error.
+
+## Related components
+
+- [DatePicker](?path=/docs/web-primitives-datepicker--docs) — single date.
+- [Calendar](?path=/docs/web-primitives-calendar--docs) — inline single-date calendar without a trigger.
