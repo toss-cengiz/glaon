@@ -19,10 +19,19 @@ const meta: Meta<typeof Calendar> = {
   args,
   argTypes,
   decorators: [
+    // The kit Calendar's month/year navigation is wrapped in a `<header>`
+    // element. With no enclosing landmark, axe treats it as the document
+    // banner — and the Storybook iframe already has its own banner, which
+    // trips `landmark-banner-is-top-level`. Wrap each story in a
+    // `<section aria-label="Calendar">` so the kit header is scoped to a
+    // section landmark instead.
     (Story) => (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: 24 }}>
+      <section
+        aria-label="Calendar"
+        style={{ display: 'flex', justifyContent: 'center', padding: 24 }}
+      >
         <Story />
-      </div>
+      </section>
     ),
   ],
 };
