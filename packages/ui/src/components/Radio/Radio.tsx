@@ -54,8 +54,31 @@ function RadioCard({ label, description, trailing, className, ...props }: RadioC
             className="mt-0.5"
           />
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <p className="text-sm font-semibold text-secondary">{label}</p>
-            {description !== undefined && <p className="text-sm text-tertiary">{description}</p>}
+            <p
+              className={cx(
+                'text-sm font-semibold',
+                // Selected `bg-brand-primary_alt` (light blue) needs a
+                // darker label colour to clear axe `color-contrast` (4.5:1).
+                // kit Tabs `button-brand` uses `text-brand-secondary` for
+                // the same surface — same approach here.
+                state.isSelected ? 'text-brand-secondary' : 'text-secondary',
+              )}
+            >
+              {label}
+            </p>
+            {description !== undefined && (
+              <p
+                className={cx(
+                  'text-sm',
+                  // `text-tertiary` (#525252) on `bg-brand-primary_alt`
+                  // clocks 4.05:1 — fails axe. Bump to `text-secondary`
+                  // (darker grey) on the selected tinted surface.
+                  state.isSelected ? 'text-secondary' : 'text-tertiary',
+                )}
+              >
+                {description}
+              </p>
+            )}
           </div>
           {trailing !== undefined && (
             <div className="ml-auto flex shrink-0 items-center">{trailing}</div>
