@@ -2,6 +2,12 @@
 @import './theme.css';
 @import './glaon-overrides.css';
 @import './typography.css';
+/* Country-flag sprite (~250 SVGs) for the `Flag` registry (#366).
+   `flag-icons` ships SVG assets under `flags/4x3/*.svg`; Vite
+   bundles them into the same-origin asset directory so the strict
+   CSP (`default-src 'self'`) stays intact — no CDN whitelist
+   needed. */
+@import 'flag-icons/css/flag-icons.css';
 
 @plugin "@tailwindcss/typography";
 @plugin "tailwindcss-react-aria-components";

@@ -63,7 +63,8 @@
         "tailwindcss",
         "@tailwindcss/typography",
         "tailwindcss-animate",
-        "tailwindcss-react-aria-components"
+        "tailwindcss-react-aria-components",
+        "flag-icons"
       ]
     },
     "packages/config": {
