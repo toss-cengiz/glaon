@@ -7,10 +7,17 @@ import * as TabsStories from './Tabs.stories';
 # Tabs
 
 Switch between sibling views that share the same surface. Built on
-react-aria-components — Glaon adds the visual variants (`underline`,
-`button-brand`, `button-gray`, `line`) and exposes a Radix-style
-namespace (`Tabs.List` / `Tabs.Trigger` / `Tabs.Content`) on top of
-the kit's `Tab` / `TabList` / `TabPanel` exports.
+react-aria-components — Glaon exposes a Radix-style namespace
+(`Tabs.List` / `Tabs.Trigger` / `Tabs.Content`) on top of the kit's
+`Tab` / `TabList` / `TabPanel` exports, plus six visual variants split
+across orientation:
+
+- **Horizontal** (default): `button-brand`, `button-gray`, `button-border`, `button-minimal`, `underline`
+- **Vertical**: `button-brand`, `button-gray`, `button-border`, `button-minimal`, `line`
+
+`underline` (horizontal) and `line` (vertical) play the same role for
+their orientation — a single coloured edge under/beside the active
+tab. The other four button-style variants share both orientations.
 
 ## When to use
 
