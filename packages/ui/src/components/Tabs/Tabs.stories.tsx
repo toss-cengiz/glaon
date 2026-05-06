@@ -93,6 +93,36 @@ export const ButtonGray: Story = {
   args: { defaultSelectedKey: 'day' },
 };
 
+export const ButtonBorder: Story = {
+  render: (args) => (
+    <Tabs {...args}>
+      <Tabs.List type="button-border">
+        <Tabs.Trigger id="overview" label="Overview" />
+        <Tabs.Trigger id="settings" label="Settings" />
+        <Tabs.Trigger id="billing" label="Billing" />
+      </Tabs.List>
+      <Tabs.Content id="overview">{samplePanel('Overview content.')}</Tabs.Content>
+      <Tabs.Content id="settings">{samplePanel('Settings content.')}</Tabs.Content>
+      <Tabs.Content id="billing">{samplePanel('Billing content.')}</Tabs.Content>
+    </Tabs>
+  ),
+};
+
+export const ButtonMinimal: Story = {
+  render: (args) => (
+    <Tabs {...args}>
+      <Tabs.List type="button-minimal">
+        <Tabs.Trigger id="overview" label="Overview" />
+        <Tabs.Trigger id="settings" label="Settings" />
+        <Tabs.Trigger id="billing" label="Billing" />
+      </Tabs.List>
+      <Tabs.Content id="overview">{samplePanel('Overview content.')}</Tabs.Content>
+      <Tabs.Content id="settings">{samplePanel('Settings content.')}</Tabs.Content>
+      <Tabs.Content id="billing">{samplePanel('Billing content.')}</Tabs.Content>
+    </Tabs>
+  ),
+};
+
 export const WithIcons: Story = {
   render: (args) => (
     <Tabs {...args}>
@@ -141,24 +171,97 @@ export const DisabledTab: Story = {
   args: { defaultSelectedKey: 'active' },
 };
 
+type VerticalType = 'line' | 'button-brand' | 'button-gray' | 'button-border' | 'button-minimal';
+
+// `Story['render']` includes `undefined` under `exactOptionalPropertyTypes`.
+// Strip it so the helper return matches the field type exactly.
+type VerticalRenderFn = NonNullable<Story['render']>;
+
+function verticalRender(type: VerticalType): VerticalRenderFn {
+  return function VerticalTabsRender(args) {
+    return (
+      <Tabs {...args}>
+        <div style={{ display: 'flex', gap: 24 }}>
+          <Tabs.List type={type}>
+            <Tabs.Trigger id="profile" label="Profile" />
+            <Tabs.Trigger id="security" label="Security" />
+            <Tabs.Trigger id="notifications" label="Notifications" />
+            <Tabs.Trigger id="billing" label="Billing" />
+          </Tabs.List>
+          <div style={{ flex: 1 }}>
+            <Tabs.Content id="profile">{samplePanel('Profile settings.')}</Tabs.Content>
+            <Tabs.Content id="security">{samplePanel('Security settings.')}</Tabs.Content>
+            <Tabs.Content id="notifications">
+              {samplePanel('Notification preferences.')}
+            </Tabs.Content>
+            <Tabs.Content id="billing">{samplePanel('Billing details.')}</Tabs.Content>
+          </div>
+        </div>
+      </Tabs>
+    );
+  };
+}
+
 export const Vertical: Story = {
   args: { orientation: 'vertical', defaultSelectedKey: 'profile' },
+  render: verticalRender('line'),
+};
+
+export const VerticalButtonBrand: Story = {
+  args: { orientation: 'vertical', defaultSelectedKey: 'profile' },
+  render: verticalRender('button-brand'),
+};
+
+export const VerticalButtonGray: Story = {
+  args: { orientation: 'vertical', defaultSelectedKey: 'profile' },
+  render: verticalRender('button-gray'),
+};
+
+export const VerticalButtonBorder: Story = {
+  args: { orientation: 'vertical', defaultSelectedKey: 'profile' },
+  render: verticalRender('button-border'),
+};
+
+export const VerticalButtonMinimal: Story = {
+  args: { orientation: 'vertical', defaultSelectedKey: 'profile' },
+  render: verticalRender('button-minimal'),
+};
+
+// Matrix story: iterates `size` (driven by `<Tabs.List>`) so visual
+// regression catches any per-size drift in one diff. The render fn
+// hard-codes `size`, so hide it from the controls panel along with
+// `defaultSelectedKey` (each list seeds its own selection).
+export const Sizes: Story = {
+  parameters: { controls: { exclude: ['size', 'defaultSelectedKey'] } },
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+      {(['sm', 'md'] as const).map((size) => (
+        <Tabs key={size} defaultSelectedKey="overview">
+          <Tabs.List size={size} type="button-brand">
+            <Tabs.Trigger id="overview" label={`Overview — ${size}`} />
+            <Tabs.Trigger id="settings" label="Settings" />
+            <Tabs.Trigger id="billing" label="Billing" />
+          </Tabs.List>
+          <Tabs.Content id="overview">{samplePanel(`Size ${size} content.`)}</Tabs.Content>
+          <Tabs.Content id="settings">{samplePanel('Settings.')}</Tabs.Content>
+          <Tabs.Content id="billing">{samplePanel('Billing.')}</Tabs.Content>
+        </Tabs>
+      ))}
+    </div>
+  ),
+};
+
+export const FullWidth: Story = {
   render: (args) => (
     <Tabs {...args}>
-      <div style={{ display: 'flex', gap: 24 }}>
-        <Tabs.List type="line">
-          <Tabs.Trigger id="profile" label="Profile" />
-          <Tabs.Trigger id="security" label="Security" />
-          <Tabs.Trigger id="notifications" label="Notifications" />
-          <Tabs.Trigger id="billing" label="Billing" />
-        </Tabs.List>
-        <div style={{ flex: 1 }}>
-          <Tabs.Content id="profile">{samplePanel('Profile settings.')}</Tabs.Content>
-          <Tabs.Content id="security">{samplePanel('Security settings.')}</Tabs.Content>
-          <Tabs.Content id="notifications">{samplePanel('Notification preferences.')}</Tabs.Content>
-          <Tabs.Content id="billing">{samplePanel('Billing details.')}</Tabs.Content>
-        </div>
-      </div>
+      <Tabs.List type="button-brand" fullWidth>
+        <Tabs.Trigger id="overview" label="Overview" />
+        <Tabs.Trigger id="settings" label="Settings" />
+        <Tabs.Trigger id="billing" label="Billing" />
+      </Tabs.List>
+      <Tabs.Content id="overview">{samplePanel('Overview content.')}</Tabs.Content>
+      <Tabs.Content id="settings">{samplePanel('Settings content.')}</Tabs.Content>
+      <Tabs.Content id="billing">{samplePanel('Billing content.')}</Tabs.Content>
     </Tabs>
   ),
 };
