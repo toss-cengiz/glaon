@@ -1,0 +1,79 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as CalendarStories from './Calendar.stories';
+
+<Meta of={CalendarStories} />
+
+# Calendar
+
+Inline calendar grid — month/year header, navigation chevrons,
+weekday row, and a 7-column grid of day cells. Built on
+react-aria-components' `<Calendar>` via the Untitled UI kit;
+locale-aware day-name / month-name formatting flows through
+`@internationalized/date` and `useDateFormatter`.
+
+## When to use
+
+- Page surfaces that embed a mini-calendar inline (dashboard
+  sidebars, scheduling editors, availability planners).
+- Modals or drawers where the calendar is the primary content
+  (vacation request flow, blackout-day editor).
+
+## When NOT to use
+
+- **Calendar that opens from a button trigger** → use
+  [DatePicker](?path=/docs/web-primitives-datepicker--docs); it bundles the trigger + popover + Apply / Cancel CTAs.
+- **Date range selection** → use
+  [DateRangePicker](?path=/docs/web-primitives-daterangepicker--docs); it ships a two-month range calendar plus a preset side panel.
+
+## Anatomy
+
+<Canvas of={CalendarStories.WithDefaultValue} />
+
+```tsx
+import { Calendar } from '@glaon/ui';
+import { today, getLocalTimeZone } from '@internationalized/date';
+
+<Calendar defaultValue={today(getLocalTimeZone())} />;
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Constraints
+
+- `minValue` / `maxValue` cap the navigable range; days outside
+  the bounds render disabled and the prev / next chevrons stop
+  paging when the boundary is reached.
+- `isDateUnavailable: (date) => boolean` blocks specific calendar
+  cells (blackout days, weekends, exclusion windows). The kit's
+  `WithUnavailableDates` story disables Saturdays + Sundays as a
+  worked example.
+- `isReadOnly` keeps the grid focusable and arrow-navigable but
+  suppresses selection — pair with a value-display layout.
+
+## Accessibility
+
+- The kit forwards `role="application"` + `aria-label="Calendar"`
+  on the grid container; override with `aria-label` /
+  `aria-labelledby` when embedded next to a heading.
+- Keyboard contract (RAC):
+  - Arrow keys move focus between days; PageUp / PageDown jump
+    months; Home / End jump to the start / end of the row.
+  - Enter / Space selects the focused day.
+  - Tab moves focus to / from the calendar grid as a whole — not
+    between individual cells (RAC roving-tabindex pattern).
+- Day cells expose `aria-selected="true"` on the active value and
+  `aria-disabled="true"` on disabled / unavailable cells. The
+  current date carries an additional ring + `data-today` attribute
+  for visual emphasis without affecting the ARIA contract.
+
+## Related components
+
+- [DatePicker](?path=/docs/web-primitives-datepicker--docs) — calendar opened from a button trigger.
+- [DateRangePicker](?path=/docs/web-primitives-daterangepicker--docs) — two-month range calendar with preset side panel.
