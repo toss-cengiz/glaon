@@ -43,6 +43,32 @@ via the `children` render function consuming the `items` collection.
 </Select>
 ```
 
+## Item composition
+
+`SelectItem` accepts a small set of presentation props that cover the
+common Figma patterns without custom rendering:
+
+- `icon` — leading icon (React component or element). See
+  `WithLeadingIcon` story.
+- `avatarUrl` — leading avatar (replaces `icon` when both are set).
+  See `WithAvatar` story.
+- `supportingText` — secondary text rendered next to the label
+  (truncates with the label when space is tight). See
+  `WithSupportingText` story.
+- `selectionIndicator` — `'checkmark'` (default), `'checkbox'`, or
+  `'none'`. Controls the visual marker for the selected item.
+- `selectionIndicatorAlign` — `'right'` (default) or `'left'`. Mirror
+  the indicator side so it reads with the label. See `CheckmarkLeft`,
+  `CheckboxIndicator`, `NoIndicator` stories.
+- `isDisabled` — single-item disable; the trigger keeps the option in
+  the list (focusable, screen-reader announces) but blocks selection.
+  See `DisabledItem` story.
+
+For per-item layout beyond these props (trailing badges, color
+swatches, custom flag art) drop the `SelectItem` helper and render an
+`AriaListBoxItem` directly with your own children — this is rare and
+should be confined to one place per app.
+
 ## Variants
 
 <Stories includePrimary={false} />

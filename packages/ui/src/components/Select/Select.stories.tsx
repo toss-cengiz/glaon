@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
 import { defineControls } from '../_internal/controls';
+import { storybookIcons } from '../../icons/storybook';
 import {
   ComboBox,
   MultiSelect,
@@ -177,4 +178,194 @@ export const Native: Story = {
       />
     </div>
   ),
+};
+
+// Item content composition stories — kit `SelectItem` already supports
+// `icon`, `avatarUrl`, `supportingText`, `selectionIndicator` and
+// `selectionIndicatorAlign`; these stories surface that matrix in
+// Storybook so designers can review the variants against the Figma
+// frame (Design System / Select node 10673-194380).
+
+const APPS: SelectItemType[] = [
+  { id: 'mail', label: 'Mail', icon: storybookIcons.mail },
+  { id: 'settings', label: 'Settings', icon: storybookIcons.settings },
+  { id: 'inbox', label: 'Inbox', icon: storybookIcons.bell },
+  { id: 'profile', label: 'Profile', icon: storybookIcons.user },
+];
+
+const renderItemWithIcon = (item: SelectItemType) => (
+  <SelectItem key={item.id} id={item.id} label={item.label ?? ''} icon={item.icon} />
+);
+
+export const WithLeadingIcon: Story = {
+  args: {
+    items: APPS,
+    children: renderItemWithIcon,
+    label: 'Section',
+    placeholder: 'Pick a section',
+  },
+};
+
+const TEAM: SelectItemType[] = [
+  {
+    id: 'olivia',
+    label: 'Olivia Rhye',
+    avatarUrl: 'https://www.untitledui.com/images/avatars/olivia-rhye?bg=%23E0E0E0',
+    supportingText: 'olivia@untitledui.com',
+  },
+  {
+    id: 'phoenix',
+    label: 'Phoenix Baker',
+    avatarUrl: 'https://www.untitledui.com/images/avatars/phoenix-baker?bg=%23E0E0E0',
+    supportingText: 'phoenix@untitledui.com',
+  },
+  {
+    id: 'lana',
+    label: 'Lana Steiner',
+    avatarUrl: 'https://www.untitledui.com/images/avatars/lana-steiner?bg=%23E0E0E0',
+    supportingText: 'lana@untitledui.com',
+  },
+];
+
+// `exactOptionalPropertyTypes: true` rejects passing an explicit
+// `undefined` to optional string props; spread guards keep us
+// schema-compatible whether or not the fixture supplies the field.
+const renderTeamItem = (item: SelectItemType) => (
+  <SelectItem
+    key={item.id}
+    id={item.id}
+    label={item.label ?? ''}
+    {...(item.avatarUrl !== undefined ? { avatarUrl: item.avatarUrl } : {})}
+    {...(item.supportingText !== undefined ? { supportingText: item.supportingText } : {})}
+  />
+);
+
+export const WithAvatar: Story = {
+  args: {
+    items: TEAM,
+    children: renderTeamItem,
+    label: 'Assign to',
+    placeholder: 'Pick a teammate',
+  },
+};
+
+const PLANS: SelectItemType[] = [
+  { id: 'free', label: 'Free', supportingText: '$0 / month' },
+  { id: 'starter', label: 'Starter', supportingText: '$10 / month' },
+  { id: 'pro', label: 'Pro', supportingText: '$30 / month' },
+  { id: 'enterprise', label: 'Enterprise', supportingText: 'Contact sales' },
+];
+
+const renderPlanItem = (item: SelectItemType) => (
+  <SelectItem
+    key={item.id}
+    id={item.id}
+    label={item.label ?? ''}
+    {...(item.supportingText !== undefined ? { supportingText: item.supportingText } : {})}
+  />
+);
+
+export const WithSupportingText: Story = {
+  args: {
+    items: PLANS,
+    children: renderPlanItem,
+    label: 'Plan',
+    placeholder: 'Choose a plan',
+  },
+};
+
+// `selectionIndicator` matrix — checkmark right (default), checkmark
+// left, checkbox right, checkbox left, none. Custom `children`
+// renderer so each story can wire the prop without re-declaring the
+// item list.
+
+const renderItemWithIndicator = (
+  indicator: 'checkmark' | 'checkbox' | 'none',
+  align: 'left' | 'right',
+) =>
+  function ItemWithIndicator(item: SelectItemType) {
+    return (
+      <SelectItem
+        key={item.id}
+        id={item.id}
+        label={item.label ?? ''}
+        selectionIndicator={indicator}
+        selectionIndicatorAlign={align}
+      />
+    );
+  };
+
+export const CheckmarkLeft: Story = {
+  args: {
+    items: COUNTRIES,
+    children: renderItemWithIndicator('checkmark', 'left'),
+    defaultSelectedKey: 'tr',
+    label: 'Country',
+  },
+};
+
+export const CheckboxIndicator: Story = {
+  args: {
+    items: COUNTRIES,
+    children: renderItemWithIndicator('checkbox', 'right'),
+    defaultSelectedKey: 'tr',
+    label: 'Country',
+  },
+};
+
+export const NoIndicator: Story = {
+  args: {
+    items: COUNTRIES,
+    children: renderItemWithIndicator('none', 'right'),
+    defaultSelectedKey: 'tr',
+    label: 'Country',
+  },
+};
+
+const ITEMS_WITH_DISABLED: SelectItemType[] = [
+  { id: 'free', label: 'Free' },
+  { id: 'starter', label: 'Starter' },
+  { id: 'pro', label: 'Pro', isDisabled: true },
+  { id: 'enterprise', label: 'Enterprise' },
+];
+
+const renderItemHonouringDisabled = (item: SelectItemType) => (
+  <SelectItem
+    key={item.id}
+    id={item.id}
+    label={item.label ?? ''}
+    {...(item.isDisabled !== undefined ? { isDisabled: item.isDisabled } : {})}
+  />
+);
+
+export const DisabledItem: Story = {
+  args: {
+    items: ITEMS_WITH_DISABLED,
+    children: renderItemHonouringDisabled,
+    label: 'Plan',
+    placeholder: 'Choose a plan',
+  },
+};
+
+export const EmptyState: Story = {
+  args: {
+    items: [],
+    children: renderItem,
+    label: 'Empty list',
+    placeholder: 'No options available',
+  },
+};
+
+// `OpenState` — popover-open baseline for Chromatic. `isOpen` keeps
+// the listbox visible without user interaction; `docs.disable` hides
+// it from MDX so the regular variant catalogue stays clean.
+export const OpenState: Story = {
+  parameters: { docs: { disable: true } },
+  args: {
+    items: COUNTRIES,
+    children: renderItem,
+    label: 'Country',
+    placeholder: 'Select your billing country.',
+    isOpen: true,
+  },
 };
