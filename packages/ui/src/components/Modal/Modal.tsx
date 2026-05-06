@@ -54,7 +54,7 @@ import {
 import { cx } from '../../utils/cx';
 
 export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
-export type ModalFooterAlign = 'right' | 'between' | 'center' | 'stacked';
+type ModalFooterAlign = 'right' | 'between' | 'center' | 'stacked';
 
 export interface ModalProps extends AriaDialogTriggerProps {
   /** Trigger + content slots. Use `Modal.Trigger` and `Modal.Content`. */
@@ -102,24 +102,24 @@ export interface ModalFooterProps {
   children: ReactNode;
 }
 
-export interface ModalTitleProps {
+interface ModalTitleProps {
   /** Optional Tailwind override; replaces nothing of the default styling. */
   className?: string;
   children: ReactNode;
 }
 
-export interface ModalDescriptionProps {
+interface ModalDescriptionProps {
   className?: string;
   children: ReactNode;
 }
 
-export interface ModalCloseButtonProps {
+interface ModalCloseButtonProps {
   /** Override the default `Close` aria-label (e.g. for translation). */
   'aria-label'?: string;
   className?: string;
 }
 
-export interface ModalFeaturedIconProps {
+interface ModalFeaturedIconProps {
   /** Icon component or element rendered inside the chip. */
   icon: FC<{ className?: string }> | ReactNode;
   /** @default 'lg' (matches the typical Modal Header proportions) */
