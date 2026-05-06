@@ -42,15 +42,24 @@ Compose with these slots:
 
 - **`Modal.Trigger`** — focusable child that opens the dialog.
 - **`Modal.Content`** — the dialog surface itself. Owns `size`
-  (`sm` / `md` / `lg` / `full`) and the dismiss flags
+  (`sm` / `md` / `lg` / `xl` / `full`) and the dismiss flags
   (`isDismissable`, `isKeyboardDismissDisabled`).
-- **`Modal.Header`** — title + optional subtitle, with a bottom
-  border.
+- **`Modal.CloseButton`** — optional X affordance pinned to the
+  top-right corner. Closes the dialog through RAC's `slot="close"`
+  contract — no `onPress` wiring required.
+- **`Modal.Header`** — featured icon + title + description, with a
+  bottom border.
+- **`Modal.FeaturedIcon`** — colored chip rendered above the title
+  for intent-themed dialogs (success / warning / error / brand).
+- **`Modal.Title`** — RAC `<Heading slot="title">`. The kit reads
+  this slot for `aria-labelledby` automatically.
+- **`Modal.Description`** — RAC `<Text slot="description">`. Wired
+  to the dialog through `aria-describedby`.
 - **`Modal.Body`** — main content area. Scrollable
   (`overflow-y-auto`) so long forms / Terms of Service render an
   internal scrollbar instead of pushing footer buttons off-screen.
-- **`Modal.Footer`** — action buttons aligned to the end. Order:
-  dismiss / cancel on the left, primary action on the right.
+- **`Modal.Footer`** — action buttons. Owns the `align` prop:
+  `right` (default) / `between` / `center` / `stacked`.
 
 ```tsx
 <Modal>
@@ -58,8 +67,11 @@ Compose with these slots:
     <Button>Open</Button>
   </Modal.Trigger>
   <Modal.Content size="md">
+    <Modal.CloseButton />
     <Modal.Header>
-      <h2>Confirm</h2>
+      <Modal.FeaturedIcon icon={CheckCircle} color="success" theme="light" />
+      <Modal.Title>Confirm</Modal.Title>
+      <Modal.Description>This will permanently apply the change.</Modal.Description>
     </Modal.Header>
     <Modal.Body>…content…</Modal.Body>
     <Modal.Footer>
@@ -69,6 +81,28 @@ Compose with these slots:
   </Modal.Content>
 </Modal>
 ```
+
+## Featured icon themes
+
+`Modal.FeaturedIcon` forwards to the foundation `<FeaturedIcon>` —
+all of its `color` (`brand` / `gray` / `success` / `warning` /
+`error`) and `theme` (`light` / `gradient` / `dark` / `outline` /
+`modern` / `modern-neue`) options are reachable. The defaults
+(`color="brand"`, `theme="light"`, `size="lg"`) match the typical
+Modal Header proportions, so most stories only set the `icon` prop.
+
+## Footer alignment
+
+`Modal.Footer align="…"` covers the four common action layouts:
+
+- `right` (default) — secondary then primary, right-aligned. Best
+  for editorial / Save-Cancel patterns.
+- `between` — secondary on the left, primary on the right. Pair
+  with wizard-style "Back" + "Continue" flows.
+- `center` — actions centred, typically used with a featured icon
+  on top + a single CTA.
+- `stacked` — actions stretched to full width and stacked. Mobile
+  patterns; primary on top, secondary below.
 
 ## Variants
 
