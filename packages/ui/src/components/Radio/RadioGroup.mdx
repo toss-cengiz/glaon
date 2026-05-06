@@ -1,0 +1,119 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as RadioGroupStories from './RadioGroup.stories';
+
+<Meta of={RadioGroupStories} />
+
+# RadioGroup
+
+Form-row wrapper around one or more `<Radio>` (or `<Radio.Card>`)
+options that share an exclusive value contract. Built on
+react-aria-components — RAC owns the keyboard navigation, ARIA
+contract, and roving-tabindex; the Glaon wrap adds the visible
+label / description / error structure and the orientation override
+the kit doesn't surface.
+
+## When to use
+
+- Mutually exclusive form fields with 2–5 options where seeing every
+  option helps comparison: notification channel, plan tier, currency.
+- Settings panels that pair a question (Label) with a small set of
+  alternatives that all need to be visible at once.
+
+## When NOT to use
+
+- **More than ~5 options** → use [Select](?path=/docs/web-primitives-select--docs); a long radio list overwhelms.
+- **Independent boolean** → use [Checkbox](?path=/docs/web-primitives-checkbox--docs).
+- **On/off setting that takes effect immediately** → use [Switch](?path=/docs/web-primitives-switch--docs).
+- **Toggling between two views with equal visual weight** → use [Tabs](?path=/docs/web-primitives-tabs--docs).
+
+## Anatomy
+
+<Canvas of={RadioGroupStories.Default} />
+
+A labelled flex column containing a stack of radios. Form-level
+slots wire automatically:
+
+- `label` — visible group label (rendered via the kit `<Label>`,
+  paired to the group through RAC's `aria-labelledby`).
+- `description` — helper text under the radios.
+- `errorMessage` — replaces description when set; flips the group
+  into the invalid state and wires `aria-invalid` + `aria-describedby`
+  to the error node.
+- `isRequired` — adds the asterisk and forwards `aria-required`.
+- `tooltip` — info icon next to the label opens a kit Tooltip.
+
+```tsx
+<RadioGroup
+  label="Notification channel"
+  description="We'll only contact you about account activity."
+  defaultValue="email"
+  isRequired
+>
+  <Radio value="email" label="Email" />
+  <Radio value="sms" label="SMS" />
+  <Radio value="push" label="Push" />
+</RadioGroup>
+```
+
+## Orientation
+
+`orientation="horizontal"` re-flows the radios as a wrapping row.
+RAC's keyboard contract switches arrow-key axes accordingly: vertical
+groups respond to Up / Down, horizontal groups to Left / Right.
+
+```tsx
+<RadioGroup label="Plan term" orientation="horizontal">
+  <Radio value="monthly" label="Monthly" />
+  <Radio value="yearly" label="Yearly" />
+</RadioGroup>
+```
+
+## Card layout
+
+Pair `<RadioGroup>` with `<Radio.Card>` (the Card variant exposed on
+the `Radio` namespace) for plan / option pickers where the card is
+the click target and the small radio glyph is secondary. The
+RadioGroup contract is unchanged — `Radio.Card` plugs into the same
+`<RadioGroup>` parent.
+
+```tsx
+<RadioGroup label="Plan" defaultValue="pro">
+  <Radio.Card value="free" label="Free" description="$0 / month" />
+  <Radio.Card
+    value="pro"
+    label="Pro"
+    description="$30 / month"
+    trailing={<Badge color="brand">Popular</Badge>}
+  />
+</RadioGroup>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- Always set a visible `label` (or fall back to `aria-label` when
+  the group is rendered next to a heading that already labels it).
+- The kit `<RadioGroup>` plays back RAC's roving-tabindex contract:
+  Tab moves into / out of the group, arrow keys cycle the radios.
+- `errorMessage` is rendered via RAC `<FieldError>` so screen
+  readers announce it alongside the label and current value.
+- `isRequired` forwards `aria-required="true"` to the group; the
+  visible asterisk on the label is paired automatically.
+- For visual contrast, the brand-tinted card border in `<Radio.Card>`
+  is supported by the radio glyph's selected state — colour is never
+  the sole signal.
+
+## Related components
+
+- [Radio](?path=/docs/web-primitives-radio--docs) — the individual radio option (default flat row + `Radio.Card` namespace).
+- [Checkbox](?path=/docs/web-primitives-checkbox--docs) — independent boolean (multi-select).
+- [Switch](?path=/docs/web-primitives-switch--docs) — single boolean that takes effect immediately.
+- [Select](?path=/docs/web-primitives-select--docs) — single choice from a large set of options.

@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
 import { defineControls } from '../_internal/controls';
-import { Radio, RadioGroup } from './Radio';
+import { Radio } from './Radio';
+import { RadioGroup } from './RadioGroup';
 import { radioControls, radioExcludeFromArgs } from './Radio.controls';
 
 const { args, argTypes } = defineControls(radioControls);
@@ -55,11 +56,7 @@ export const WithHint: Story = {
 export const InGroup: Story = {
   decorators: [
     () => (
-      <RadioGroup
-        defaultValue="email"
-        aria-label="Notification channel"
-        style={{ gap: 16, display: 'flex', flexDirection: 'column' }}
-      >
+      <RadioGroup defaultValue="email" aria-label="Notification channel">
         <Radio value="email" label="Email" hint="A weekly digest." />
         <Radio value="sms" label="SMS" hint="Immediate alerts." />
         <Radio value="push" label="Push" hint="App-only notifications." />
@@ -78,17 +75,91 @@ export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       {(['sm', 'md'] as const).map((size) => (
-        <RadioGroup
-          key={size}
-          size={size}
-          defaultValue="a"
-          aria-label={`Group ${size}`}
-          style={{ gap: 8, display: 'flex', flexDirection: 'column' }}
-        >
+        <RadioGroup key={size} size={size} defaultValue="a" aria-label={`Group ${size}`}>
           <Radio value="a" label={`Option A — size ${size}`} />
           <Radio value="b" label={`Option B — size ${size}`} />
         </RadioGroup>
       ))}
     </div>
   ),
+};
+
+// ─── Card variant stories ───────────────────────────────────────────────
+//
+// `Radio.Card` swaps the flat row layout for a bordered tile with
+// title + description + optional trailing slot. The card itself is
+// the click target; selected state lights up the brand border + bg.
+// RadioGroup form-row features (label/description/errorMessage,
+// orientation) are exercised in the dedicated RadioGroup stories.
+
+export const CardBasic: Story = {
+  decorators: [
+    () => (
+      <RadioGroup aria-label="Plan" defaultValue="starter">
+        <Radio.Card value="free" label="Free" description="$0 / month" />
+        <Radio.Card value="starter" label="Starter" description="$10 / month" />
+        <Radio.Card value="pro" label="Pro" description="$30 / month" />
+      </RadioGroup>
+    ),
+  ],
+};
+
+export const CardSelected: Story = {
+  decorators: [
+    () => (
+      <RadioGroup aria-label="Plan" defaultValue="pro">
+        <Radio.Card value="free" label="Free" description="$0 / month" />
+        <Radio.Card value="starter" label="Starter" description="$10 / month" />
+        <Radio.Card value="pro" label="Pro" description="$30 / month — includes priority support" />
+      </RadioGroup>
+    ),
+  ],
+};
+
+export const CardWithTrailing: Story = {
+  decorators: [
+    () => (
+      <RadioGroup aria-label="Plan" defaultValue="pro">
+        <Radio.Card
+          value="starter"
+          label="Starter"
+          description="$10 / month"
+          trailing={<span className="text-xs font-semibold text-tertiary">10 seats</span>}
+        />
+        <Radio.Card
+          value="pro"
+          label="Pro"
+          description="$30 / month"
+          trailing={
+            <span className="rounded-full bg-brand-primary px-2 py-0.5 text-xs font-semibold text-white">
+              Popular
+            </span>
+          }
+        />
+        <Radio.Card
+          value="enterprise"
+          label="Enterprise"
+          description="Contact sales"
+          trailing={<span className="text-xs font-semibold text-tertiary">Custom</span>}
+        />
+      </RadioGroup>
+    ),
+  ],
+};
+
+export const CardDisabled: Story = {
+  decorators: [
+    () => (
+      <RadioGroup aria-label="Plan" defaultValue="starter">
+        <Radio.Card value="starter" label="Starter" description="$10 / month" />
+        <Radio.Card
+          value="pro"
+          label="Pro (waitlist)"
+          description="Currently invite-only"
+          isDisabled
+        />
+        <Radio.Card value="enterprise" label="Enterprise" description="Contact sales" />
+      </RadioGroup>
+    ),
+  ],
 };

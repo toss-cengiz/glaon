@@ -41,6 +41,67 @@ that owns the controlled / uncontrolled value contract.
 </RadioGroup>
 ```
 
+## RadioGroup form structure
+
+The Glaon `RadioGroup` wrap renders a full form-row layout when you
+hand it the optional props — `label`, `description`, `errorMessage`,
+`isRequired`, `tooltip` — so you don't have to compose `<Label>` and
+`<HintText>` by hand. Behind the scenes the group still uses RAC's
+slot model, so `aria-labelledby`, `aria-describedby`, and
+`aria-invalid` wire up automatically.
+
+```tsx
+<RadioGroup
+  label="Notification channel"
+  description="We'll only contact you about account activity."
+  isRequired
+>
+  <Radio value="email" label="Email" />
+  <Radio value="sms" label="SMS" />
+</RadioGroup>
+```
+
+Setting `errorMessage` flips the group into the invalid state and
+swaps the description for a red-tinted error text.
+
+## Orientation
+
+`RadioGroup` accepts `orientation="horizontal"` and re-flows the
+radios as a wrapping row. Arrow-key navigation switches accordingly
+(Left / Right for horizontal, Up / Down for vertical) — the kit
+`<RadioGroup>` re-emits the right ARIA contract.
+
+```tsx
+<RadioGroup label="Plan term" orientation="horizontal">
+  <Radio value="monthly" label="Monthly" />
+  <Radio value="yearly" label="Yearly" />
+</RadioGroup>
+```
+
+## Card variant
+
+Use `Radio.Card` for plan / option pickers where the radio is the
+secondary affordance and the card itself is the click target. The
+card encapsulates a leading radio + title + description + optional
+`trailing` slot (badge, price tag, etc.) and lights up the brand
+border + bg in the selected state.
+
+```tsx
+<RadioGroup label="Plan" defaultValue="pro">
+  <Radio.Card value="free" label="Free" description="$0 / month" />
+  <Radio.Card
+    value="pro"
+    label="Pro"
+    description="$30 / month"
+    trailing={<Badge color="brand">Popular</Badge>}
+  />
+</RadioGroup>
+```
+
+Default `Radio` and `Radio.Card` share the same `<RadioGroup>`
+contract; you can mix them inside one group if a layout calls for it,
+though designers usually pick one or the other per group.
+
 ## Variants
 
 <Stories includePrimary={false} />
