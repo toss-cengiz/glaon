@@ -36,6 +36,22 @@ interface EventRow {
   created_at: number;
 }
 
+interface PairCodeRow {
+  id: number;
+  code: string;
+  clerk_user_id: string;
+  created_at: number;
+  expires_at: number;
+  claimed_at: number | null;
+  claimed_home_id: string | null;
+}
+
+interface PairFailureRow {
+  ip: string;
+  attempts: number;
+  locked_until: number | null;
+}
+
 class Statement implements D1PreparedStatement {
   private boundArgs: unknown[] = [];
 
@@ -121,6 +137,91 @@ class Statement implements D1PreparedStatement {
       this.state.relaySecrets = this.state.relaySecrets.filter((r) => r.home_id !== homeId);
       return null;
     }
+    /* ---------- pair_codes ---------- */
+    if (q.startsWith('INSERT INTO pair_codes')) {
+      const [code, clerkUserId, createdAt, expiresAt] = this.boundArgs as [
+        string,
+        string,
+        number,
+        number,
+      ];
+      this.state.pairCodes.push({
+        id: this.state.pairCodes.length + 1,
+        code,
+        clerk_user_id: clerkUserId,
+        created_at: createdAt,
+        expires_at: expiresAt,
+        claimed_at: null,
+        claimed_home_id: null,
+      });
+      return null;
+    }
+    if (
+      q.startsWith(
+        'SELECT id, code, clerk_user_id, created_at, expires_at, claimed_at, claimed_home_id FROM pair_codes WHERE code = ? AND clerk_user_id = ?',
+      )
+    ) {
+      const [code, clerkUserId] = this.boundArgs as [string, string];
+      return (
+        this.state.pairCodes.find((p) => p.code === code && p.clerk_user_id === clerkUserId) ?? null
+      );
+    }
+    if (
+      q.startsWith(
+        'SELECT id, code, clerk_user_id, created_at, expires_at, claimed_at, claimed_home_id FROM pair_codes WHERE code = ?',
+      )
+    ) {
+      const [code] = this.boundArgs as [string];
+      return this.state.pairCodes.find((p) => p.code === code) ?? null;
+    }
+    if (q.startsWith('UPDATE pair_codes SET claimed_at')) {
+      const [claimedAt, homeId, code, now] = this.boundArgs as [number, string, string, number];
+      const row = this.state.pairCodes.find(
+        (p) => p.code === code && p.claimed_at === null && p.expires_at > now,
+      );
+      if (row) {
+        row.claimed_at = claimedAt;
+        row.claimed_home_id = homeId;
+      }
+      return null;
+    }
+
+    /* ---------- pair_failure_attempts ---------- */
+    if (q.startsWith('SELECT ip, attempts, locked_until FROM pair_failure_attempts')) {
+      const [ip] = this.boundArgs as [string];
+      return this.state.pairFailures.find((f) => f.ip === ip) ?? null;
+    }
+    if (q.startsWith('INSERT INTO pair_failure_attempts')) {
+      const [ip, attempts, lockedUntil] = this.boundArgs as [string, number, number | null];
+      this.state.pairFailures.push({ ip, attempts, locked_until: lockedUntil });
+      return null;
+    }
+    if (q.startsWith('UPDATE pair_failure_attempts')) {
+      const [attempts, lockedUntil, ip] = this.boundArgs as [number, number | null, string];
+      const row = this.state.pairFailures.find((f) => f.ip === ip);
+      if (row) {
+        row.attempts = attempts;
+        row.locked_until = lockedUntil;
+      }
+      return null;
+    }
+    if (q.startsWith('DELETE FROM pair_failure_attempts')) {
+      const [ip] = this.boundArgs as [string];
+      this.state.pairFailures = this.state.pairFailures.filter((f) => f.ip !== ip);
+      return null;
+    }
+
+    /* ---------- relay_secrets_hash insert ---------- */
+    if (q.startsWith('INSERT INTO relay_secrets_hash')) {
+      const [homeId, hashValue, createdAt] = this.boundArgs as [string, string, number];
+      this.state.relaySecrets.push({ home_id: homeId, hash: hashValue, created_at: createdAt });
+      return null;
+    }
+    if (q.startsWith('SELECT hash FROM relay_secrets_hash')) {
+      const [homeId] = this.boundArgs as [string];
+      return this.state.relaySecrets.find((r) => r.home_id === homeId) ?? null;
+    }
+
     if (q.startsWith('INSERT INTO home_events')) {
       const [eventType, userId, homeId, ip, userAgent, reason, createdAt] = this.boundArgs as [
         string,
@@ -152,10 +253,19 @@ interface FakeD1State {
   homes: HomeRow[];
   relaySecrets: RelaySecretRow[];
   events: EventRow[];
+  pairCodes: PairCodeRow[];
+  pairFailures: PairFailureRow[];
 }
 
 export class FakeD1 implements D1Database {
-  readonly state: FakeD1State = { users: [], homes: [], relaySecrets: [], events: [] };
+  readonly state: FakeD1State = {
+    users: [],
+    homes: [],
+    relaySecrets: [],
+    events: [],
+    pairCodes: [],
+    pairFailures: [],
+  };
 
   prepare(query: string): D1PreparedStatement {
     return new Statement(query, this.state);

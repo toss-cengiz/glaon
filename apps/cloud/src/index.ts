@@ -14,6 +14,7 @@ import { requireClerkSession } from './auth/clerk';
 import type { D1Database } from './db/types';
 import { createLogger } from './logger';
 import { homesRouter } from './routes/homes';
+import { pairRouter } from './routes/pair';
 import { relayRouter } from './routes/relay';
 import { initSentry, type SentryClient } from './sentry';
 
@@ -100,5 +101,10 @@ app.route('/homes', homesRouter);
 
 // Relay WebSocket upgrade endpoints — agent + client. See routes/relay.ts.
 app.route('/relay', relayRouter);
+
+// Pairing flow per ADR 0021. /pair/initiate + /pair/status are Clerk-authed
+// (middleware applied inside pairRouter); /pair/claim is unauthenticated and
+// rate-limited per IP.
+app.route('/pair', pairRouter);
 
 export default app;
