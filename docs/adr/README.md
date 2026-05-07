@@ -24,7 +24,7 @@ ADR yazılmayacak olanlar: kütüphane version bump'ları, rutin refactor, bug f
 
 ### Yeni ADR açmak
 
-1. Bu klasörde `NNNN-kisa-baslik.md` dosyası oluştur. Numara sıradaki boş numara (şu an `0015`'ten başlıyor).
+1. Bu klasörde `NNNN-kisa-baslik.md` dosyası oluştur. Numara sıradaki boş numara (şu an `0017`'den başlıyor; 0017–0023 aralığı Phase 2 ADR'leri için rezerve — bkz. issue #337, #338, #339, #340, #341, #342, #407).
 2. [`template.md`](template.md)'i şablon olarak kullan.
 3. İlk hali **Status: Proposed** olarak açılır. Tartışma açıksa bu aşamada PR review üzerinden yürütülür.
 4. Karar kesinleştiğinde status'ü **Accepted**'e geçir ve karar tarihini yaz.
@@ -61,6 +61,8 @@ Deprecated durumu, kararı yapılacak işin dışına çıkarttığımızda kull
 | 0012 | [Tailwind CSS for `@glaon/ui`](0012-tailwind-css-for-glaon-ui.md)                       | Superseded by 0013 | 2026-04-27 |
 | 0013 | [Tailwind v4 + Untitled UI theme.css](0013-tailwind-v4-uui-theme.md)                    | Accepted           | 2026-04-27 |
 | 0014 | [`apps/api` ayrı backend service (Next.js geçişi yerine)](0014-apps-api-over-nextjs.md) | Accepted           | 2026-05-06 |
+| 0015 | [State yönetimi — Zustand + Immer + TanStack Query](0015-state-management.md)           | Accepted           | 2026-05-07 |
+| 0016 | [HA WebSocket transport mimarisi](0016-ha-ws-transport.md)                              | Accepted           | 2026-05-07 |
 
 ## Konvansiyonlar
 

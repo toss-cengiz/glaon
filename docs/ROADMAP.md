@@ -62,6 +62,14 @@ Sürümler anlamlı teslimatlarla işaretlenir; tarihler yaklaşıktır. Güvenl
 
 ## Kararlar ve Açık Sorular
 
-- **State yönetimi**: zustand mı, redux-toolkit mi? Faz 1 başında karar.
-- **i18n kütüphanesi**: `react-i18next` vs `lingui` — Faz 5 kararı.
+Kararlaştırılmış konular ADR olarak [docs/adr/](adr/README.md) altında dondurulur. Açık sorular bu listede tutulur.
+
+Kapatılan sorular:
+
+- ✅ **State yönetimi** → [ADR 0015 — Zustand + Immer (client state) + TanStack Query (server state)](adr/0015-state-management.md).
+- ✅ **HA WebSocket transport mimarisi** → [ADR 0016 — Tek `HaClient`, transport interface arkasında multiplexing + reconnect](adr/0016-ha-ws-transport.md).
+
+Açık sorular:
+
+- **i18n kütüphanesi**: `react-i18next` vs `lingui` vs FormatJS — epic [#406](https://github.com/toss-cengiz/glaon/issues/406), kararı i18n-A ([#407](https://github.com/toss-cengiz/glaon/issues/407)) ADR'si verecek (planlanan numara 0023).
 - **Grafik**: Recharts mı, Victory Native XL mi? Tek kütüphane web + mobilde çalışmalı.
