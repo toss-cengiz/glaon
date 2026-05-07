@@ -69,6 +69,8 @@ Deprecated durumu, kararı yapılacak işin dışına çıkarttığımızda kull
 | 0020 | [Cloud hosting platform — CF Workers + Durable Objects](0020-cloud-hosting-platform.md) | Accepted           | 2026-05-07 |
 | 0021 | [Pairing protocol + relay credential lifecycle](0021-pairing-and-relay-credentials.md)  | Accepted           | 2026-05-07 |
 | 0022 | [Cloud deployment + secrets pipeline](0022-cloud-deployment-secrets.md)                 | Accepted           | 2026-05-07 |
+| 0023 | [i18n library + file format + RTL strategy](0023-i18n-library-format-rtl.md)            | Accepted           | 2026-05-07 |
+
 
 ## Konvansiyonlar
 
