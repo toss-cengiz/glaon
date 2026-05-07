@@ -22,6 +22,7 @@ default_config:
 # Demo platform: pre-seeded entities so the dev fixture is not empty.
 demo:
 
+api:
 # CORS for Glaon dev clients. Add new dev origins here as new app ports come
 # online (cloud client, Storybook integration, etc.).
 http:
