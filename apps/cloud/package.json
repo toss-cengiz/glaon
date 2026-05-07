@@ -1,0 +1,26 @@
+{
+  "name": "@glaon/cloud",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "wrangler deploy --dry-run --outdir=dist",
+    "clean": "rm -rf dist .wrangler .turbo coverage",
+    "dev": "wrangler dev --local",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "^4.6.14"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251201.0",
+    "@glaon/config": "workspace:*",
+    "@vitest/coverage-v8": "^4.1.5",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.5",
+    "wrangler": "^4.0.0"
+  }
+}

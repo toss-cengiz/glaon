@@ -24,6 +24,11 @@
       "vitest": false,
       "ignoreDependencies": ["@glaon/ui", "@glaon/config"]
     },
+    "apps/cloud": {
+      "entry": ["src/**/*.test.ts", "wrangler.toml"],
+      "project": ["src/**/*.ts"],
+      "ignoreDependencies": ["@glaon/config"]
+    },
     "apps/web-e2e": {
       "entry": ["tests/**/*.spec.ts"],
       "project": ["**/*.ts"],
@@ -36,7 +41,6 @@
         "@glaon/ui",
         "@glaon/config",
         "@babel/core",
-        "expo-auth-session",
         "expo-crypto",
         "expo-updates",
         "expo-system-ui"

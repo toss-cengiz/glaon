@@ -40,8 +40,10 @@
   "scripts": {
     "build": "turbo run build",
     "build:addon": "pnpm --filter @glaon/web build:addon && rm -rf addon/dist && cp -R apps/web/dist addon/dist",
+    "build:cloud": "pnpm --filter @glaon/cloud build",
     "clean": "turbo run clean && rm -rf node_modules .turbo",
     "dev": "turbo run dev",
+    "dev:cloud": "pnpm --filter @glaon/cloud dev",
     "e2e": "turbo run e2e",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

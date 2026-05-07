@@ -1,0 +1,36 @@
+# apps/cloud — Cloudflare Worker config (per ADR 0020 hosting + ADR 0022 deployment).
+# This scaffold lands in #343 with healthcheck + version routes; B2 (#344 home registry),
+# B3 (#345 WS relay), and B4 (#346 pairing) layer their bindings + DOs on top in
+# subsequent PRs.
+
+name = "glaon-cloud-staging"
+main = "src/index.ts"
+compatibility_date = "2026-01-15"
+compatibility_flags = ["nodejs_compat"]
+
+# Per ADR 0020: Western Europe locationHint for v0 (TR + EU primary user base).
+# Cloud staging + production share the same hint until multi-region lands.
+[placement]
+mode = "smart"
+
+# Public, non-secret config. Secrets land via `wrangler secret put` in CI per ADR 0022 —
+# see CLERK_SECRET_KEY, SENTRY_DSN, PAIR_BCRYPT_SECRET (added when B4 lands).
+[vars]
+LOG_LEVEL = "info"
+SENTRY_ENVIRONMENT = "development"
+
+# Staging environment — deployed automatically on `push` to `development` per ADR 0022.
+[env.staging]
+name = "glaon-cloud-staging"
+
+[env.staging.vars]
+LOG_LEVEL = "info"
+SENTRY_ENVIRONMENT = "staging"
+
+# Production environment — deployed automatically on `push` to `main` per ADR 0022.
+[env.production]
+name = "glaon-cloud"
+
+[env.production.vars]
+LOG_LEVEL = "warn"
+SENTRY_ENVIRONMENT = "production"
