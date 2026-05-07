@@ -30,7 +30,7 @@
       "ignoreDependencies": ["@glaon/config"]
     },
     "apps/mobile": {
-      "entry": ["App.tsx", "src/auth/expo-token-store.ts"],
+      "entry": ["App.tsx"],
       "project": ["**/*.{ts,tsx}"],
       "ignoreDependencies": [
         "@glaon/ui",
