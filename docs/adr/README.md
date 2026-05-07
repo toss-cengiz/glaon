@@ -66,6 +66,7 @@ Deprecated durumu, kararı yapılacak işin dışına çıkarttığımızda kull
 | 0017 | [Dual-mode auth — local HA OAuth + cloud-relay (Clerk)](0017-dual-mode-auth.md)         | Accepted           | 2026-05-07 |
 | 0018 | [Cloud relay topology + wire protocol](0018-cloud-relay-topology.md)                    | Accepted           | 2026-05-07 |
 | 0019 | [Identity provider — Clerk (cloud mod için)](0019-identity-provider-clerk.md)           | Accepted           | 2026-05-07 |
+| 0020 | [Cloud hosting platform — CF Workers + Durable Objects](0020-cloud-hosting-platform.md) | Accepted           | 2026-05-07 |
 
 ## Konvansiyonlar
 
