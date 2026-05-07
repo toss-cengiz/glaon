@@ -3,3 +3,4 @@ export * from './oauth2';
 export * from './types';
 export * from './token-store';
 export * from './refresh-mutex';
+export type { HaAuthTokens, HaConnectionConfig } from '../types';

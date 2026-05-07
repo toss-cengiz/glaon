@@ -3,10 +3,11 @@ import { expect, test } from '@playwright/test';
 import { assertA11y } from './support/a11y';
 
 test.describe('web app @smoke', () => {
-  test('renders the root heading and tagline', async ({ page }) => {
+  test('renders the local-mode login screen at /', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Glaon');
-    await expect(page.getByText(/Secure Home Assistant frontend/i)).toBeVisible();
+    await expect(page.getByTestId('login-route')).toBeVisible();
+    await expect(page.getByTestId('login-start')).toBeVisible();
     await assertA11y(page);
   });
 
