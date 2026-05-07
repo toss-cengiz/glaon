@@ -44,6 +44,7 @@ export * from './icons/app';
 export * from './icons/brand';
 export * from './icons/emoji';
 export * from './icons/filetype';
+export * from './icons/flag';
 export * from './icons/integration';
 export * from './icons/payment';
 export * from './theme';
