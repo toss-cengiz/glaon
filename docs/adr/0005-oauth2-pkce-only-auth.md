@@ -1,6 +1,6 @@
 # ADR 0005 — OAuth2 Authorization Code + PKCE (tek auth yöntemi)
 
-- **Durum:** Accepted
+- **Durum:** Superseded by [ADR 0017](0017-dual-mode-auth.md)
 - **Karar tarihi:** 2026-04-20
 - **Karar verenler:** @toss-cengiz
 - **İlgili konular:** [docs/SECURITY.md](../SECURITY.md), [docs/ARCHITECTURE.md](../ARCHITECTURE.md), [HA auth API](https://developers.home-assistant.io/docs/auth_api)
