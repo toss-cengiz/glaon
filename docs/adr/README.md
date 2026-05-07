@@ -67,6 +67,7 @@ Deprecated durumu, kararı yapılacak işin dışına çıkarttığımızda kull
 | 0018 | [Cloud relay topology + wire protocol](0018-cloud-relay-topology.md)                    | Accepted           | 2026-05-07 |
 | 0019 | [Identity provider — Clerk (cloud mod için)](0019-identity-provider-clerk.md)           | Accepted           | 2026-05-07 |
 | 0020 | [Cloud hosting platform — CF Workers + Durable Objects](0020-cloud-hosting-platform.md) | Accepted           | 2026-05-07 |
+| 0021 | [Pairing protocol + relay credential lifecycle](0021-pairing-and-relay-credentials.md)  | Accepted           | 2026-05-07 |
 
 ## Konvansiyonlar
 
