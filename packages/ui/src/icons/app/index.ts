@@ -6,20 +6,20 @@
 // Sub-phase scoping for the rollout (see #367):
 //   - Phase D.1.a (#399 ✓): Browsers (Chrome, Firefox, Safari, Edge,
 //                            Opera, Brave) — six glyphs.
-//   - Phase D.1.b (this)  : Coding (VSCode, Sublime, IntelliJ,
-//                            WebStorm, Vim) — five glyphs. `Cursor`
-//                            already lives in the integration
-//                            registry (`Foundations / Integration
-//                            Icons`) — pull it from there to avoid
-//                            cross-registry duplication.
-//   - Phase D.1.c (todo)  : Design (Figma, Sketch, Adobe XD, …)
+//   - Phase D.1.b (#401 ✓): Coding (VSCode, Sublime, IntelliJ,
+//                            WebStorm, Vim) — five glyphs + Cursor
+//                            cross-ref from the integration registry.
+//   - Phase D.1.c (this)  : Design (Sketch, Adobe XD, Photoshop,
+//                            Illustrator) — four glyphs + Figma
+//                            cross-ref from the brand registry
+//                            (#322).
 //   - Phase D.1.d (todo)  : Messengers (Slack, Discord, Telegram, …)
 //   - Phase D.1.e (todo)  : Music / Video / Productivity / OS / Other
 //
 // Each glyph component accepts the narrow `AppIconProps`
 // (`className`, `aria-hidden`, `aria-label`); brand-spec multi-colour
 // glyphs ship hard-coded fills, single-colour glyphs would inherit
-// `currentColor` (none yet — every browser / coding logo is
+// `currentColor` (none yet — every browser / coding / design logo is
 // multi-colour by definition).
 
 import { Brave } from './browsers/Brave';
@@ -35,9 +35,15 @@ import { Vim } from './coding/Vim';
 import { VsCode } from './coding/VsCode';
 import { WebStorm } from './coding/WebStorm';
 
-// Re-exported from the integration registry so consumers reach the
-// same canonical glyph from either entry — the editor and the AI
-// integration share one brand mark.
+import { AdobeXd } from './design/AdobeXd';
+import { Illustrator } from './design/Illustrator';
+import { Photoshop } from './design/Photoshop';
+import { Sketch } from './design/Sketch';
+
+// Cross-references from the brand / integration registries so
+// consumers reach the same canonical glyph from either entry — same
+// brand, one mark.
+import { Figma } from '../brand/Figma';
 import { Cursor } from '../integration/Cursor';
 
 import type { AppIconCatalogEntry } from './types';
@@ -45,6 +51,7 @@ import type { AppIconCatalogEntry } from './types';
 export type { AppIconCatalogEntry, AppIconCategory, AppIconProps } from './types';
 export { Brave, Chrome, Edge, Firefox, Opera, Safari };
 export { IntelliJ, Sublime, Vim, VsCode, WebStorm };
+export { AdobeXd, Illustrator, Photoshop, Sketch };
 
 /**
  * `appCatalog` — typed registry consumed by the Storybook catalog.
@@ -66,4 +73,10 @@ export const appCatalog: AppIconCatalogEntry[] = [
   { id: 'vim', label: 'Vim', category: 'coding', Icon: Vim },
   { id: 'vscode', label: 'Visual Studio Code', category: 'coding', Icon: VsCode },
   { id: 'webstorm', label: 'WebStorm', category: 'coding', Icon: WebStorm },
+  // Design
+  { id: 'adobe-xd', label: 'Adobe XD', category: 'design', Icon: AdobeXd },
+  { id: 'figma', label: 'Figma', category: 'design', Icon: Figma },
+  { id: 'illustrator', label: 'Illustrator', category: 'design', Icon: Illustrator },
+  { id: 'photoshop', label: 'Photoshop', category: 'design', Icon: Photoshop },
+  { id: 'sketch', label: 'Sketch', category: 'design', Icon: Sketch },
 ];
