@@ -14,7 +14,11 @@ import { requireClerkSession } from './auth/clerk';
 import type { D1Database } from './db/types';
 import { createLogger } from './logger';
 import { homesRouter } from './routes/homes';
+import { relayRouter } from './routes/relay';
 import { initSentry, type SentryClient } from './sentry';
+
+// Re-export the DO class so wrangler.toml can bind `HOME_SESSION_DO` to it.
+export { HomeSessionDO } from './do/home-session';
 
 export interface Bindings {
   readonly LOG_LEVEL?: string;
@@ -23,6 +27,7 @@ export interface Bindings {
   readonly SENTRY_RELEASE?: string;
   readonly CLERK_ISSUER?: string;
   readonly DB: D1Database;
+  readonly HOME_SESSION_DO?: DurableObjectNamespace;
 }
 
 export interface AppEnv {
@@ -92,5 +97,8 @@ app.use('/homes/*', async (c, next) => {
   return middleware(c as ClerkContext, next);
 });
 app.route('/homes', homesRouter);
+
+// Relay WebSocket upgrade endpoints — agent + client. See routes/relay.ts.
+app.route('/relay', relayRouter);
 
 export default app;
