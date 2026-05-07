@@ -6,7 +6,7 @@ import { WebTokenStore } from './auth/web-token-store';
 import { AuthCallbackRoute } from './features/auth/local/auth-callback-route';
 import { LoginRoute } from './features/auth/local/login-route';
 
-const HA_BASE_URL: string = import.meta.env.VITE_HA_BASE_URL;
+const HA_BASE_URL: string = import.meta.env.VITE_HA_BASE_URL ?? 'http://homeassistant.local:8123';
 const LOGOUT_ENDPOINT = '/auth/logout';
 
 export function App(): ReactNode {
