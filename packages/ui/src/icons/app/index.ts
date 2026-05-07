@@ -9,18 +9,19 @@
 //   - Phase D.1.b (#401 ✓): Coding (VSCode, Sublime, IntelliJ,
 //                            WebStorm, Vim) — five glyphs + Cursor
 //                            cross-ref from the integration registry.
-//   - Phase D.1.c (this)  : Design (Sketch, Adobe XD, Photoshop,
+//   - Phase D.1.c (#402 ✓): Design (Sketch, Adobe XD, Photoshop,
 //                            Illustrator) — four glyphs + Figma
-//                            cross-ref from the brand registry
-//                            (#322).
-//   - Phase D.1.d (todo)  : Messengers (Slack, Discord, Telegram, …)
+//                            cross-ref from the brand registry.
+//   - Phase D.1.d (this)  : Messengers (Signal) — one new glyph +
+//                            Discord / Slack / Telegram / WhatsApp
+//                            cross-refs from the brand registry.
 //   - Phase D.1.e (todo)  : Music / Video / Productivity / OS / Other
 //
 // Each glyph component accepts the narrow `AppIconProps`
 // (`className`, `aria-hidden`, `aria-label`); brand-spec multi-colour
 // glyphs ship hard-coded fills, single-colour glyphs would inherit
-// `currentColor` (none yet — every browser / coding / design logo is
-// multi-colour by definition).
+// `currentColor` (none yet — every browser / coding / design /
+// messenger logo is multi-colour by definition).
 
 import { Brave } from './browsers/Brave';
 import { Chrome } from './browsers/Chrome';
@@ -40,10 +41,16 @@ import { Illustrator } from './design/Illustrator';
 import { Photoshop } from './design/Photoshop';
 import { Sketch } from './design/Sketch';
 
+import { Signal } from './messengers/Signal';
+
 // Cross-references from the brand / integration registries so
 // consumers reach the same canonical glyph from either entry — same
 // brand, one mark.
+import { Discord } from '../brand/Discord';
 import { Figma } from '../brand/Figma';
+import { Slack } from '../brand/Slack';
+import { Telegram } from '../brand/Telegram';
+import { WhatsApp } from '../brand/WhatsApp';
 import { Cursor } from '../integration/Cursor';
 
 import type { AppIconCatalogEntry } from './types';
@@ -52,6 +59,7 @@ export type { AppIconCatalogEntry, AppIconCategory, AppIconProps } from './types
 export { Brave, Chrome, Edge, Firefox, Opera, Safari };
 export { IntelliJ, Sublime, Vim, VsCode, WebStorm };
 export { AdobeXd, Illustrator, Photoshop, Sketch };
+export { Signal };
 
 /**
  * `appCatalog` — typed registry consumed by the Storybook catalog.
@@ -79,4 +87,10 @@ export const appCatalog: AppIconCatalogEntry[] = [
   { id: 'illustrator', label: 'Illustrator', category: 'design', Icon: Illustrator },
   { id: 'photoshop', label: 'Photoshop', category: 'design', Icon: Photoshop },
   { id: 'sketch', label: 'Sketch', category: 'design', Icon: Sketch },
+  // Messengers
+  { id: 'discord', label: 'Discord', category: 'messengers', Icon: Discord },
+  { id: 'signal', label: 'Signal', category: 'messengers', Icon: Signal },
+  { id: 'slack', label: 'Slack', category: 'messengers', Icon: Slack },
+  { id: 'telegram', label: 'Telegram', category: 'messengers', Icon: Telegram },
+  { id: 'whatsapp', label: 'WhatsApp', category: 'messengers', Icon: WhatsApp },
 ];
