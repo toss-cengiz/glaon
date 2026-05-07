@@ -1,0 +1,147 @@
+name: cloud-deploy
+
+# apps/cloud auto-deploy pipeline per ADR 0022. Staging deploys on every push to
+# `development`; production deploys on every push to `main` (release-please tag
+# merges land here). The same workflow handles manual rollbacks via
+# `workflow_dispatch` inputs.
+#
+# Secrets the workflow consumes (per ADR 0022 — set via GH Actions environment
+# secrets, scoped to `staging` / `production`):
+#   - CF_API_TOKEN          (Wrangler auth)
+#   - CF_ACCOUNT_ID         (target account)
+#   - CLERK_SECRET_KEY      (per-env)
+#   - CLERK_ISSUER          (per-env, public-ish; piped through env so the
+#                            Worker reads it from `c.env.CLERK_ISSUER`)
+#   - SENTRY_DSN            (per-env, optional in staging)
+#   - PAIR_BCRYPT_SECRET    (#346 lockout pepper, optional)
+# The deploy step pipes secrets in via `wrangler secret put` over stdin —
+# values never appear in argv or logs (ADR 0022 invariant).
+
+on:
+  push:
+    branches: [development, main]
+    paths:
+      - 'apps/cloud/**'
+      - '.github/workflows/cloud-deploy.yml'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target environment'
+        type: choice
+        required: true
+        options:
+          - staging
+          - production
+        default: staging
+      rollback_to:
+        description: 'Wrangler deployment id to roll back to (optional)'
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloud-deploy-${{ github.event.inputs.target || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy ${{ github.event.inputs.target || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
+    env:
+      WRANGLER_ENV: ${{ github.event.inputs.target || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.4.0
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Test gate (cloud)
+        if: github.event.inputs.rollback_to == ''
+        run: pnpm --filter @glaon/cloud test
+
+      - name: Build (dry-run check)
+        if: github.event.inputs.rollback_to == ''
+        run: pnpm --filter @glaon/cloud build
+
+      # ---------- Rollback path ----------
+      - name: Roll back deployment
+        if: github.event.inputs.rollback_to != ''
+        working-directory: apps/cloud
+        run: |
+          echo "rolling back $WRANGLER_ENV to deployment ${{ github.event.inputs.rollback_to }}"
+          pnpm wrangler rollback "${{ github.event.inputs.rollback_to }}" --env "$WRANGLER_ENV"
+
+      # ---------- Forward path: secrets → migrations → deploy ----------
+      - name: Pipe secrets into Worker env
+        if: github.event.inputs.rollback_to == ''
+        working-directory: apps/cloud
+        env:
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          CLERK_ISSUER: ${{ secrets.CLERK_ISSUER }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          PAIR_BCRYPT_SECRET: ${{ secrets.PAIR_BCRYPT_SECRET }}
+        run: |
+          # Pipe each secret via stdin so the value never lands in argv/logs.
+          pipe_secret() {
+            local name="$1"
+            local value="$2"
+            if [ -z "$value" ]; then
+              echo "skipping $name (not set)"
+              return 0
+            fi
+            printf '%s' "$value" | pnpm wrangler secret put "$name" --env "$WRANGLER_ENV"
+          }
+          pipe_secret CLERK_SECRET_KEY "$CLERK_SECRET_KEY"
+          pipe_secret CLERK_ISSUER "$CLERK_ISSUER"
+          pipe_secret SENTRY_DSN "$SENTRY_DSN"
+          pipe_secret PAIR_BCRYPT_SECRET "$PAIR_BCRYPT_SECRET"
+
+      - name: Apply D1 migrations
+        if: github.event.inputs.rollback_to == ''
+        working-directory: apps/cloud
+        run: |
+          db_name="glaon-${WRANGLER_ENV}"
+          pnpm wrangler d1 migrations apply "$db_name" --env "$WRANGLER_ENV" --remote
+
+      - name: Deploy Worker
+        if: github.event.inputs.rollback_to == ''
+        working-directory: apps/cloud
+        env:
+          GIT_SHA: ${{ github.sha }}
+          BUILD_TIME: ${{ github.event.head_commit.timestamp || github.run_id }}
+          SENTRY_RELEASE: ${{ github.sha }}
+        run: pnpm wrangler deploy --env "$WRANGLER_ENV"
+
+      - name: Smoke test /healthz
+        run: |
+          if [ "$WRANGLER_ENV" = "production" ]; then
+            url="https://relay.glaon.app/healthz"
+          else
+            url="https://relay-staging.glaon.app/healthz"
+          fi
+          for attempt in 1 2 3 4 5 6; do
+            echo "attempt $attempt — GET $url"
+            status=$(curl -s -o /tmp/healthz.body -w "%{http_code}" "$url" || true)
+            if [ "$status" = "200" ]; then
+              echo "healthz ok"
+              cat /tmp/healthz.body
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "healthz did not return 200 after 6 attempts; failing the deploy"
+          exit 1
