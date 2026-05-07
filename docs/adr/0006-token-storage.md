@@ -5,6 +5,8 @@
 - **Karar verenler:** @toss-cengiz
 - **İlgili konular:** [docs/SECURITY.md](../SECURITY.md), [CLAUDE.md — Security-First Rules](../../CLAUDE.md#security-first-rules), ADR 0005
 
+> **Phase 2 revizyonu (2026-05-07):** Cloud mod (ADR 0017) `cloud-session` slot'unu eklediğinde `TokenStore` üç slot grubuna (`ha-access`, `ha-refresh`, `cloud-session`) genişledi. Saklama modeli ve güvenlik modeli aynen geçerli — yeni slot Clerk session JWT'sini taşır; web'de in-memory, mobile'da SecureStore'da yaşar. Implementation issue [#9](https://github.com/toss-cengiz/glaon/issues/9). Detaylar için bkz. [ADR 0017 — dual-mode auth](0017-dual-mode-auth.md).
+
 ## Bağlam
 
 ADR 0005 ile OAuth2 PKCE seçildi. Geriye access + refresh token'ları her istemcide güvenli saklama kararı kaldı. Saldırı modelleri:

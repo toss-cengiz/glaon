@@ -59,4 +59,35 @@ export default tseslint.config(
       'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
   },
+  // Token storage boundary — see ADR 0006 (Phase 2 revision via ADR 0017) and issue #9.
+  // localStorage / sessionStorage are forbidden on web; AsyncStorage is forbidden on mobile.
+  // Refresh tokens must live in httpOnly cookies (web) or hardware-backed SecureStore (mobile).
+  {
+    files: ['**/auth/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        {
+          name: 'localStorage',
+          message: 'Token paths must not use localStorage — see ADR 0006 (issue #9).',
+        },
+        {
+          name: 'sessionStorage',
+          message: 'Token paths must not use sessionStorage — see ADR 0006 (issue #9).',
+        },
+      ],
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@react-native-async-storage/async-storage',
+              message:
+                'Token paths must not use AsyncStorage — use expo-secure-store via @glaon/core/auth KeyValueTokenStore (ADR 0006).',
+            },
+          ],
+        },
+      ],
+    },
+  },
 );
