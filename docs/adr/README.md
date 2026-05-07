@@ -24,7 +24,7 @@ ADR yazılmayacak olanlar: kütüphane version bump'ları, rutin refactor, bug f
 
 ### Yeni ADR açmak
 
-1. Bu klasörde `NNNN-kisa-baslik.md` dosyası oluştur. Numara sıradaki boş numara (şu an `0017`'den başlıyor; 0017–0023 aralığı Phase 2 ADR'leri için rezerve — bkz. issue #337, #338, #339, #340, #341, #342, #407).
+1. Bu klasörde `NNNN-kisa-baslik.md` dosyası oluştur. Numara sıradaki boş numara (şu an `0018`'den başlıyor; 0018–0023 aralığı Phase 2 ADR'leri için rezerve — bkz. issue #338, #339, #340, #341, #342, #407).
 2. [`template.md`](template.md)'i şablon olarak kullan.
 3. İlk hali **Status: Proposed** olarak açılır. Tartışma açıksa bu aşamada PR review üzerinden yürütülür.
 4. Karar kesinleştiğinde status'ü **Accepted**'e geçir ve karar tarihini yaz.
@@ -51,7 +51,7 @@ Deprecated durumu, kararı yapılacak işin dışına çıkarttığımızda kull
 | 0002 | [Vite + React 19 (web)](0002-vite-react-19-web.md)                                      | Accepted           | 2026-04-20 |
 | 0003 | [Expo SDK + new architecture (mobile)](0003-expo-new-architecture-mobile.md)            | Accepted           | 2026-04-20 |
 | 0004 | [`@glaon/core` platform-agnostic paylaşım paketi](0004-glaon-core-platform-agnostic.md) | Accepted           | 2026-04-20 |
-| 0005 | [OAuth2 Authorization Code + PKCE (tek auth yöntemi)](0005-oauth2-pkce-only-auth.md)    | Accepted           | 2026-04-20 |
+| 0005 | [OAuth2 Authorization Code + PKCE (tek auth yöntemi)](0005-oauth2-pkce-only-auth.md)    | Superseded by 0017 | 2026-04-20 |
 | 0006 | [Token storage — in-memory + httpOnly / SecureStore](0006-token-storage.md)             | Accepted           | 2026-04-20 |
 | 0007 | [Sentry observability backend olarak](0007-sentry-observability.md)                     | Accepted           | 2026-04-20 |
 | 0008 | [Chromatic tek görsel regresyon aracı](0008-chromatic-visual-regression.md)             | Accepted           | 2026-04-21 |
@@ -63,6 +63,7 @@ Deprecated durumu, kararı yapılacak işin dışına çıkarttığımızda kull
 | 0014 | [`apps/api` ayrı backend service (Next.js geçişi yerine)](0014-apps-api-over-nextjs.md) | Accepted           | 2026-05-06 |
 | 0015 | [State yönetimi — Zustand + Immer + TanStack Query](0015-state-management.md)           | Accepted           | 2026-05-07 |
 | 0016 | [HA WebSocket transport mimarisi](0016-ha-ws-transport.md)                              | Accepted           | 2026-05-07 |
+| 0017 | [Dual-mode auth — local HA OAuth + cloud-relay (Clerk)](0017-dual-mode-auth.md)         | Accepted           | 2026-05-07 |
 
 ## Konvansiyonlar
 
