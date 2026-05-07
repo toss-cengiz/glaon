@@ -19,6 +19,16 @@ mode = "smart"
 LOG_LEVEL = "info"
 SENTRY_ENVIRONMENT = "development"
 
+# Per-home Durable Object per ADR 0020. WebSocket Hibernation API is enabled by
+# the runtime; the DO class is exported from `src/index.ts`.
+[[durable_objects.bindings]]
+name = "HOME_SESSION_DO"
+class_name = "HomeSessionDO"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["HomeSessionDO"]
+
 # Staging environment — deployed automatically on `push` to `development` per ADR 0022.
 [env.staging]
 name = "glaon-cloud-staging"
