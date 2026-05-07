@@ -24,7 +24,7 @@ ADR yazılmayacak olanlar: kütüphane version bump'ları, rutin refactor, bug f
 
 ### Yeni ADR açmak
 
-1. Bu klasörde `NNNN-kisa-baslik.md` dosyası oluştur. Numara sıradaki boş numara (şu an `0019`'dan başlıyor; 0019–0023 aralığı Phase 2 ADR'leri için rezerve — bkz. issue #339, #340, #341, #342, #407).
+1. Bu klasörde `NNNN-kisa-baslik.md` dosyası oluştur. Numara sıradaki boş numara (şu an `0020`'den başlıyor; 0020–0023 aralığı Phase 2 ADR'leri için rezerve — bkz. issue #340, #341, #342, #407).
 2. [`template.md`](template.md)'i şablon olarak kullan.
 3. İlk hali **Status: Proposed** olarak açılır. Tartışma açıksa bu aşamada PR review üzerinden yürütülür.
 4. Karar kesinleştiğinde status'ü **Accepted**'e geçir ve karar tarihini yaz.
@@ -65,6 +65,7 @@ Deprecated durumu, kararı yapılacak işin dışına çıkarttığımızda kull
 | 0016 | [HA WebSocket transport mimarisi](0016-ha-ws-transport.md)                              | Accepted           | 2026-05-07 |
 | 0017 | [Dual-mode auth — local HA OAuth + cloud-relay (Clerk)](0017-dual-mode-auth.md)         | Accepted           | 2026-05-07 |
 | 0018 | [Cloud relay topology + wire protocol](0018-cloud-relay-topology.md)                    | Accepted           | 2026-05-07 |
+| 0019 | [Identity provider — Clerk (cloud mod için)](0019-identity-provider-clerk.md)           | Accepted           | 2026-05-07 |
 
 ## Konvansiyonlar
 
