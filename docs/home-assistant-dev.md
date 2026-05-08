@@ -123,8 +123,36 @@ docker buildx imagetools inspect ghcr.io/home-assistant/home-assistant:stable
 
 ve çıktıdaki **index digest**'i (`sha256:...`) `docker-compose.yml`'daki `image:` alanına yapıştır. Multi-arch index digest'i kullan; tek-platform digest'i koyarsan farklı CPU mimarilerinde container çekilemez.
 
+## Lokal keşif (`*.local` çözümlemesi)
+
+Glaon local-mode UX'i, kullanıcının evindeki Home Assistant kurulumuna LAN üzerinden erişebilmesine bağlı. Bu çözümlemeyi **HA Supervisor'ın varsayılan mDNS yayını** sağlıyor — Glaon ek bir `glaon.local` advertisement'ı yapmıyor (gerekçesi [ADR 0024](adr/0024-local-discovery-rely-on-ha-hostname.md)).
+
+Pratik sonuç: kullanıcı, tarayıcısına ya da mobile pairing wizard'ına HA host adresini girer (`http://homeassistant.local:8123`, ya da `homeassistant.name` HA `configuration.yaml`'da değiştirildiyse o ad). Glaon panel sidebar'ından açıldığında ise URL hiç gerek değil — HA Ingress içeriden bağlar.
+
+### Discovery matrix — `*.local` istemci tarafı
+
+| Platform                   | mDNS / Bonjour resolver     | Glaon UX yolu                                                   |
+| -------------------------- | --------------------------- | --------------------------------------------------------------- |
+| macOS Safari/Chrome/FF     | OS Bonjour (built-in)       | `homeassistant.local` resolve, OAuth2 PKCE direct               |
+| Windows 10+ Chrome/Edge    | OS mDNSResponder (built-in) | `homeassistant.local` resolve, OAuth2 PKCE direct               |
+| Windows 7/8 Chrome/FF      | _yok_ — manual URL girişi   | Mode-selector "HA URL" alanına IP/host yaz                      |
+| Linux Chrome/FF (NSS)      | nss-mdns / avahi-daemon     | Genelde resolve eder; aksi halde manual URL                     |
+| iOS Safari (LAN)           | OS Bonjour                  | Resolve, OAuth2 PKCE direct (#8 mobile WebBrowser)              |
+| iOS app (Glaon mobile)     | RN Zeroconf modülü (#356)   | Probe → `_home-assistant._tcp.local` keşfedilirse host önerilir |
+| Android Chrome (LAN)       | DNS-SD partial — değişken   | Bazı sürümlerde resolve eder, fallback manual URL               |
+| Android app (Glaon mobile) | RN Zeroconf (#356)          | Probe → bulunamazsa cloud-mode'a geri çekil veya manual URL     |
+| HA Panel (Ingress içi)     | _gerek yok_                 | Glaon zaten HA içinden açılır — lokal keşif by-pass             |
+
+Kullanıcı, hostname'i çözemediği veya tarayıcısı `*.local`'i desteklemediği durumda **manuel URL fallback'i** mode-selector UI'sında zaten yer alıyor (#353, #356).
+
+### Dev container ve `*.local`
+
+Bu repo'nun [dev container'ı](devcontainer.md) `docker-outside-of-docker` ile çalıştığı için fixture HA `localhost:8123` üzerinden ulaşılır — `*.local` resolve dev'de gerekli değil. Gerçek HA OS kurulumlarına benzetmek isteyen developerlar `apps/dev-ha/docker-compose.yml`'a `mdns` ya da `network_mode: host` ekleyip Avahi container'ı koşabilirler; bu kurgu repo standardı değil, ad-hoc.
+
 ## İlişkili işler
 
 - [#331](https://github.com/toss-cengiz/glaon/issues/331) — bu fixture'ın açılış issue'su.
 - [#7](https://github.com/toss-cengiz/glaon/issues/7), [#8](https://github.com/toss-cengiz/glaon/issues/8), [#10](https://github.com/toss-cengiz/glaon/issues/10), [#13](https://github.com/toss-cengiz/glaon/issues/13) — fixture'ı tüketen Phase 2 implementation'ları.
+- [#350](https://github.com/toss-cengiz/glaon/issues/350) — mDNS karar kapanışı (bu bölüm).
+- [docs/adr/0024-local-discovery-rely-on-ha-hostname.md](adr/0024-local-discovery-rely-on-ha-hostname.md) — keşif kararının ADR'ı.
 - [docs/devcontainer.md](devcontainer.md) — Dev Container kullanıyorsan, container `docker-outside-of-docker` özellikli; aynı `pnpm ha:*` komutları içeriden de çalışır.
