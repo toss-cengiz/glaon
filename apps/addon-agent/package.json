@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/agent.cjs",
   "scripts": {
-    "build": "tsc -b && esbuild src/agent.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/agent.cjs",
+    "build": "tsc -b && esbuild src/agent.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/agent.cjs && cp -R src/static dist/static",
     "clean": "rm -rf dist .turbo coverage",
     "lint": "eslint .",
     "test": "vitest run",

@@ -1,7 +1,13 @@
 // Glaon addon relay agent — process entry point. Reads addon options
 // (`/data/options.json` is HA Supervisor's standard path), opens the cloud
 // upstream + local HA WS, wires the FrameBridge between them, and surfaces a
-// /agent/healthz HTTP endpoint that nginx proxies under Ingress.
+// /agent/healthz HTTP endpoint plus the /pair Ingress UI (#349) that nginx
+// proxies under Ingress.
+//
+// The agent process is always running — even before the user has paired the
+// addon — because the /pair surface lives in this same Node process. The
+// supervisor loop (`runAgentLoop`) sits in IDLE state until /pair/claim
+// writes credentials and signals it to wake up.
 //
 // Real WebSocket transport is the standard `ws` module; the bridge logic
 // lives in `bridge.ts` and is exercised by unit tests with FakeSockets — the
@@ -10,17 +16,15 @@
 
 import { readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
+import { join } from 'node:path';
 import WebSocket from 'ws';
 
 import { FrameBridge } from './bridge';
 import { FatalRelayAuthError, nextDelay } from './backoff';
+import { createPairHandler } from './pair-server';
 import { scrub } from './scrubber';
-
-interface AddonOptions {
-  readonly cloud_url?: string;
-  readonly home_id?: string;
-  readonly relay_secret?: string;
-}
+import { AgentState } from './state';
+import { FileOptionsStore, isPaired, type AddonOptions } from './options-store';
 
 const OPTIONS_PATH = process.env.GLAON_OPTIONS_PATH ?? '/data/options.json';
 const SUPERVISOR_TOKEN = process.env.SUPERVISOR_TOKEN;
@@ -29,57 +33,79 @@ function log(level: 'info' | 'warn' | 'error', record: Record<string, unknown>):
   const safe = scrub(record);
   // eslint-disable-next-line no-console -- agent logs ship via stdout to the addon supervisor
   console[level === 'error' ? 'error' : 'warn'](
-    JSON.stringify({ level, time: new Date().toISOString(), ...(safe as Record<string, unknown>) }),
+    JSON.stringify({
+      level,
+      time: new Date().toISOString(),
+      ...(safe as Record<string, unknown>),
+    }),
   );
 }
 
-function readOptions(): AddonOptions {
-  try {
-    const raw = readFileSync(OPTIONS_PATH, 'utf-8');
-    return JSON.parse(raw) as AddonOptions;
-  } catch (err) {
-    log('warn', { msg: 'options-read-failed', err: String(err) });
-    return {};
-  }
+function loadStaticAssets(): { html: string; css: string; js: string } {
+  const dir = join(__dirname, 'static');
+  return {
+    html: readFileSync(join(dir, 'pair.html'), 'utf-8'),
+    css: readFileSync(join(dir, 'pair.css'), 'utf-8'),
+    js: readFileSync(join(dir, 'pair.js'), 'utf-8'),
+  };
 }
 
-function startHealthzServer(): void {
+function startHttpServer(state: AgentState, store: FileOptionsStore): void {
   const port = Number(process.env.AGENT_HEALTHZ_PORT ?? '8001');
-  const server = createServer((_req, res) => {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok' }));
+  const pairHandler = createPairHandler({
+    options: store,
+    state,
+    staticAssets: loadStaticAssets(),
+    logger: log,
+  });
+  const server = createServer((req, res) => {
+    const url = req.url ?? '/';
+    if (url === '/agent/healthz') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok', state: state.view().name }));
+      return;
+    }
+    if (url === '/pair' || url.startsWith('/pair/') || url.startsWith('/pair?')) {
+      pairHandler(req, res);
+      return;
+    }
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'not-found' }));
   });
   server.listen(port, () => {
-    log('info', { msg: 'healthz-listening', port });
+    log('info', { msg: 'agent-http-listening', port });
   });
 }
 
-async function runAgentLoop(options: AddonOptions): Promise<void> {
-  const cloudUrl = options.cloud_url;
-  const homeId = options.home_id;
-  const relaySecret = options.relay_secret;
-  if (
-    cloudUrl === undefined ||
-    homeId === undefined ||
-    relaySecret === undefined ||
-    SUPERVISOR_TOKEN === undefined
-  ) {
-    log('warn', { msg: 'agent-config-missing', has_cloud: cloudUrl !== undefined });
-    return;
-  }
-
+async function runAgentLoop(state: AgentState, store: FileOptionsStore): Promise<void> {
   let attempt = 0;
   for (;;) {
+    const options = store.read();
+    if (!isPaired(options) || SUPERVISOR_TOKEN === undefined) {
+      state.set({ name: 'idle', homeId: null, attempt: 0 });
+      log('info', {
+        msg: 'agent-idle',
+        reason: SUPERVISOR_TOKEN === undefined ? 'no-supervisor-token' : 'unpaired',
+      });
+      await state.waitForWake();
+      continue;
+    }
+    state.set({ name: 'connecting', homeId: options.home_id ?? null, attempt });
     try {
-      await runOnce(cloudUrl, homeId, relaySecret);
+      await runOnce(options as Required<AddonOptions>, state);
       attempt = 0;
     } catch (err) {
       if (err instanceof FatalRelayAuthError) {
+        state.set({ name: 'fatal', lastError: err.message });
         log('error', { msg: 'fatal-auth', detail: err.message });
-        return; // do not retry-storm on bad relay_secret
+        // Wait for re-pair instead of retry-storming.
+        await state.waitForWake();
+        attempt = 0;
+        continue;
       }
       attempt += 1;
       const delay = nextDelay(attempt);
+      state.set({ name: 'backoff', attempt, lastError: String(err) });
       log('warn', { msg: 'reconnect', attempt, delayMs: delay, err: String(err) });
       await new Promise<void>((r) => setTimeout(r, delay));
     }
@@ -126,12 +152,12 @@ function selectUpstream(cloudUrl: string): string {
   }
 }
 
-async function runOnce(cloudUrl: string, homeId: string, relaySecret: string): Promise<void> {
-  const upstreamUrl = selectUpstream(cloudUrl);
+async function runOnce(options: Required<AddonOptions>, state: AgentState): Promise<void> {
+  const upstreamUrl = selectUpstream(options.cloud_url);
   const cloud = new WebSocket(upstreamUrl, {
     headers: {
-      Authorization: `Bearer ${relaySecret}`,
-      'X-Glaon-Home': homeId,
+      Authorization: `Bearer ${options.relay_secret}`,
+      'X-Glaon-Home': options.home_id,
     },
   });
   const home = new WebSocket('ws://supervisor/core/websocket', {
@@ -139,7 +165,8 @@ async function runOnce(cloudUrl: string, homeId: string, relaySecret: string): P
   });
 
   await Promise.all([waitOpen(cloud, 'cloud'), waitOpen(home, 'home')]);
-  log('info', { msg: 'agent-connected', homeId });
+  state.set({ name: 'running', homeId: options.home_id, lastError: null });
+  log('info', { msg: 'agent-connected', homeId: options.home_id });
 
   const bridge = new FrameBridge(
     {
@@ -152,7 +179,7 @@ async function runOnce(cloudUrl: string, homeId: string, relaySecret: string): P
         home.send(d);
       },
     },
-    { homeId, pinnedSessionId: null },
+    { homeId: options.home_id, pinnedSessionId: null },
   );
 
   cloud.on('message', (data: WebSocket.RawData) => {
@@ -204,6 +231,8 @@ function waitOpen(ws: WebSocket, label: string): Promise<void> {
 }
 
 if (process.env.GLAON_AGENT_BOOT !== '0') {
-  startHealthzServer();
-  void runAgentLoop(readOptions());
+  const state = new AgentState();
+  const store = new FileOptionsStore(OPTIONS_PATH);
+  startHttpServer(state, store);
+  void runAgentLoop(state, store);
 }

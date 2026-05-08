@@ -3,21 +3,16 @@ set -euo pipefail
 
 bashio::log.info "Starting Glaon add-on..."
 
-# Relay agent: bridges HA WebSocket to the Glaon cloud relay (#348). Boots only
-# when the operator has paired the addon (cloud_url + home_id + relay_secret all
-# present in /data/options.json). The agent process is forked into the
-# background; nginx remains the foreground process so the addon container's
-# liveness still keys on the web server.
+# Agent process always runs — it hosts both the relay bridge (#348) and the
+# /pair Ingress UI (#349). When the addon is unpaired the supervisor loop
+# stays in IDLE; the pair surface stays reachable on /pair via nginx so the
+# user can submit a code. After /pair/claim succeeds the loop wakes up and
+# dials the cloud relay using the freshly-written credentials in
+# /data/options.json. nginx remains the foreground process so the addon
+# container's liveness still keys on the web server.
 if [ -f /opt/glaon/agent/agent.cjs ]; then
-  cloud_url="$(bashio::config 'cloud_url' '')"
-  home_id="$(bashio::config 'home_id' '')"
-  relay_secret="$(bashio::config 'relay_secret' '')"
-  if [ -n "$cloud_url" ] && [ -n "$home_id" ] && [ -n "$relay_secret" ]; then
-    bashio::log.info "Starting relay agent..."
-    node /opt/glaon/agent/agent.cjs &
-  else
-    bashio::log.info "Relay agent skipped — addon not paired yet."
-  fi
+  bashio::log.info "Starting relay agent + pair surface..."
+  node /opt/glaon/agent/agent.cjs &
 fi
 
 exec nginx -g 'daemon off;'
