@@ -4,6 +4,13 @@ import { assertA11y } from './support/a11y';
 
 test.describe('web app @smoke', () => {
   test('renders the local-mode login screen at /', async ({ page }) => {
+    // The mode selector (#353) sits in front of the local OAuth flow on a
+    // fresh visit. Pre-seed the preference so the smoke test lands on
+    // LoginRoute directly — this spec covers the local-mode happy path,
+    // not the picker.
+    await page.addInitScript(() => {
+      window.localStorage.setItem('glaon.mode-preference', JSON.stringify({ mode: 'local' }));
+    });
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Glaon');
     await expect(page.getByTestId('login-route')).toBeVisible();
