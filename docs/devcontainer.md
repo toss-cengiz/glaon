@@ -70,6 +70,7 @@ Add-on build'i için `docker buildx` gerekli. Container-in-container (DinD) çok
 
 - Expo / React Native **emulator** container-içi desteği — hâlâ host-side: simulator (iOS) ve Android emulator macOS/Linux host üzerinde koşar. `apps/mobile` için `pnpm --filter @glaon/mobile dev` container dışında çalıştırılır. Bu tutarlı bir follow-up: mobile build container'ı ayrı bir iş (ayrı issue).
 - GHCR'ye push edilmiş pre-built image — startup time bir problem olana kadar plain `devcontainer.json` yeterli. İleride `devcontainer.image.ref` ile bu dosyada tek satır değişecek.
+- `*.local` mDNS resolution — dev container içinden `homeassistant.local` çözmek host network gerektirir; lokal HA fixture'ı `localhost:8123` üzerinden konuştuğu için dev'de gerekli değil. Lokal keşfin gerçek ortam davranışı [docs/home-assistant-dev.md → Lokal keşif](home-assistant-dev.md#lokal-keşif-local-çözümlemesi) ve [ADR 0024](adr/0024-local-discovery-rely-on-ha-hostname.md) altında.
 
 ## Sorun giderme
 

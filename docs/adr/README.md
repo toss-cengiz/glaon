@@ -70,7 +70,7 @@ Deprecated durumu, kararı yapılacak işin dışına çıkarttığımızda kull
 | 0021 | [Pairing protocol + relay credential lifecycle](0021-pairing-and-relay-credentials.md)  | Accepted           | 2026-05-07 |
 | 0022 | [Cloud deployment + secrets pipeline](0022-cloud-deployment-secrets.md)                 | Accepted           | 2026-05-07 |
 | 0023 | [i18n library + file format + RTL strategy](0023-i18n-library-format-rtl.md)            | Accepted           | 2026-05-07 |
-
+| 0024 | [Lokal keşif: HA hostname'ine bağ kal](0024-local-discovery-rely-on-ha-hostname.md)     | Accepted           | 2026-05-08 |
 
 ## Konvansiyonlar
 
