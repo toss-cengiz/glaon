@@ -39,7 +39,7 @@
   "repository": "toss-cengiz/glaon.git",
   "scripts": {
     "build": "turbo run build",
-    "build:addon": "pnpm --filter @glaon/web build:addon && pnpm --filter @glaon/addon-agent build && rm -rf addon/dist addon/agent && cp -R apps/web/dist addon/dist && mkdir -p addon/agent && cp apps/addon-agent/dist/agent.cjs addon/agent/agent.cjs",
+    "build:addon": "pnpm --filter @glaon/web build:addon && pnpm --filter @glaon/addon-agent build && rm -rf addon/dist addon/agent && cp -R apps/web/dist addon/dist && mkdir -p addon/agent && cp apps/addon-agent/dist/agent.cjs addon/agent/agent.cjs && cp -R apps/addon-agent/dist/static addon/agent/static",
     "build:cloud": "pnpm --filter @glaon/cloud build",
     "clean": "turbo run clean && rm -rf node_modules .turbo",
     "dev": "turbo run dev",
