@@ -6,9 +6,9 @@
 // supervisor wakes from IDLE / FATAL and reconnects with the new credentials
 // without spawning a new process.
 
-export type AgentStateName = 'idle' | 'connecting' | 'running' | 'backoff' | 'fatal';
+type AgentStateName = 'idle' | 'connecting' | 'running' | 'backoff' | 'fatal';
 
-export interface AgentStateView {
+interface AgentStateView {
   readonly name: AgentStateName;
   readonly homeId: string | null;
   readonly lastError: string | null;

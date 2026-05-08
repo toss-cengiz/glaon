@@ -8,7 +8,6 @@
 // helper used in `run.sh`); the JSON shape mirrors `addon/config.yaml`.
 
 import { closeSync, openSync, readFileSync, renameSync, writeSync } from 'node:fs';
-import { dirname } from 'node:path';
 
 export interface AddonOptions {
   readonly cloud_url?: string;
@@ -71,8 +70,4 @@ export function isPaired(options: AddonOptions): boolean {
     typeof options.relay_secret === 'string' &&
     options.relay_secret.length > 0
   );
-}
-
-export function pairedDirectoryOf(path: string): string {
-  return dirname(path);
 }
