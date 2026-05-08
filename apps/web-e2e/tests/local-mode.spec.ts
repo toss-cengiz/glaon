@@ -28,6 +28,15 @@ import { assertA11y } from './support/a11y';
 const HA_AUTHORIZE_PATTERN = /\/auth\/authorize/;
 
 test.describe('local-mode auth flow @smoke', () => {
+  test.beforeEach(async ({ page }) => {
+    // The mode selector (#353) intercepts a fresh visit; this suite covers
+    // the local OAuth flow specifically, so pre-seed the local-mode
+    // preference into localStorage before the page loads.
+    await page.addInitScript(() => {
+      window.localStorage.setItem('glaon.mode-preference', JSON.stringify({ mode: 'local' }));
+    });
+  });
+
   test('renders the login screen and a11y is clean', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('login-route')).toBeVisible();
