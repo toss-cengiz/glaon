@@ -50,5 +50,8 @@ pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Addon build artifacts produced by `pnpm build:addon` — not source.
+addon/agent/
+
 # Misc
 .cache/

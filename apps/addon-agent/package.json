@@ -1,0 +1,26 @@
+{
+  "name": "@glaon/addon-agent",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/agent.cjs",
+  "scripts": {
+    "build": "tsc -b && esbuild src/agent.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/agent.cjs",
+    "clean": "rm -rf dist .turbo coverage",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@glaon/config": "workspace:*",
+    "@types/node": "^22.10.2",
+    "@types/ws": "^8.5.13",
+    "@vitest/coverage-v8": "^4.1.5",
+    "esbuild": "^0.27.3",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.5"
+  }
+}

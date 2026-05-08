@@ -29,6 +29,11 @@
       "project": ["src/**/*.ts"],
       "ignoreDependencies": ["@glaon/config"]
     },
+    "apps/addon-agent": {
+      "entry": ["src/**/*.test.ts"],
+      "project": ["src/**/*.ts"],
+      "ignoreDependencies": ["@glaon/config"]
+    },
     "apps/web-e2e": {
       "entry": ["tests/**/*.spec.ts"],
       "project": ["**/*.ts"],

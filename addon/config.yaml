@@ -17,5 +17,11 @@ hassio_api: false
 auth_api: true
 host_network: false
 apparmor: true
-options: {}
-schema: {}
+options:
+  cloud_url: ''
+  home_id: ''
+  relay_secret: ''
+schema:
+  cloud_url: 'str?'
+  home_id: 'str?'
+  relay_secret: 'password?'
