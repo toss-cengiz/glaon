@@ -1,19 +1,75 @@
 #include <tunables/global>
 
+# Glaon addon AppArmor profile (#351). Two foreground processes run inside
+# the addon container: nginx (serves the web bundle on Ingress and proxies
+# /pair to the agent on 127.0.0.1:8001) and the Node-based relay agent
+# (apps/addon-agent — bridges HA WS to the Glaon cloud relay and hosts the
+# pairing surface). Everything else is denied by AppArmor's deny-by-default
+# semantics.
+#
+# Network confinement at the AppArmor layer is coarse — we only get to say
+# "this process can speak inet/tcp at all", not "only to relay.glaon.app".
+# Host-level destination filtering is enforced by `selectUpstream()` in the
+# agent (literal allowlist, see ADR 0024 + the #444 CodeQL fix). HA's
+# Supervisor does the per-addon network ACLs around the container itself.
+
 profile glaon flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
+  #include <abstractions/nameservice>
+  #include <abstractions/openssl>
 
+  # 8099 binding for nginx + 8001 for the agent's pair / healthz HTTP server.
   capability net_bind_service,
+  # bashio's `with-contenv` wrapper + su-exec drop to the agent user.
   capability setuid,
   capability setgid,
+  # FileOptionsStore writes /data/options.json at mode 0600 (rename from .tmp).
+  capability chown,
+  capability fowner,
 
-  network inet tcp,
-  network inet6 tcp,
+  network inet stream,
+  network inet6 stream,
+  network unix stream,
 
+  # ---- Boot path (run.sh, bashio, su-exec) --------------------------------
   /run.sh rix,
+  /usr/bin/with-contenv rix,
+  /usr/bin/bashio rix,
+  /usr/bin/su-exec rix,
+  /etc/services r,
+  /etc/passwd r,
+  /etc/group r,
+  /usr/bin/env rix,
+  /bin/sh rix,
+  /bin/bash rix,
+
+  # ---- nginx --------------------------------------------------------------
   /usr/sbin/nginx rix,
+  /etc/nginx/** r,
   /var/www/glaon/** r,
   /var/log/nginx/** w,
   /var/lib/nginx/** rw,
   /run/nginx.pid rw,
+  /run/nginx/** rw,
+
+  # ---- Relay agent (Node) -------------------------------------------------
+  /usr/bin/node rix,
+  /opt/glaon/agent/** r,
+
+  # ---- Addon options (operator-controlled, includes relay_secret) ---------
+  /data/options.json rw,
+  /data/options.json.tmp rw,
+
+  # ---- Explicit denies for defense-in-depth ------------------------------
+  # The profile is deny-by-default, but call out the highest-value sinks so
+  # accidental rule expansion doesn't open them silently.
+  deny /etc/shadow rw,
+  deny /etc/sudoers rw,
+  deny /root/** rw,
+  deny capability sys_admin,
+  deny capability sys_module,
+  deny capability sys_ptrace,
+  deny capability dac_override,
+  deny capability mac_admin,
+  deny capability mac_override,
 }

@@ -12,7 +12,20 @@ bashio::log.info "Starting Glaon add-on..."
 # container's liveness still keys on the web server.
 if [ -f /opt/glaon/agent/agent.cjs ]; then
   bashio::log.info "Starting relay agent + pair surface..."
-  node /opt/glaon/agent/agent.cjs &
+  # The agent needs read of /opt/glaon/agent (group glaon, mode 0750 — set in
+  # the Dockerfile) and rw on /data/options.json. /data is supervisor-owned;
+  # chown the options file to the glaon user the first time the agent runs
+  # so su-exec can later overwrite it. If the file isn't there yet (unpaired)
+  # the chown is a no-op and the FileOptionsStore creates the file at 0600
+  # under the glaon user's umask.
+  if [ -e /data/options.json ]; then
+    chown glaon:glaon /data/options.json || true
+    chmod 0600 /data/options.json || true
+  fi
+  # /data must be searchable by the unprivileged user so it can open
+  # options.json by absolute path.
+  chmod a+x /data || true
+  su-exec glaon node /opt/glaon/agent/agent.cjs &
 fi
 
 exec nginx -g 'daemon off;'
