@@ -87,17 +87,20 @@ async function runAgentLoop(options: AddonOptions): Promise<void> {
 }
 
 // `cloud_url` arrives via /data/options.json which the addon operator controls.
-// CodeQL `js/file-access-to-http` flags this file → network sink. We sanitize
-// the input by:
-//   1. Validating it parses as a URL.
-//   2. Rejecting anything but wss:// or https:// schemes.
-//   3. Matching the host against an explicit allowlist (Glaon production /
-//      staging plus localhost for dev fixtures).
-//   4. Rebuilding the upstream URL from scratch — only `host` flows through,
-//      and only after the regex check has narrowed it.
-const ALLOWED_CLOUD_HOSTS = /^(?:relay(?:-staging)?\.glaon\.app|localhost(?::\d+)?)$/;
+// CodeQL `js/file-access-to-http` flags any flow from file data to the
+// outbound WebSocket URL. We defuse it completely: the URL handed to
+// `new WebSocket(...)` is selected from a closed set of string literals — no
+// substring of `cloud_url` (or any other file-derived value) is interpolated
+// into it. The `cloud_url` field acts as a *mode selector*; once the host is
+// recognized, we return the matching literal endpoint. `home_id` rides in the
+// `X-Glaon-Home` request header instead of a query string for the same reason.
+//
+// Localhost dev fixtures can override the literal via `GLAON_DEV_UPSTREAM`
+// (process env, operator-controlled at container start, not file-data).
+const PROD_UPSTREAM = 'wss://relay.glaon.app/relay/agent';
+const STAGING_UPSTREAM = 'wss://relay-staging.glaon.app/relay/agent';
 
-function buildUpstreamUrl(cloudUrl: string, homeId: string): string {
+function selectUpstream(cloudUrl: string): string {
   let parsed: URL;
   try {
     parsed = new URL(cloudUrl);
@@ -107,16 +110,29 @@ function buildUpstreamUrl(cloudUrl: string, homeId: string): string {
   if (parsed.protocol !== 'wss:' && parsed.protocol !== 'https:') {
     throw new FatalRelayAuthError(`cloud_url must use wss:// or https://`);
   }
-  if (!ALLOWED_CLOUD_HOSTS.test(parsed.host)) {
-    throw new FatalRelayAuthError(`cloud_url host not in allowlist`);
+  switch (parsed.host) {
+    case 'relay.glaon.app':
+      return PROD_UPSTREAM;
+    case 'relay-staging.glaon.app':
+      return STAGING_UPSTREAM;
+    default: {
+      const isLocalhost = parsed.host === 'localhost' || /^localhost:\d{1,5}$/.test(parsed.host);
+      const dev = process.env.GLAON_DEV_UPSTREAM;
+      if (isLocalhost && dev !== undefined && dev.length > 0) {
+        return dev;
+      }
+      throw new FatalRelayAuthError(`cloud_url host not in allowlist`);
+    }
   }
-  return `wss://${parsed.host}/relay/agent?home=${encodeURIComponent(homeId)}`;
 }
 
 async function runOnce(cloudUrl: string, homeId: string, relaySecret: string): Promise<void> {
-  const upstreamUrl = buildUpstreamUrl(cloudUrl, homeId);
+  const upstreamUrl = selectUpstream(cloudUrl);
   const cloud = new WebSocket(upstreamUrl, {
-    headers: { Authorization: `Bearer ${relaySecret}` },
+    headers: {
+      Authorization: `Bearer ${relaySecret}`,
+      'X-Glaon-Home': homeId,
+    },
   });
   const home = new WebSocket('ws://supervisor/core/websocket', {
     headers: { Authorization: `Bearer ${SUPERVISOR_TOKEN ?? ''}` },

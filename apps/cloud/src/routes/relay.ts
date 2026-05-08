@@ -25,9 +25,13 @@ export const relayRouter = new Hono<AppEnv>();
 relayRouter.get('/agent', async (c) => {
   const upgrade = c.req.header('Upgrade');
   if (upgrade !== 'websocket') return c.json({ error: 'expected-websocket-upgrade' }, 426);
-  const homeId = c.req.query('home');
+  // Accept home id from X-Glaon-Home header (preferred) or ?home= query string.
+  // Header path keeps the WebSocket URL on the agent side fully literal — the
+  // CodeQL `js/file-access-to-http` taint check flags any /data/options.json
+  // value flowing into the WS URL, so the agent passes home_id via header.
+  const homeId = c.req.header('X-Glaon-Home') ?? c.req.query('home');
   if (homeId === undefined || homeId.length === 0) {
-    return c.json({ error: 'home-query-required' }, 400);
+    return c.json({ error: 'home-required' }, 400);
   }
   const auth = c.req.header('Authorization');
   if (auth?.startsWith('Bearer ') !== true) {
