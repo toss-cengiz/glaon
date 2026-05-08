@@ -24,7 +24,12 @@ import { FatalRelayAuthError, nextDelay } from './backoff';
 import { createPairHandler } from './pair-server';
 import { scrub } from './scrubber';
 import { AgentState } from './state';
-import { FileOptionsStore, isPaired, type AddonOptions } from './options-store';
+import {
+  FileOptionsStore,
+  inspectOptionsPerms,
+  isPaired,
+  type AddonOptions,
+} from './options-store';
 
 const OPTIONS_PATH = process.env.GLAON_OPTIONS_PATH ?? '/data/options.json';
 const SUPERVISOR_TOKEN = process.env.SUPERVISOR_TOKEN;
@@ -80,6 +85,26 @@ function startHttpServer(state: AgentState, store: FileOptionsStore): void {
 async function runAgentLoop(state: AgentState, store: FileOptionsStore): Promise<void> {
   let attempt = 0;
   for (;;) {
+    // Refuse to read credentials from a world-readable options file (#351).
+    // chmod 0o600 is attempted once; if that fails the loop sits in IDLE
+    // until /pair/claim writes a fresh 0o600 file via FileOptionsStore.
+    const perms = inspectOptionsPerms(OPTIONS_PATH);
+    if (perms.state === 'unsafe') {
+      state.set({ name: 'idle', homeId: null, attempt: 0, lastError: 'options-perms-unsafe' });
+      log('error', {
+        msg: 'options-perms-unsafe',
+        modeOctal: perms.mode.toString(8),
+        reason: perms.reason,
+      });
+      await state.waitForWake();
+      continue;
+    }
+    if (perms.state === 'fixed') {
+      log('warn', {
+        msg: 'options-perms-fixed',
+        previousModeOctal: perms.previousMode.toString(8),
+      });
+    }
     const options = store.read();
     if (!isPaired(options) || SUPERVISOR_TOKEN === undefined) {
       state.set({ name: 'idle', homeId: null, attempt: 0 });

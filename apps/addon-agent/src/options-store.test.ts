@@ -1,10 +1,15 @@
-import { mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { FileOptionsStore, isPaired, type AddonOptions } from './options-store';
+import {
+  FileOptionsStore,
+  inspectOptionsPerms,
+  isPaired,
+  type AddonOptions,
+} from './options-store';
 
 function makeStore(): { store: FileOptionsStore; dir: string; path: string } {
   const dir = mkdtempSync(join(tmpdir(), 'glaon-options-'));
@@ -58,6 +63,40 @@ describe('FileOptionsStore', () => {
       // Write garbage directly bypassing the store API.
       writeFileSync(path, 'not json', { mode: 0o600 });
       expect(store.read()).toEqual({});
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('inspectOptionsPerms', () => {
+  it("reports 'absent' when the file does not exist", () => {
+    const { dir, path } = makeStore();
+    try {
+      expect(inspectOptionsPerms(path)).toEqual({ state: 'absent' });
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("reports 'ok' when perms are already 0600", () => {
+    const { store, dir, path } = makeStore();
+    try {
+      store.write({ cloud_url: 'a', home_id: 'b', relay_secret: 'c' });
+      expect(inspectOptionsPerms(path)).toEqual({ state: 'ok', mode: 0o600 });
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("reports 'fixed' and chmod's the file when perms are too wide", () => {
+    const { store, dir, path } = makeStore();
+    try {
+      store.write({ cloud_url: 'a', home_id: 'b', relay_secret: 'c' });
+      chmodSync(path, 0o644);
+      const result = inspectOptionsPerms(path);
+      expect(result).toEqual({ state: 'fixed', previousMode: 0o644 });
+      expect(statSync(path).mode & 0o777).toBe(0o600);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
