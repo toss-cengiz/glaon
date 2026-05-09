@@ -1,0 +1,198 @@
+name: API CI
+
+on:
+  push:
+    branches: [development, main]
+    paths:
+      - 'apps/api/**'
+      - 'packages/core/**'
+      - '.github/workflows/api-ci.yml'
+      - 'pnpm-lock.yaml'
+  pull_request:
+    paths:
+      - 'apps/api/**'
+      - 'packages/core/**'
+      - '.github/workflows/api-ci.yml'
+      - 'pnpm-lock.yaml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck-lint:
+    name: typecheck · lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.4.0
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm --filter @glaon/api type-check
+
+      - name: Lint
+        run: pnpm --filter @glaon/api lint
+
+  unit-tests:
+    name: unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.4.0
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Unit tests
+        run: pnpm --filter @glaon/api test
+
+  integration-tests:
+    name: integration tests (Mongo)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      mongo:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: glaon
+          MONGO_INITDB_ROOT_PASSWORD: glaon
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ping:1}).ok'"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+          --health-start-period 10s
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.4.0
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Integration tests
+        env:
+          MONGODB_URI: mongodb://glaon:glaon@localhost:27017/?authSource=admin
+          MONGODB_DB: glaon-integration
+          # Test-only filler value, scrubbed from history if you grep it.
+          # Real production secret comes from the deploy pipeline (ADR 0026).
+          SESSION_JWT_SECRET: ${{ format('{0}{0}{0}{0}', 'aaaaaaaa') }}
+          GLAON_API_INTEGRATION: '1'
+        run: pnpm --filter @glaon/api test:integration
+
+  build-image:
+    name: docker build + smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+
+      - name: Build apps/api image (no push)
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: false
+          load: true
+          tags: glaon-api:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test (boot + /healthz)
+        env:
+          MONGODB_URI: mongodb://localhost:27017/?serverSelectionTimeoutMS=500
+          # Same low-value placeholder pattern as the integration job.
+          SESSION_JWT_SECRET: ${{ format('{0}{0}{0}{0}', 'aaaaaaaa') }}
+        run: |
+          # Mongo isn't up in this job — the api will boot but /healthz
+          # will return 503 once the driver gives up. We only assert
+          # that the process boots, the healthz endpoint is reachable,
+          # and the response is JSON-shaped. A full mongo-attached
+          # smoke runs in `integration-tests`.
+          docker run -d --name glaon-api-smoke \
+            --network host \
+            -e MONGODB_URI=$MONGODB_URI \
+            -e SESSION_JWT_SECRET=$SESSION_JWT_SECRET \
+            -e PORT=8080 \
+            glaon-api:ci
+
+          # Wait for the HTTP listener to come up (the mongo connect
+          # times out separately and the process exits — we race that
+          # window).
+          for i in $(seq 1 20); do
+            if curl --silent --fail-with-body --show-error \
+                --max-time 2 http://localhost:8080/healthz \
+                -o /tmp/healthz.json; then
+              break
+            fi
+            # 503 also counts: the listener is up, mongo is down.
+            status=$(curl --silent --output /tmp/healthz.json \
+              --write-out '%{http_code}' http://localhost:8080/healthz || echo 000)
+            if [ "$status" = "503" ]; then
+              echo "healthz returned 503 (expected with no Mongo)"
+              cat /tmp/healthz.json
+              break
+            fi
+            sleep 1
+          done
+
+          jq -e '.status == "degraded" or .status == "ok"' /tmp/healthz.json
+          docker logs glaon-api-smoke || true
+
+  audit:
+    name: audit (high+)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.4.0
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Audit
+        run: pnpm audit --audit-level=high
