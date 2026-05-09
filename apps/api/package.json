@@ -10,7 +10,7 @@
     "dev": "tsx watch src/index.ts",
     "lint": "eslint .",
     "test": "vitest run --exclude=**/*.integration.test.ts",
-    "test:integration": "vitest run **/*.integration.test.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
