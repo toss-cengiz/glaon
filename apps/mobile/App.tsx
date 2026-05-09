@@ -3,6 +3,8 @@ import { useMemo, type ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { AuthProvider, useAuth } from './src/auth/auth-provider';
+import { CloudAuthProvider, getClerkPublishableKey } from './src/auth/cloud/clerk-provider';
+import { useCloudSessionSync } from './src/auth/cloud/use-cloud-session';
 import type { LocalAuthFlowConfig } from './src/auth/local-auth-flow';
 import { createExpoTokenStore } from './src/auth/expo-token-store';
 import { LoginScreen } from './src/features/auth/local/login-screen';
@@ -15,11 +17,27 @@ const HA_CLIENT_ID = process.env.EXPO_PUBLIC_HA_CLIENT_ID ?? 'https://glaon.app/
 
 export default function App(): ReactNode {
   const tokenStore = useMemo(() => createExpoTokenStore(), []);
-  return (
+  const clerkKey = getClerkPublishableKey();
+
+  // CloudAuthProvider only mounts when EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY is
+  // configured. Local-mode-only builds skip Clerk entirely so the SDK
+  // never fails on import-time when given an empty key (mode-detect #356
+  // will narrow scope further).
+  const inner = (
     <AuthProvider tokenStore={tokenStore}>
+      {clerkKey !== null ? <CloudSessionBridge /> : null}
       <Root />
     </AuthProvider>
   );
+
+  if (clerkKey === null) return inner;
+  return <CloudAuthProvider publishableKey={clerkKey}>{inner}</CloudAuthProvider>;
+}
+
+function CloudSessionBridge(): ReactNode {
+  const { tokenStore } = useAuth();
+  useCloudSessionSync(tokenStore);
+  return null;
 }
 
 function Root(): ReactNode {

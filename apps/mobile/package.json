@@ -2,6 +2,7 @@
   "name": "@glaon/mobile",
   "version": "0.0.0",
   "dependencies": {
+    "@clerk/clerk-expo": "^2.19.36",
     "@glaon/core": "workspace:*",
     "@glaon/ui": "workspace:*",
     "@sentry/react-native": "^8.8.0",
