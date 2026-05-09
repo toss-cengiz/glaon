@@ -1,0 +1,45 @@
+# Local dev compose for apps/api + Mongo. Run from this directory:
+#   docker compose up --build
+# Then from the repo root:
+#   curl http://localhost:8080/healthz
+#
+# Production-grade Mongo settings (replica set, authentication, TLS) are
+# out of scope for this scaffold — that's the deploy pipeline's job
+# (#422). The dev compose runs a single-node Mongo with hardcoded creds
+# matching apps/api/.env.example.
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: glaon
+      MONGO_INITDB_ROOT_PASSWORD: glaon
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', 'db.runCommand({ping: 1}).ok']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      MONGODB_URI: mongodb://glaon:glaon@mongo:27017/?authSource=admin
+      MONGODB_DB: glaon
+      PORT: '8080'
+      LOG_LEVEL: info
+    ports:
+      - '8080:8080'
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  mongo-data: {}
