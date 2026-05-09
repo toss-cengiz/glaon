@@ -5,8 +5,21 @@ import { createServer, type ServerDeps } from './server';
 import { InMemoryRevocationStore } from './auth/revocation';
 
 function makeDeps(overrides: { dbCommand?: () => Promise<unknown> } = {}): ServerDeps {
+  // The /layouts router mounted by createServer asks the Db for a
+  // collection at construct time (and again to ensure indexes).
+  // Server-level tests don't exercise /layouts; stub the collection
+  // surface with no-op promises so the wiring doesn't blow up.
+  const collection = {
+    createIndex: () => Promise.resolve(),
+    insertOne: () => Promise.resolve({ insertedId: 'x' }),
+    find: () => ({ sort: () => ({ toArray: () => Promise.resolve([]) }) }),
+    findOne: () => Promise.resolve(null),
+    findOneAndUpdate: () => Promise.resolve(null),
+    updateOne: () => Promise.resolve({ modifiedCount: 0, upsertedCount: 0 }),
+  };
   const db = {
     command: overrides.dbCommand ?? (() => Promise.resolve({ ok: 1 })),
+    collection: () => collection,
   } as unknown as ServerDeps['db'];
   const config: ServerDeps['config'] = {
     port: 8080,

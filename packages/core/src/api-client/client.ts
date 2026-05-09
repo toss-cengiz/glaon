@@ -14,6 +14,17 @@ import type { z } from 'zod';
 
 import { ApiError, ApiNetworkError } from './errors';
 import {
+  CreateLayoutRequestSchema,
+  LayoutListResponseSchema,
+  LayoutSchema,
+  UpdateLayoutRequestSchema,
+  type CreateLayoutRequest,
+  type Layout,
+  type LayoutListQuery,
+  type LayoutListResponse,
+  type UpdateLayoutRequest,
+} from './layouts';
+import {
   ApiErrorBodySchema,
   AuthExchangeRequestSchema,
   AuthExchangeResponseSchema,
@@ -77,15 +88,50 @@ export class ApiClient {
     });
   }
 
-  logout(options: RequestOptions = {}): Promise<AuthLogoutResponse> {
+  async logout(options: RequestOptions = {}): Promise<AuthLogoutResponse> {
     return this.send('POST', '/auth/logout', null, AuthLogoutResponseSchema, options);
+  }
+
+  /* -------- /layouts (#420) ------------------------------------------- */
+
+  async listLayouts(
+    query: LayoutListQuery = {},
+    options: RequestOptions = {},
+  ): Promise<LayoutListResponse> {
+    const path =
+      query.homeId !== undefined && query.homeId.length > 0
+        ? `/layouts?homeId=${encodeURIComponent(query.homeId)}`
+        : '/layouts';
+    return this.send('GET', path, null, LayoutListResponseSchema, options);
+  }
+
+  async getLayout(id: string, options: RequestOptions = {}): Promise<Layout> {
+    return this.send('GET', `/layouts/${encodeURIComponent(id)}`, null, LayoutSchema, options);
+  }
+
+  async createLayout(body: CreateLayoutRequest, options: RequestOptions = {}): Promise<Layout> {
+    const parsed = CreateLayoutRequestSchema.parse(body);
+    return this.send('POST', '/layouts', parsed, LayoutSchema, options);
+  }
+
+  async updateLayout(
+    id: string,
+    body: UpdateLayoutRequest,
+    options: RequestOptions = {},
+  ): Promise<Layout> {
+    const parsed = UpdateLayoutRequestSchema.parse(body);
+    return this.send('PUT', `/layouts/${encodeURIComponent(id)}`, parsed, LayoutSchema, options);
+  }
+
+  async deleteLayout(id: string, options: RequestOptions = {}): Promise<void> {
+    await this.sendNoContent('DELETE', `/layouts/${encodeURIComponent(id)}`, null, options);
   }
 
   // The send() helper is `protected` so feature-specific subclasses (or
   // ad-hoc extensions in @glaon/core later) can add domain endpoints
   // without re-implementing the auth + parse + error pipeline.
   protected async send<TResponse>(
-    method: 'GET' | 'POST' | 'DELETE',
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
     path: string,
     body: unknown,
     responseSchema: z.ZodType<TResponse>,
@@ -137,6 +183,58 @@ export class ApiClient {
       );
     }
     return responseSchema.parse(parsedBody);
+  }
+
+  // Same pipeline as send() but for endpoints that respond 204 No
+  // Content (DELETE /layouts/:id). We don't try to JSON-parse the body
+  // and we tolerate any 2xx status.
+  protected async sendNoContent(
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    path: string,
+    body: unknown,
+    options: RequestOptions,
+  ): Promise<void> {
+    const headers: Record<string, string> = {};
+    if (body !== null) {
+      headers['Content-Type'] = 'application/json';
+    }
+    if (options.skipAuth !== true) {
+      const token = await this.getSessionJwt();
+      if (token !== null && token.length > 0) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+    }
+
+    const init: RequestInit = {
+      method,
+      headers,
+      ...(body !== null ? { body: JSON.stringify(body) } : {}),
+      ...(options.signal !== undefined ? { signal: options.signal } : {}),
+    };
+
+    let response: Response;
+    try {
+      response = await this.fetchImpl(`${this.baseUrl}${path}`, init);
+    } catch (cause) {
+      throw new ApiNetworkError(`apps/api ${method} ${path} failed`, cause);
+    }
+    if (!response.ok) {
+      const text = await response.text();
+      let parsedBody: unknown = null;
+      if (text.length > 0) {
+        try {
+          parsedBody = JSON.parse(text);
+        } catch {
+          /* ignore */
+        }
+      }
+      const errorBody = ApiErrorBodySchema.safeParse(parsedBody);
+      throw new ApiError(
+        `apps/api ${method} ${path} returned ${String(response.status)}`,
+        response.status,
+        errorBody.success ? errorBody.data : null,
+      );
+    }
   }
 }
 
