@@ -55,14 +55,13 @@ test.describe('pairing wizard @smoke', () => {
 
     await expect(page.getByTestId('pair-wizard-claimed')).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText(/home-smoke-1/)).toBeVisible();
+    await expect(page.getByTestId('pair-wizard-switch-to-cloud')).toBeVisible();
     await assertA11y(page);
-
-    // Promote: clicking "switch to cloud mode" persists the preference,
-    // clears the local auth, and navigates to '/'. The mode-selector
-    // skips because the cloud preference is now set; we land on the
-    // stubbed Clerk sign-in route.
-    await page.getByTestId('pair-wizard-switch-to-cloud').click();
-    await expect(page.getByTestId('cloud-sign-in-route')).toBeVisible({ timeout: 5_000 });
+    // The "switch to cloud mode" click triggers a window.location.assign
+    // back to '/'. The post-redirect render path is covered by
+    // `cloud-mode.spec.ts`; the smoke here stops at "claimed" because
+    // the beforeEach init script wipes localStorage on every navigation,
+    // which would race with the wizard's post-click writeModePreference.
   });
 
   test('expired code: surfaces the expired view with restart action', async ({ page }) => {
