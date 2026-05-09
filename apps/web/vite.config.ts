@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
@@ -8,6 +9,20 @@ export default defineConfig(({ command, mode }) => {
   const isProd = mode === 'production';
   const isBuild = command === 'build';
   const dsn = env.VITE_SENTRY_DSN;
+  // `VITE_E2E_AUTH_STUB=true` swaps `@clerk/clerk-react` for a deterministic
+  // stub so the Playwright pairing smoke (#359) can drive the wizard
+  // without Clerk's real network. The flag is opt-in; production deploys
+  // must NOT set it (a console warning fires if the bundle ever loads
+  // with the stub in a real production environment).
+  const e2eAuthStub = env.VITE_E2E_AUTH_STUB === 'true';
+  if (isBuild && isProd && e2eAuthStub) {
+    // eslint-disable-next-line no-console -- visible in CI logs
+    console.warn(
+      '[glaon/web] VITE_E2E_AUTH_STUB is set in a production build. ' +
+        'Clerk will be replaced by a deterministic stub. This is only ' +
+        'intended for the E2E pipeline.',
+    );
+  }
 
   if (isBuild && isProd && !dsn) {
     throw new Error(
@@ -40,6 +55,17 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     plugins,
+    ...(e2eAuthStub
+      ? {
+          resolve: {
+            alias: {
+              '@clerk/clerk-react': fileURLToPath(
+                new URL('./src/__e2e-stubs__/clerk-react.tsx', import.meta.url),
+              ),
+            },
+          },
+        }
+      : {}),
     server: {
       port: 5173,
       strictPort: true,
