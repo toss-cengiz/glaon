@@ -9,10 +9,12 @@ import { AuthCallbackRoute } from './features/auth/local/auth-callback-route';
 import { LoginRoute } from './features/auth/local/login-route';
 import { SignInRoute } from './features/auth/cloud/sign-in-route';
 import { SignUpRoute } from './features/auth/cloud/sign-up-route';
+import { PairWizardRoute } from './features/cloud-pairing/pair-wizard-route';
 import { ModeSelectRoute } from './features/mode-select/mode-select-route';
 import {
   clearModePreference,
   readModePreference,
+  writeModePreference,
   type ModePreference,
 } from './features/mode-select/mode-preference';
 
@@ -94,6 +96,27 @@ function Router({ clerkKey }: RouterProps): ReactNode {
       );
     }
     return path === '/sign-in' ? <SignInRoute /> : <SignUpRoute />;
+  }
+  if (path === '/settings/link-to-cloud') {
+    if (clerkKey === null) {
+      return (
+        <main data-testid="cloud-unavailable">
+          <h1>Cloud pairing unavailable</h1>
+          <p>VITE_CLERK_PUBLISHABLE_KEY is not configured for this build.</p>
+        </main>
+      );
+    }
+    return (
+      <PairWizardRoute
+        onCloudReady={() => {
+          // Promote: persist cloud preference, drop local auth so the
+          // mode-selector flips to cloud on the next reload.
+          writeModePreference({ mode: 'cloud' });
+          void clearAuth();
+          window.location.assign('/');
+        }}
+      />
+    );
   }
   if (mode === null) {
     if (preference === null) {
