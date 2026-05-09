@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { useMemo, type ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AuthProvider, useAuth } from './src/auth/auth-provider';
 import { CloudAuthProvider, getClerkPublishableKey } from './src/auth/cloud/clerk-provider';
@@ -8,6 +8,12 @@ import { useCloudSessionSync } from './src/auth/cloud/use-cloud-session';
 import type { LocalAuthFlowConfig } from './src/auth/local-auth-flow';
 import { createExpoTokenStore } from './src/auth/expo-token-store';
 import { LoginScreen } from './src/features/auth/local/login-screen';
+import { SignInScreen } from './src/features/auth/cloud/sign-in-screen';
+import { ModeSelectScreen } from './src/features/mode-select/mode-select-screen';
+import {
+  expoModePreferenceStore,
+  type ModePreference,
+} from './src/features/mode-select/mode-preference';
 import { initObservability } from './src/observability';
 
 initObservability();
@@ -41,8 +47,9 @@ function CloudSessionBridge(): ReactNode {
 }
 
 function Root(): ReactNode {
-  const { mode } = useAuth();
-  const config = useMemo<LocalAuthFlowConfig>(
+  const { mode, clearAuth } = useAuth();
+  const clerkKey = getClerkPublishableKey();
+  const baseConfig = useMemo<LocalAuthFlowConfig>(
     () => ({
       baseUrl: HA_BASE_URL,
       clientId: HA_CLIENT_ID,
@@ -50,7 +57,76 @@ function Root(): ReactNode {
     }),
     [],
   );
+
+  // Mode preference is hydrated asynchronously from SecureStore on mount.
+  // Until the read resolves we render nothing — the splash flicker is
+  // shorter than rendering and snapping to the picker.
+  const [hydrated, setHydrated] = useState<{ done: boolean; preference: ModePreference | null }>({
+    done: false,
+    preference: null,
+  });
+  useEffect(() => {
+    const ctl: { cancelled: boolean } = { cancelled: false };
+    void (async () => {
+      const preference = await expoModePreferenceStore.read();
+      if (ctl.cancelled) return;
+      setHydrated({ done: true, preference });
+    })();
+    return () => {
+      ctl.cancelled = true;
+    };
+  }, []);
+
+  const choosePreference = useCallback((next: ModePreference) => {
+    setHydrated({ done: true, preference: next });
+  }, []);
+  const switchMode = useCallback(async () => {
+    await expoModePreferenceStore.clear();
+    await clearAuth();
+    setHydrated({ done: true, preference: null });
+  }, [clearAuth]);
+
+  if (!hydrated.done) {
+    return <StatusBar style="auto" />;
+  }
+
   if (mode === null) {
+    if (hydrated.preference === null) {
+      return (
+        <ScrollView contentInsetAdjustmentBehavior="automatic">
+          <ModeSelectScreen cloudAvailable={clerkKey !== null} onChoose={choosePreference} />
+          <StatusBar style="auto" />
+        </ScrollView>
+      );
+    }
+    if (hydrated.preference.mode === 'cloud') {
+      if (clerkKey === null) {
+        return (
+          <View style={styles.cloudUnavailable} testID="cloud-unavailable">
+            <Text style={styles.title}>Cloud sign-in unavailable</Text>
+            <Text style={styles.body}>
+              EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY is not configured for this build.
+            </Text>
+            <Pressable
+              testID="switch-mode"
+              onPress={() => void switchMode()}
+              style={styles.switchModeButton}
+            >
+              <Text style={styles.switchModeButtonText}>Pick a different mode</Text>
+            </Pressable>
+            <StatusBar style="auto" />
+          </View>
+        );
+      }
+      return (
+        <ScrollView contentInsetAdjustmentBehavior="automatic">
+          <SignInScreen />
+          <StatusBar style="auto" />
+        </ScrollView>
+      );
+    }
+    const localBaseUrl = hydrated.preference.lastLocalUrl ?? baseConfig.baseUrl;
+    const config: LocalAuthFlowConfig = { ...baseConfig, baseUrl: localBaseUrl };
     return (
       <>
         <LoginScreen config={config} />
@@ -58,12 +134,20 @@ function Root(): ReactNode {
       </>
     );
   }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Glaon</Text>
       <Text style={styles.body}>
         Signed in. The Phase 2 dashboard lands once #10–#12 wire the HA WebSocket.
       </Text>
+      <Pressable
+        testID="switch-mode"
+        onPress={() => void switchMode()}
+        style={styles.switchModeButton}
+      >
+        <Text style={styles.switchModeButtonText}>Switch mode</Text>
+      </Pressable>
       <StatusBar style="auto" />
     </View>
   );
@@ -74,6 +158,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  cloudUnavailable: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
   },
   title: {
     fontSize: 28,
@@ -83,6 +174,16 @@ const styles = StyleSheet.create({
   body: {
     fontSize: 14,
     textAlign: 'center',
-    paddingHorizontal: 24,
   },
+  switchModeButton: {
+    minHeight: 48,
+    marginTop: 24,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#d0d7de',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  switchModeButtonText: { fontSize: 16, fontWeight: '600' },
 });
