@@ -53,6 +53,11 @@ jobs:
           # Placeholder DSN so the production-build DSN gate in vite.config.ts passes.
           # Events would go nowhere (dummy host) — E2E doesn't assert on Sentry traffic.
           VITE_SENTRY_DSN: https://public@sentry.invalid/0
+          # Mount the cloud subtree for the pairing wizard smoke. The
+          # publishable key is a placeholder — Vite aliases @clerk/clerk-react
+          # to a deterministic stub when VITE_E2E_AUTH_STUB=true (#359).
+          VITE_CLERK_PUBLISHABLE_KEY: pk_test_e2e_smoke
+          VITE_E2E_AUTH_STUB: 'true'
 
       - name: Run Playwright smoke tests
         run: pnpm --filter @glaon/web-e2e e2e --project=chromium --grep @smoke
