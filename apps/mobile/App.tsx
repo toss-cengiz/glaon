@@ -9,6 +9,7 @@ import type { LocalAuthFlowConfig } from './src/auth/local-auth-flow';
 import { createExpoTokenStore } from './src/auth/expo-token-store';
 import { LoginScreen } from './src/features/auth/local/login-screen';
 import { SignInScreen } from './src/features/auth/cloud/sign-in-screen';
+import { PairWizardScreen } from './src/features/cloud-pairing/pair-wizard-screen';
 import { ModeSelectScreen } from './src/features/mode-select/mode-select-screen';
 import {
   expoModePreferenceStore,
@@ -135,12 +136,71 @@ function Root(): ReactNode {
     );
   }
 
+  return <SignedInShell switchMode={switchMode} clerkKey={clerkKey} />;
+}
+
+interface SignedInShellProps {
+  readonly switchMode: () => Promise<void>;
+  readonly clerkKey: string | null;
+}
+
+function SignedInShell({ switchMode, clerkKey }: SignedInShellProps): ReactNode {
+  const [view, setView] = useState<'home' | 'pair-wizard'>('home');
+
+  if (view === 'pair-wizard') {
+    if (clerkKey === null) {
+      return (
+        <View style={styles.cloudUnavailable}>
+          <Text style={styles.title}>Cloud pairing unavailable</Text>
+          <Text style={styles.body}>
+            EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY is not configured for this build.
+          </Text>
+          <Pressable
+            testID="pair-wizard-cancel"
+            onPress={() => {
+              setView('home');
+            }}
+            style={styles.switchModeButton}
+          >
+            <Text style={styles.switchModeButtonText}>Back</Text>
+          </Pressable>
+          <StatusBar style="auto" />
+        </View>
+      );
+    }
+    return (
+      <PairWizardScreen
+        onCancel={() => {
+          setView('home');
+        }}
+        onCloudReady={() => {
+          // Promote to cloud mode and wipe local state on the next reload.
+          void (async () => {
+            await expoModePreferenceStore.write({ mode: 'cloud' });
+            await switchMode();
+          })();
+        }}
+      />
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Glaon</Text>
       <Text style={styles.body}>
         Signed in. The Phase 2 dashboard lands once #10–#12 wire the HA WebSocket.
       </Text>
+      {clerkKey !== null ? (
+        <Pressable
+          testID="link-to-cloud"
+          onPress={() => {
+            setView('pair-wizard');
+          }}
+          style={styles.switchModeButton}
+        >
+          <Text style={styles.switchModeButtonText}>Link to cloud</Text>
+        </Pressable>
+      ) : null}
       <Pressable
         testID="switch-mode"
         onPress={() => void switchMode()}
