@@ -29,6 +29,11 @@
       "project": ["src/**/*.ts"],
       "ignoreDependencies": ["@glaon/config"]
     },
+    "apps/api": {
+      "entry": ["src/index.ts", "src/**/*.test.ts", "vitest.config.ts"],
+      "project": ["src/**/*.ts"],
+      "ignoreDependencies": ["@glaon/config"]
+    },
     "apps/addon-agent": {
       "entry": ["src/**/*.test.ts"],
       "project": ["src/**/*.ts"],

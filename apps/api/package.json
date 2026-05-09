@@ -1,0 +1,30 @@
+{
+  "name": "@glaon/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.cjs",
+  "scripts": {
+    "build": "tsc -b && esbuild src/index.ts --bundle --platform=node --target=node22 --format=cjs --outfile=dist/index.cjs",
+    "clean": "rm -rf dist .turbo coverage",
+    "dev": "tsx watch src/index.ts",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "^4.6.14",
+    "mongodb": "^6.10.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@glaon/config": "workspace:*",
+    "@hono/node-server": "^1.13.7",
+    "@types/node": "^22.10.2",
+    "@vitest/coverage-v8": "^4.1.5",
+    "esbuild": "^0.27.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.5"
+  }
+}
