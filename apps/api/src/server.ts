@@ -7,14 +7,32 @@ import type { Db } from 'mongodb';
 
 import type { Config } from './config';
 import { pingDb } from './db';
+import { decodeSecret } from './auth/jwt';
+import { MongoRevocationStore, type RevocationStore } from './auth/revocation';
+import { createAuthRouter } from './routes/auth';
 
 export interface ServerDeps {
   readonly db: Db;
   readonly config: Config;
+  readonly revocations?: RevocationStore;
+  readonly fetchImpl?: typeof fetch;
 }
 
 export function createServer(deps: ServerDeps): Hono {
   const app = new Hono();
+  const secret = decodeSecret(deps.config.sessionJwtSecret);
+  const revocations = deps.revocations ?? new MongoRevocationStore(deps.db);
+
+  app.route(
+    '/auth',
+    createAuthRouter({
+      secret,
+      revocations,
+      webOrigins: deps.config.webOrigins,
+      sessionTtlSeconds: deps.config.sessionTtlSeconds,
+      ...(deps.fetchImpl !== undefined ? { fetchImpl: deps.fetchImpl } : {}),
+    }),
+  );
 
   // Liveness probe with Mongo ping. Returns 200 when the driver
   // command succeeds, 503 otherwise so a load balancer can drop the

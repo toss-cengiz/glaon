@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { createServer, type ServerDeps } from './server';
 
+import { InMemoryRevocationStore } from './auth/revocation';
+
 function makeDeps(overrides: { dbCommand?: () => Promise<unknown> } = {}): ServerDeps {
   const db = {
     command: overrides.dbCommand ?? (() => Promise.resolve({ ok: 1 })),
@@ -11,13 +13,16 @@ function makeDeps(overrides: { dbCommand?: () => Promise<unknown> } = {}): Serve
     mongodbUri: 'mongodb://localhost:27017',
     mongodbDb: 'glaon-test',
     logLevel: 'info',
+    sessionJwtSecret: 'a'.repeat(32),
+    sessionTtlSeconds: 3600,
+    webOrigins: [],
     buildInfo: {
       version: '0.0.0-test',
       commit: 'deadbeef',
       builtAt: '2026-05-09T00:00:00Z',
     },
   };
-  return { db, config };
+  return { db, config, revocations: new InMemoryRevocationStore() };
 }
 
 describe('GET /healthz', () => {
