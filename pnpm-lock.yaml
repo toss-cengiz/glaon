@@ -132,6 +132,9 @@ importers:
       expo-auth-session:
         specifier: ~55.0.0
         version: 55.0.14(expo@55.0.15)(react-native@0.85.2(@babel/core@7.29.0)(@types/react@19.2.14)(bufferutil@4.1.0)(react@19.2.5)(utf-8-validate@6.0.6))(react@19.2.5)(typescript@5.7.3)
+      expo-clipboard:
+        specifier: ~55.0.0
+        version: 55.0.13(expo@55.0.15)(react-native@0.85.2(@babel/core@7.29.0)(@types/react@19.2.14)(bufferutil@4.1.0)(react@19.2.5)(utf-8-validate@6.0.6))(react@19.2.5)
       expo-crypto:
         specifier: ~55.0.0
         version: 55.0.14(expo@55.0.15)
@@ -4570,6 +4573,13 @@ packages:
   expo-auth-session@55.0.14:
     resolution: {integrity: sha512-NJ4yfY7pP27DrDO0Qny4FRD+L1Lp4/+oBACdLxw3igZywKA+34kjbGkx34fgywRoCB1n373ZnWfUV8PQSHwhTA==}
     peerDependencies:
+      react: '*'
+      react-native: '*'
+
+  expo-clipboard@55.0.13:
+    resolution: {integrity: sha512-PrOmmuVsGW4bAkNQmGKtxMXj3invsfN+jfIKmQxHwE/dn7ODqwFWviUTa+PMUjP3XZmYCDLyu/i0GLeu7HF9Ew==}
+    peerDependencies:
+      expo: '*'
       react: '*'
       react-native: '*'
 
@@ -12589,6 +12599,12 @@ snapshots:
       - expo
       - supports-color
       - typescript
+
+  expo-clipboard@55.0.13(expo@55.0.15)(react-native@0.85.2(@babel/core@7.29.0)(@types/react@19.2.14)(bufferutil@4.1.0)(react@19.2.5)(utf-8-validate@6.0.6))(react@19.2.5):
+    dependencies:
+      expo: 55.0.15(@babel/core@7.29.0)(@expo/dom-webview@55.0.5)(bufferutil@4.1.0)(react-native@0.85.2(@babel/core@7.29.0)(@types/react@19.2.14)(bufferutil@4.1.0)(react@19.2.5)(utf-8-validate@6.0.6))(react@19.2.5)(typescript@5.7.3)(utf-8-validate@6.0.6)
+      react: 19.2.5
+      react-native: 0.85.2(@babel/core@7.29.0)(@types/react@19.2.14)(bufferutil@4.1.0)(react@19.2.5)(utf-8-validate@6.0.6)
 
   expo-constants@55.0.14(expo@55.0.15)(react-native@0.85.2(@babel/core@7.29.0)(@types/react@19.2.14)(bufferutil@4.1.0)(react@19.2.5)(utf-8-validate@6.0.6))(typescript@5.7.3):
     dependencies:
