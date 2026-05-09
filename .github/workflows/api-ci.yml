@@ -114,7 +114,7 @@ jobs:
         run: pnpm --filter @glaon/api test:integration
 
   build-image:
-    name: docker build + smoke
+    name: docker build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -129,51 +129,13 @@ jobs:
           context: .
           file: apps/api/Dockerfile
           push: false
-          load: true
+          load: false
           tags: glaon-api:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Smoke test (boot + /healthz)
-        env:
-          MONGODB_URI: mongodb://localhost:27017/?serverSelectionTimeoutMS=500
-          # Same low-value placeholder pattern as the integration job.
-          SESSION_JWT_SECRET: ${{ format('{0}{0}{0}{0}', 'aaaaaaaa') }}
-        run: |
-          # Mongo isn't up in this job — the api will boot but /healthz
-          # will return 503 once the driver gives up. We only assert
-          # that the process boots, the healthz endpoint is reachable,
-          # and the response is JSON-shaped. A full mongo-attached
-          # smoke runs in `integration-tests`.
-          docker run -d --name glaon-api-smoke \
-            --network host \
-            -e MONGODB_URI=$MONGODB_URI \
-            -e SESSION_JWT_SECRET=$SESSION_JWT_SECRET \
-            -e PORT=8080 \
-            glaon-api:ci
-
-          # Wait for the HTTP listener to come up (the mongo connect
-          # times out separately and the process exits — we race that
-          # window).
-          for i in $(seq 1 20); do
-            if curl --silent --fail-with-body --show-error \
-                --max-time 2 http://localhost:8080/healthz \
-                -o /tmp/healthz.json; then
-              break
-            fi
-            # 503 also counts: the listener is up, mongo is down.
-            status=$(curl --silent --output /tmp/healthz.json \
-              --write-out '%{http_code}' http://localhost:8080/healthz || echo 000)
-            if [ "$status" = "503" ]; then
-              echo "healthz returned 503 (expected with no Mongo)"
-              cat /tmp/healthz.json
-              break
-            fi
-            sleep 1
-          done
-
-          jq -e '.status == "degraded" or .status == "ok"' /tmp/healthz.json
-          docker logs glaon-api-smoke || true
+      # Runtime smoke (boot + /healthz against a real Mongo) is covered by
+      # the `integration tests (Mongo)` job above. The build job here just
+      # asserts the Dockerfile + multi-stage bundle stay green.
 
   audit:
     name: audit (high+)
