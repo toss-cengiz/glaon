@@ -10,21 +10,15 @@
 //     revocation list. No-op for non-authenticated callers.
 
 import { Hono } from 'hono';
-import { z } from 'zod';
 
+import {
+  AuthExchangeRequestSchema as ExchangeBody,
+  AuthRefreshRequestSchema as RefreshBody,
+} from '../schemas';
 import { introspectHaToken } from '../auth/ha-bridge';
 import { mintSessionJwt, verifySessionJwt } from '../auth/jwt';
 import type { RevocationStore } from '../auth/revocation';
 import { SESSION_COOKIE_NAME } from '../middleware/require-session';
-
-const ExchangeBody = z.object({
-  haAccessToken: z.string().min(1),
-  haBaseUrl: z.string().url(),
-});
-
-const RefreshBody = z.object({
-  sessionJwt: z.string().min(1),
-});
 
 interface AuthRouterDeps {
   readonly secret: Uint8Array;

@@ -1,6 +1,9 @@
 {
   "name": "@glaon/core",
   "version": "0.0.0",
+  "dependencies": {
+    "zod": "^3.24.0"
+  },
   "devDependencies": {
     "@glaon/config": "workspace:*",
     "@vitest/coverage-v8": "^4.1.5",
@@ -9,6 +12,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./api-client": "./src/api-client/index.ts",
     "./auth": "./src/auth/index.ts",
     "./ha": "./src/ha/index.ts",
     "./observability": "./src/observability/index.ts",
