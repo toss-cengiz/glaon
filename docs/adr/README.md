@@ -72,6 +72,7 @@ Deprecated durumu, kararı yapılacak işin dışına çıkarttığımızda kull
 | 0023 | [i18n library + file format + RTL strategy](0023-i18n-library-format-rtl.md)            | Accepted           | 2026-05-07 |
 | 0024 | [Lokal keşif: HA hostname'ine bağ kal](0024-local-discovery-rely-on-ha-hostname.md)     | Accepted           | 2026-05-08 |
 | 0025 | [apps/api stack pick — Hono + native MongoDB + Zod](0025-apps-api-stack.md)             | Accepted           | 2026-05-09 |
+| 0026 | [apps/api delivery: Glaon-managed hosted](0026-apps-api-delivery-hosted.md)             | Accepted           | 2026-05-10 |
 
 ## Konvansiyonlar
 
