@@ -54,11 +54,17 @@ test.describe('cloud-mode @smoke', () => {
     await assertA11y(page);
   });
 
-  test('cloud card with no Clerk key surfaces the cloud-unavailable fallback', async ({ page }) => {
-    // Preview bundle is built without VITE_CLERK_PUBLISHABLE_KEY, so
-    // picking the cloud card flows directly into the fallback view.
+  test('cloud preference with no Clerk key surfaces the cloud-unavailable fallback', async ({
+    page,
+  }) => {
+    // Preview bundle is built without VITE_CLERK_PUBLISHABLE_KEY, so the
+    // picker disables the cloud card. A user who already chose cloud on
+    // a previous run (preference persisted in localStorage) lands on
+    // the fallback view directly.
+    await page.addInitScript(() => {
+      window.localStorage.setItem('glaon.mode-preference', JSON.stringify({ mode: 'cloud' }));
+    });
     await page.goto('/');
-    await page.getByTestId('mode-card-cloud').click();
     await expect(page.getByTestId('cloud-unavailable')).toBeVisible();
     await expect(page.getByRole('heading', { level: 1 })).toContainText(
       /cloud sign-in unavailable/i,
@@ -67,6 +73,14 @@ test.describe('cloud-mode @smoke', () => {
     await page.getByRole('button', { name: /pick a different mode/i }).click();
     await expect(page.getByTestId('mode-select-route')).toBeVisible();
     await assertA11y(page);
+  });
+
+  test('cloud card on the picker is disabled when Clerk is unconfigured', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('mode-card-cloud')).toBeDisabled();
+    await expect(page.getByTestId('mode-card-cloud-meta')).toContainText(
+      /cloud is not configured/i,
+    );
   });
 
   test('local card returns to the LoginRoute', async ({ page }) => {
