@@ -10,8 +10,6 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { NativeSelect } from '@glaon/ui';
-
 import { SUPPORTED_LOCALES, isSupportedLocale, type SupportedLocale } from '@glaon/core/i18n';
 
 interface LanguageSwitcherProps {
@@ -31,20 +29,25 @@ export function LanguageSwitcher({ className }: LanguageSwitcherProps): ReactNod
   }));
 
   return (
-    <NativeSelect
-      key={active}
-      data-testid="language-switcher"
-      aria-label={t('languageSwitcher.ariaLabel')}
-      label={t('languageSwitcher.label')}
-      className={className}
-      options={options}
-      defaultValue={active}
-      onChange={(event) => {
-        const next = event.target.value;
-        if (isSupportedLocale(next)) {
-          void i18n.changeLanguage(next);
-        }
-      }}
-    />
+    <label className={className} style={{ display: 'inline-flex', flexDirection: 'column' }}>
+      <span>{t('languageSwitcher.label')}</span>
+      <select
+        data-testid="language-switcher"
+        aria-label={t('languageSwitcher.ariaLabel')}
+        defaultValue={active}
+        onChange={(event) => {
+          const next = event.target.value;
+          if (isSupportedLocale(next)) {
+            void i18n.changeLanguage(next);
+          }
+        }}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
