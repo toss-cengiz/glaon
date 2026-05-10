@@ -45,6 +45,61 @@ export const AuthLogoutResponseSchema = z.object({
 });
 export type AuthLogoutResponse = z.infer<typeof AuthLogoutResponseSchema>;
 
+/* -------- /auth/ha/password-grant ----------------------------------------- */
+//
+// The Device-mode login proxy (#468 / ADR 0027). The web + mobile client
+// renders Glaon's own username/password form, posts the credentials to
+// `apps/api`, and `apps/api` drives HA's `/auth/login_flow` API on the
+// caller's behalf. The end user never sees HA's redirect UI.
+//
+// Server is a stateless proxy: HA refresh token is NOT persisted in the
+// cloud database — it is returned in the response so the client writes
+// it to its `local` slot group exactly the way the OAuth redirect flow
+// would.
+
+export const HaPasswordGrantRequestSchema = z.object({
+  haBaseUrl: z.string().url(),
+  username: z.string().min(1),
+  password: z.string().min(1),
+  /** HA requires a URL-shaped client_id whose host matches the redirect.
+   * Web sends `${origin}/`, mobile sends its deep-link scheme + `/auth`. */
+  clientId: z.string().min(1),
+});
+export type HaPasswordGrantRequest = z.infer<typeof HaPasswordGrantRequestSchema>;
+
+export const HaAccessBundleSchema = z.object({
+  accessToken: z.string().min(1),
+  refreshToken: z.string().min(1),
+  /** seconds; HA returns this as `expires_in`. */
+  expiresIn: z.number().int().positive(),
+  tokenType: z.literal('Bearer'),
+});
+export type HaAccessBundle = z.infer<typeof HaAccessBundleSchema>;
+
+export const HaPasswordGrantResponseSchema = z.object({
+  haAccess: HaAccessBundleSchema,
+  sessionJwt: z.string().min(1),
+  /** ms-since-epoch, mirrors `claims.exp * 1000`. */
+  expiresAt: z.number().int().positive(),
+});
+export type HaPasswordGrantResponse = z.infer<typeof HaPasswordGrantResponseSchema>;
+
+/**
+ * Discriminator for the error envelope of `/auth/ha/password-grant`.
+ * The client uses this to decide UX: `mfa-required` shows the
+ * "sign in via HA directly" inline message, `invalid-credentials`
+ * surfaces a normal form error, and the rest map to a generic
+ * "couldn't reach Home Assistant" banner.
+ */
+export const HaPasswordGrantErrorCode = z.enum([
+  'invalid-url',
+  'invalid-credentials',
+  'mfa-required',
+  'unreachable',
+  'flow-error',
+]);
+export type HaPasswordGrantErrorCode = z.infer<typeof HaPasswordGrantErrorCode>;
+
 /* -------- shared error envelope ------------------------------------------- */
 
 export const ApiErrorBodySchema = z.object({
