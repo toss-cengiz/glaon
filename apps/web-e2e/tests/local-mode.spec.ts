@@ -107,8 +107,23 @@ test.describe('local-mode auth flow @smoke', () => {
     // it here because the verifier match is HA's job in production — the smoke
     // is asserting Glaon's side: it sends the request, parses the response,
     // and the AuthProvider flips.
+    // Capture every outbound request so a regression in the route stub
+    // (or a base URL drift) is diagnosable from the test output.
+    const outbound: string[] = [];
+    page.on('request', (req) => {
+      outbound.push(`${req.method()} ${req.url()}`);
+    });
+    page.on('requestfailed', (req) => {
+      outbound.push(`FAILED ${req.method()} ${req.url()} — ${req.failure()?.errorText ?? '?'}`);
+    });
+
     let tokenRequestSeen = false;
-    await page.route('**/auth/token', async (route) => {
+    // Register on the browser context so the route survives the
+    // cross-origin redirect through HA's authorize stub. `page.route()`
+    // is supposed to behave the same way, but we hit a flake where the
+    // POST never reaches the stub — moving up a level removes the
+    // ambiguity. Glob matches against the full URL.
+    await page.context().route('**/auth/token', async (route) => {
       tokenRequestSeen = true;
       await route.fulfill({
         status: 200,
@@ -135,7 +150,10 @@ test.describe('local-mode auth flow @smoke', () => {
     });
     await expect(page.getByTestId('switch-mode')).toBeVisible();
 
-    expect(tokenRequestSeen).toBe(true);
+    expect(
+      tokenRequestSeen,
+      `expected /auth/token to be intercepted; saw:\n${outbound.join('\n')}`,
+    ).toBe(true);
     expect(capturedRedirectUri).toContain('/auth/callback');
     expect(capturedState).toBeTruthy();
   });
