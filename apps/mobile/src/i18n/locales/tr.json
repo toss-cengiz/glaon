@@ -1,0 +1,31 @@
+{
+  "app": {
+    "name": "Glaon"
+  },
+  "modeSelect": {
+    "heading": "Glaon, Home Assistant'a nasıl bağlanıyor?",
+    "subheading": "Bulunduğun yere uyan seçeneği seç. Daha sonra ayarlardan değiştirebilirsin.",
+    "local": {
+      "title": "Yerel — evinle aynı Wi-Fi'da",
+      "description": "Doğrudan Home Assistant'a giriş yap. En hızlı yol; Glaon bulut hesabına gerek yok.",
+      "probing": "Ağında bir Home Assistant aranıyor…",
+      "found": "Yerel kurulum bulundu: {url}",
+      "notFound": "Home Assistant otomatik bulunamadı; bu seçeneğe dokunup URL'i manuel girebilirsin."
+    },
+    "cloud": {
+      "title": "Bulut — internetin olduğu her yerden",
+      "description": "Glaon hesabınla giriş yap. Glaon relay üzerinden bağlanır.",
+      "unavailable": "Bu build'de bulut yapılandırılmamış."
+    },
+    "manual": {
+      "label": "Ya da Home Assistant URL'ini manuel olarak gir",
+      "placeholder": "http://homeassistant.local:8123",
+      "submit": "Bu URL'i kullan"
+    }
+  },
+  "shell": {
+    "signedInPlaceholder": "Giriş yapıldı. Faz 2 panosu #10–#12 HA WebSocket bağlantısını kurduğunda geliyor.",
+    "switchMode": "Modu değiştir",
+    "linkToCloud": "Buluta bağla"
+  }
+}
