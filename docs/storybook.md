@@ -71,6 +71,15 @@ pnpm --filter @glaon/ui exec vitest --project=storybook src/components/Button/Bu
 - Flaky bir story'yi geçici olarak `tags: ['!test']` ile koşumdan çıkarabilirsin; ama bu bir düzeltme değildir, bir issue aç ve commit mesajında referansla.
 - Browser context'te `window` ve `document` vardır, `jest-dom` matchers koşum ortamına göre `@testing-library/jest-dom` üzerinden aktif olur.
 
+## Foundations sayfaları
+
+`packages/ui/src/foundations/` altındaki MDX dosyaları toolkit'in yatay (component'siz) konularını belgeler. Toolbar'dan **Foundations** kategorisine açılır.
+
+- [Foundations / Tailwind Smoke](../packages/ui/src/foundations/TailwindSmoke.stories.tsx) — UUI scale + semantic class'larının runtime'da çözüldüğünü doğrulayan sanity story (#219, ADR 0013).
+- [Foundations / i18n](../packages/ui/src/foundations/i18n.mdx) — i18next + ICU yığını, locale precedence chain'i, "yeni anahtar nasıl eklenir" akışı, ICU MessageFormat örnekleri (#429 / i18n-G). Toolbar'daki **Locale** seçicisi her story'de aktif — primitive'ler presentational kaldığı için switch çoğu story'de görsel bir değişiklik yapmaz; gerçek demo Foundations / i18n altındaki `Default` story'de.
+
+Yeni bir foundation sayfası (örn. tipografi, spacing) açıldığında aynı klasöre düşmeli ve bu listeye eklenmeli.
+
 ## Story yazım kuralları
 
 ### Yeni primitive nereden başlar

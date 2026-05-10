@@ -8,6 +8,8 @@
 // `http://homeassistant.local:8123` which is HA's default mDNS name.
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 import { probeLocal, type LocalProbeResult } from './local-probe';
 import { ModeSelectorCard } from './mode-selector-card';
@@ -31,6 +33,7 @@ export function ModeSelectRoute({
   defaultLocalUrl = DEFAULT_LOCAL_URL,
   onChoose,
 }: ModeSelectRouteProps): ReactNode {
+  const { t } = useTranslation();
   const [manualUrl, setManualUrl] = useState<string>('');
   const probeUrl = useMemo(() => {
     const stored = readModePreference();
@@ -63,15 +66,12 @@ export function ModeSelectRoute({
     onChoose(preference);
   };
 
-  const localMeta = describeLocal(probeState);
+  const localMeta = describeLocal(probeState, t);
 
   return (
     <main data-testid="mode-select-route">
-      <h1>How is Glaon connecting to Home Assistant?</h1>
-      <p>
-        Pick the option that matches where you are right now. You can change this later from the
-        settings menu.
-      </p>
+      <h1>{t('modeSelect.heading')}</h1>
+      <p>{t('modeSelect.subheading')}</p>
       <div
         style={{
           display: 'grid',
@@ -82,8 +82,8 @@ export function ModeSelectRoute({
       >
         <ModeSelectorCard
           mode="local"
-          title="Local — same Wi-Fi as your home"
-          description="Sign in directly to Home Assistant. Fastest, no Glaon cloud account needed."
+          title={t('modeSelect.local.title')}
+          description={t('modeSelect.local.description')}
           meta={localMeta}
           onSelect={() => {
             choose('local', probeState.result?.reachable === true ? probeUrl : undefined);
@@ -91,10 +91,10 @@ export function ModeSelectRoute({
         />
         <ModeSelectorCard
           mode="cloud"
-          title="Cloud — anywhere on the internet"
-          description="Sign in with your Glaon account. Connects through the Glaon relay."
+          title={t('modeSelect.cloud.title')}
+          description={t('modeSelect.cloud.description')}
           disabled={!cloudAvailable}
-          meta={cloudAvailable ? undefined : 'Cloud is not configured for this build.'}
+          meta={cloudAvailable ? undefined : t('modeSelect.cloud.unavailable')}
           onSelect={() => {
             choose('cloud');
           }}
@@ -104,14 +104,14 @@ export function ModeSelectRoute({
       <section
         data-testid="mode-select-manual-url"
         style={{ marginTop: '1.75rem' }}
-        aria-label="Manual local URL"
+        aria-label={t('modeSelect.manual.ariaLabel')}
       >
         <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.5rem' }}>
-          Or enter your Home Assistant URL manually
+          {t('modeSelect.manual.label')}
           <input
             type="url"
             inputMode="url"
-            placeholder="http://homeassistant.local:8123"
+            placeholder={t('modeSelect.manual.placeholder')}
             value={manualUrl}
             onChange={(event) => {
               setManualUrl(event.target.value);
@@ -144,18 +144,22 @@ export function ModeSelectRoute({
             font: 'inherit',
           }}
         >
-          Use this URL
+          {t('modeSelect.manual.submit')}
         </button>
       </section>
     </main>
   );
 }
 
-function describeLocal(state: {
-  status: 'pending' | 'done';
-  result: LocalProbeResult | null;
-}): string {
-  if (state.status === 'pending') return 'Looking for a Home Assistant on your network…';
-  if (state.result?.reachable === true) return `Local instance found at ${state.result.url}`;
-  return "Couldn't auto-detect Home Assistant; pick this option to enter the URL manually.";
+function describeLocal(
+  state: {
+    status: 'pending' | 'done';
+    result: LocalProbeResult | null;
+  },
+  t: TFunction,
+): string {
+  if (state.status === 'pending') return t('modeSelect.local.probing');
+  if (state.result?.reachable === true)
+    return t('modeSelect.local.found', { url: state.result.url });
+  return t('modeSelect.local.notFound');
 }

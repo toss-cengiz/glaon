@@ -25,6 +25,12 @@ import {
   type UpdateLayoutRequest,
 } from './layouts';
 import {
+  UserPreferencesSchema,
+  UserPreferencesUpdateSchema,
+  type UserPreferences,
+  type UserPreferencesUpdate,
+} from './me';
+import {
   ApiErrorBodySchema,
   AuthExchangeRequestSchema,
   AuthExchangeResponseSchema,
@@ -155,11 +161,25 @@ export class ApiClient {
     await this.sendNoContent('DELETE', `/layouts/${encodeURIComponent(id)}`, null, options);
   }
 
+  /* -------- /me/preferences (#425) ------------------------------------ */
+
+  async getMyPreferences(options: RequestOptions = {}): Promise<UserPreferences> {
+    return this.send('GET', '/me/preferences', null, UserPreferencesSchema, options);
+  }
+
+  async updateMyPreferences(
+    body: UserPreferencesUpdate,
+    options: RequestOptions = {},
+  ): Promise<UserPreferences> {
+    const parsed = UserPreferencesUpdateSchema.parse(body);
+    return this.send('PATCH', '/me/preferences', parsed, UserPreferencesSchema, options);
+  }
+
   // The send() helper is `protected` so feature-specific subclasses (or
   // ad-hoc extensions in @glaon/core later) can add domain endpoints
   // without re-implementing the auth + parse + error pipeline.
   protected async send<TResponse>(
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     path: string,
     body: unknown,
     responseSchema: z.ZodType<TResponse>,
@@ -217,7 +237,7 @@ export class ApiClient {
   // Content (DELETE /layouts/:id). We don't try to JSON-parse the body
   // and we tolerate any 2xx status.
   protected async sendNoContent(
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     path: string,
     body: unknown,
     options: RequestOptions,

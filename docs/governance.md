@@ -56,6 +56,7 @@ Development'a merge olacak her PR'ın aşağıdaki check'leri yeşil olmalı:
 - `gitleaks` — secret tarama
 - `review` — [Dependency review](#dependency-review), PR'da eklenmekte olan bağımlılıkları tarar
 - `visual regression` — Chromatic
+- `i18n-check` — `pnpm i18n:check` (#430), kullanılan her `t('key')` çağrısının `en.json` + `tr.json` karşılığı olduğunu doğrular
 
 `main`'deki liste aynı, sadece `conventional-commits` yok (main'e sadece release-please PR'ı ulaşır; commitlint PR-only event'lerde koşar, main direct push zaten yasak).
 
