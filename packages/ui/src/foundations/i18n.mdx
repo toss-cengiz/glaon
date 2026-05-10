@@ -1,0 +1,153 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+
+import * as I18nDemoStories from './I18nDemo.stories';
+
+<Meta title="Foundations/i18n" />
+
+# i18n
+
+Glaon ships in English (`en`) and Turkish (`tr`); both are fully populated, with `en` as the fallback. This page is the single contributor reference: the stack we run, how the active locale is decided, how to add a new key, and the conventions a translator picks up cold.
+
+## Stack
+
+- `react-i18next` + `i18next-icu` — runtime translation + ICU MessageFormat parsing.
+- ICU JSON resource files — `apps/web/src/i18n/locales/{en,tr}.json` and `apps/mobile/src/i18n/locales/{en,tr}.json`.
+- `i18next-browser-languagedetector` (web) / `expo-localization` (mobile) — platform-detected fallback.
+- `@glaon/core/i18n` — the closed `SupportedLocale` set and the `negotiateLocale` precedence helper, shared by web and mobile.
+
+Decision history: [ADR 0023 — i18n library + format](https://github.com/toss-cengiz/glaon/blob/main/docs/adr/0023-i18n-library.md).
+
+## Locale precedence
+
+`negotiateLocale({ explicit, haProfile, platformDetection })` picks the first hit from this chain:
+
+1. **Explicit user preference** — persisted server-side in `apps/api` `users.preferences.locale` (#425). Same user on a different device reads it back on login.
+2. **HA profile language** — Home Assistant's `language` user attribute, surfaced through the WebSocket connection (i18n-D / #426).
+3. **Platform detection** — `navigator.language` on web, `getLocales()[0].languageCode` on mobile.
+4. **Fallback** — `en`.
+
+Anything outside the closed `SUPPORTED_LOCALES` set (`['en', 'tr']`) collapses to its base (`en-US` → `en`) or the fallback. Adding a new locale requires editing `packages/core/src/i18n/locale-negotiator.ts` plus a JSON file per app — see "Adding a locale" below.
+
+## Toolbar switcher
+
+This Storybook surfaces a **Locale** dropdown in the top-right toolbar (next to the theme switcher). It propagates the chosen locale through `globals.locale` and stamps a `lang` attribute on every story wrapper, so:
+
+- **DevTools** shows the active language at the wrapper level (useful for `:lang(tr)` CSS or screen-reader announcements).
+- **Demo stories** that explicitly read `globals.locale` re-render their string catalog on switch.
+- **Primitive stories** stay presentational — Glaon UI primitives don't consume i18n internally per the data-fetching boundary; the consumer feature layer translates and passes strings as props.
+
+The demo below is wired up to the toolbar. Switch to **Türkçe** and watch the strings flip.
+
+<Canvas of={I18nDemoStories.Default} />
+
+## Adding a translation key
+
+The five-step workflow:
+
+1. **Use it in the component.** Add `useTranslation()` and the call:
+
+   ```tsx
+   import { useTranslation } from 'react-i18next';
+
+   export function SaveButton() {
+     const { t } = useTranslation();
+     return <button>{t('settings.save')}</button>;
+   }
+   ```
+
+2. **Add to `en.json`** under the matching surface key:
+
+   ```json
+   {
+     "settings": {
+       "save": "Save changes"
+     }
+   }
+   ```
+
+3. **Add to `tr.json`** with reviewed Turkish copy:
+
+   ```json
+   {
+     "settings": {
+       "save": "Değişiklikleri kaydet"
+     }
+   }
+   ```
+
+4. **Verify in the toolbar.** Run the dev server (`pnpm --filter @glaon/web dev`) or this Storybook; flip the Locale toolbar and confirm both languages render.
+
+5. **Verify the missing-key CI gate.** It refuses a PR where `tr.json` lacks any key present in `en.json` (i18n-H / #430).
+
+## ICU MessageFormat
+
+`i18next-icu` handles ICU syntax. Single-brace interpolation:
+
+```ts
+t('login.welcome', { name: 'Ada' });
+// "Welcome back, Ada"
+```
+
+Pluralization (CLDR rules — Turkish only has `other`):
+
+```ts
+t('devices.count', { count: 0 });   // "No devices"   / "Cihaz yok"
+t('devices.count', { count: 1 });   // "1 device"     / "1 cihaz"
+t('devices.count', { count: 12 });  // "12 devices"   / "12 cihaz"
+```
+
+JSON entry:
+
+```json
+{
+  "devices": {
+    "count": "{count, plural, =0 {No devices} one {# device} other {# devices}}"
+  }
+}
+```
+
+> **Note:** Use single braces (`{count}`), not the i18next default `{{count}}`. ICU rejects double-brace interpolation.
+
+## Namespace conventions
+
+Glaon uses a single namespace today (`translation`). When the bundle outgrows it (Phase 3), the surfaces split:
+
+- `ui` — primitives in `@glaon/ui` (defaults baked into wraps; consumer can override via prop).
+- `web` — `apps/web` features.
+- `mobile` — `apps/mobile` features.
+- `ha` — Home Assistant strings, populated at runtime via `frontend/get_translations`. Glaon **never** re-translates HA-owned content; the `ha` namespace is read-only on our side (i18n-D / #426).
+
+Until that split happens, all keys live under the default `translation` namespace and follow `<surface>.<element>` JSON nesting (e.g. `modeSelect.local.title`).
+
+## HA translations
+
+Home Assistant ships per-locale labels for device classes, state names, area names, and service descriptions. We ask HA in the active locale and merge the result into i18next under the `ha` namespace; we do not duplicate HA's strings inside `en.json` / `tr.json`. If HA can't translate a key, the raw HA-side label renders — never an empty string.
+
+The bridge lives in `packages/core/src/i18n/ha-bridge.ts` (lands with i18n-D / #426).
+
+## Adding a locale
+
+Beyond `en` and `tr`, every new locale must:
+
+1. Have a real adoption signal — a user request, a stakeholder push, or a Phase 3 "international ready" milestone. We don't ship locales speculatively (the maintenance cost is non-trivial).
+2. Land an ADR or an ADR addendum motivating the addition.
+3. Extend `SUPPORTED_LOCALES` in `packages/core/src/i18n/locale-negotiator.ts`.
+4. Add `apps/web/src/i18n/locales/<lng>.json` and `apps/mobile/src/i18n/locales/<lng>.json` with full key coverage.
+5. Pass the missing-key CI gate (i18n-H / #430).
+6. Add the toolbar toolbar entry in `packages/ui/.storybook/preview.ts` (this file).
+
+RTL languages additionally trigger the i18n-F audit — see [#428](https://github.com/toss-cengiz/glaon/issues/428).
+
+## Common pitfalls
+
+- **Hardcoded strings.** Every user-visible label must read from i18next; the i18n-H CI gate will catch new untranslated strings.
+- **Double-brace interpolation.** `{{name}}` works in plain i18next but breaks under `i18next-icu`. Use single braces.
+- **Missing TR plural form.** Turkish only needs `other`; including `one` is harmless but `=0` should be explicit when the zero copy diverges (e.g. "No devices" vs "0 devices").
+- **Translating HA-owned strings.** `state.switch.off` lives in HA's catalog, not ours. Reach for `frontend/get_translations` before adding a key.
+- **`Home Assistant`, `Wi-Fi`, `URL`, `OAuth`** stay as proper nouns / well-known acronyms across locales. Don't translate them.
+
+## See also
+
+- [docs/i18n.md](https://github.com/toss-cengiz/glaon/blob/main/docs/i18n.md) — Turkish-language reference for the same material, with brand-voice notes for translators.
+- [ADR 0023](https://github.com/toss-cengiz/glaon/blob/main/docs/adr/0023-i18n-library.md) — library + format decision.
+- Tracking issues: [#406](https://github.com/toss-cengiz/glaon/issues/406) (epic), [#424](https://github.com/toss-cengiz/glaon/issues/424) (foundation), [#425](https://github.com/toss-cengiz/glaon/issues/425) (persistence), [#427](https://github.com/toss-cengiz/glaon/issues/427) (TR pass), [#430](https://github.com/toss-cengiz/glaon/issues/430) (CI gate), [#431](https://github.com/toss-cengiz/glaon/issues/431) (mobile wiring).
