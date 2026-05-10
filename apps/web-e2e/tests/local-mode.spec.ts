@@ -108,7 +108,7 @@ test.describe('local-mode auth flow @smoke', () => {
     // is asserting Glaon's side: it sends the request, parses the response,
     // and the AuthProvider flips.
     let tokenRequestSeen = false;
-    await page.route(/homeassistant\.local:8123\/auth\/token$/, async (route) => {
+    await page.route('**/auth/token', async (route) => {
       tokenRequestSeen = true;
       await route.fulfill({
         status: 200,
