@@ -53,19 +53,26 @@ export default defineConfig(({ command, mode }) => {
     );
   }
 
+  // The Glaon UI kit's barrel re-exports `PressableButton` (and its RN
+  // imports), so apps/web's bundler trips on `react-native`'s Flow
+  // syntax during tree-shaking. Mirror packages/ui's vitest config and
+  // alias `react-native` → `react-native-web` (already a transitive
+  // dep via @glaon/ui) so the parser sees web-compatible source. The
+  // `@clerk/clerk-react` alias stays opt-in for the E2E stub.
   return {
     plugins,
-    ...(e2eAuthStub
-      ? {
-          resolve: {
-            alias: {
+    resolve: {
+      alias: {
+        'react-native': 'react-native-web',
+        ...(e2eAuthStub
+          ? {
               '@clerk/clerk-react': fileURLToPath(
                 new URL('./src/__e2e-stubs__/clerk-react.tsx', import.meta.url),
               ),
-            },
-          },
-        }
-      : {}),
+            }
+          : {}),
+      },
+    },
     server: {
       port: 5173,
       strictPort: true,
