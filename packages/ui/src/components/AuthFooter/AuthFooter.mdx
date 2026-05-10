@@ -1,0 +1,74 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as AuthFooterStories from './AuthFooter.stories';
+
+<Meta of={AuthFooterStories} />
+
+# AuthFooter
+
+Small "prompt + link" strip rendered at the bottom of the four auth
+flows. Three canonical contexts:
+
+- **Login** — `Don't have an account? Sign up`
+- **Sign up** — `Already have an account? Log in`
+- **Forgot password / Email verification** — `← Back to log in`
+
+## When to use
+
+- At the bottom of the form column inside [AuthLayout](?path=/docs/app-primitives-authlayout--docs).
+- Below the primary CTA — gives users an escape hatch when they
+  arrived on the wrong screen.
+
+## When NOT to use
+
+- For the brand's `© Glaon {year}` line — that goes into AuthLayout's
+  `footerSlot` directly.
+- For terms of service / privacy links inside marketing pages — those
+  use a different layout primitive.
+
+## Anatomy
+
+<Canvas of={AuthFooterStories.LoginContext} />
+
+```tsx
+<AuthFooter
+  prompt="Don't have an account?"
+  linkText="Sign up"
+  linkHref="/sign-up"
+  onLinkClick={(e) => {
+    e.preventDefault();
+    navigate('/sign-up');
+  }}
+/>
+```
+
+For the back-link variant on Forgot password / Email verification,
+omit `prompt` and pass `iconLeading="arrow-left"`:
+
+```tsx
+<AuthFooter linkText="Back to log in" linkHref="/login" iconLeading="arrow-left" />
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The link is a real `<a href>` so right-click / cmd-click open in
+  a new tab. Pass `onLinkClick` only when you need the SPA router
+  to handle the navigation (then call `preventDefault` inside).
+- The `arrow-left` icon is decorative (`aria-hidden="true"`); the
+  link text carries the semantic.
+
+## Related components
+
+- [AuthLayout](?path=/docs/app-primitives-authlayout--docs) — host
+  page chrome.
+- [PasswordInput](?path=/docs/app-primitives-passwordinput--docs) /
+  [FormField](?path=/docs/app-primitives-formfield--docs) — the
+  fields above the footer.

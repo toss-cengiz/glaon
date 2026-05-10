@@ -1,0 +1,91 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as FormFieldStories from './FormField.stories';
+
+<Meta of={FormFieldStories} />
+
+# FormField
+
+Application primitive that wraps a `<label>`, a control slot, and an
+optional hint / error message into one labelled row. Pair with
+`useFormFieldDescriptors(htmlFor)` to glue the control's
+`aria-describedby` to the rendered hint or error.
+
+FormField is intentionally lightweight: it doesn't render the input,
+it doesn't manage state, and it doesn't fetch. Its job is the visual
+scaffold + the a11y glue.
+
+## When to use
+
+- The control is NOT the kit `<Input>` (which already renders its
+  own label / hint), e.g. a `<select>`, a checkbox group, or a
+  custom URL row in the Login Device tab.
+- You want to compose a custom row (icon + input + helper) and need
+  consistent spacing + label semantics.
+
+## When NOT to use
+
+- The control is `<Input>` or `<PasswordInput>` — they already render
+  their own label / hint. Wrapping them in FormField would render
+  the label twice.
+- The field is a complex compound (e.g. address with three sub-fields)
+  — those want their own dedicated wrapper.
+
+## Anatomy
+
+<Canvas of={FormFieldStories.WithError} />
+
+```tsx
+import { FormField, useFormFieldDescriptors } from '@glaon/ui';
+
+function HaUrlField({ value, onChange, error }: Props) {
+  const id = 'ha-url';
+  const { describedBy } = useFormFieldDescriptors(id);
+
+  return (
+    <FormField label="Home Assistant URL" htmlFor={id} error={error}>
+      <input
+        id={id}
+        type="url"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-invalid={Boolean(error)}
+        aria-describedby={describedBy(Boolean(error), false)}
+      />
+    </FormField>
+  );
+}
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The `<label>` is bound to the control via `htmlFor` → `<input id>`.
+  Always pass a stable `htmlFor`; clicking the label should focus
+  the input.
+- `useFormFieldDescriptors(htmlFor)` returns the ids FormField will
+  give to the rendered hint / error message. Pass `describedBy(...)`
+  to the control's `aria-describedby` so screen readers announce the
+  right message.
+- When `error` is set, the field is rendered in the invalid state.
+  The control should also set `aria-invalid={Boolean(error)}` so
+  assistive tech announces the failure independently of the visual
+  red border.
+- The required asterisk is presentational; the control itself
+  carries the `aria-required` semantic.
+
+## Related components
+
+- [Input](?path=/docs/web-primitives-input--docs) — already renders
+  its own label / hint; don't wrap it in FormField.
+- [PasswordInput](?path=/docs/app-primitives-passwordinput--docs) —
+  same; pass `label` directly to PasswordInput.
+- [AuthLayout](?path=/docs/app-primitives-authlayout--docs) — the
+  page chrome that hosts these fields.
