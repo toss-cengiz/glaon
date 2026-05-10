@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { FALLBACK_LOCALE, isSupportedLocale, negotiateLocale } from './locale-negotiator';
+import {
+  FALLBACK_LOCALE,
+  isSupportedLocale,
+  negotiateLocale,
+  resolveFromCandidates,
+} from './locale-negotiator';
 
 describe('negotiateLocale', () => {
   it('returns the explicit choice when set to a supported value', () => {
@@ -45,5 +50,26 @@ describe('isSupportedLocale', () => {
     expect(isSupportedLocale(null)).toBe(false);
     expect(isSupportedLocale(undefined)).toBe(false);
     expect(isSupportedLocale({})).toBe(false);
+  });
+});
+
+describe('resolveFromCandidates', () => {
+  it('returns the first supported candidate from a priority list', () => {
+    expect(resolveFromCandidates(['fr-FR', 'tr-TR', 'en-US'])).toBe('tr');
+    expect(resolveFromCandidates(['en-GB', 'tr-TR'])).toBe('en');
+  });
+
+  it('walks past null / empty entries', () => {
+    expect(resolveFromCandidates([null, undefined, '', 'tr'])).toBe('tr');
+  });
+
+  it('falls back when nothing matches', () => {
+    expect(resolveFromCandidates(['fr-FR', 'es-ES', 'ja-JP'])).toBe(FALLBACK_LOCALE);
+    expect(resolveFromCandidates([])).toBe(FALLBACK_LOCALE);
+  });
+
+  it('matches both language codes and full BCP 47 tags', () => {
+    expect(resolveFromCandidates(['tr'])).toBe('tr');
+    expect(resolveFromCandidates(['EN_us'])).toBe('en');
   });
 });
