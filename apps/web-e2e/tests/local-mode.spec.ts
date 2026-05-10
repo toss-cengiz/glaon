@@ -137,23 +137,28 @@ test.describe('local-mode auth flow @smoke', () => {
       });
     });
 
+    // Wait for the POST /auth/token request to land — that's the
+    // smallest stable signal that the callback ran end-to-end. Asserting
+    // on the auth-callback-success DOM is racy: the production callback
+    // calls `window.location.assign('/')` synchronously after rendering
+    // the success state, so the success node may flicker by faster than
+    // the test polls. The post-reload UI lands on the login page (the web
+    // TokenStore is in-memory by design — refresh would normally come
+    // from the httpOnly cookie that the addon nginx proxy sets, which the
+    // smoke doesn't model), so we use the network event instead.
+    const tokenRequestPromise = page.waitForRequest(
+      (req) =>
+        req.method() === 'POST' &&
+        new URL(req.url()).pathname === '/auth/token',
+      { timeout: 10_000 },
+    );
     await page.goto('/');
     await page.getByTestId('login-start').click();
+    await tokenRequestPromise;
 
-    // The callback route renders `auth-callback-success` once the token
-    // exchange resolves and `setLocalAuth` fires; immediately after, the
-    // production wiring calls `window.location.assign('/')` which reloads
-    // the page and drops the in-memory access token (web TokenStore is
-    // in-memory by design — refresh would normally come from the httpOnly
-    // cookie that the addon nginx proxy sets, which the smoke doesn't
-    // model). So we assert on the success state at the callback layer:
-    // it proves the exchange round-tripped, AuthProvider observed the
-    // token, and the user-visible "Signed in. Redirecting…" copy lit
-    // up — without depending on the post-reload shell that the in-memory
-    // store can't sustain.
-    await expect(page.getByTestId('auth-callback-success')).toBeVisible({
-      timeout: 10_000,
-    });
+    // The reload after success lands the user back on the login page —
+    // wait for that before the final assertions so the page settles.
+    await expect(page.getByTestId('login-route')).toBeVisible({ timeout: 10_000 });
 
     expect(
       tokenRequestSeen,
