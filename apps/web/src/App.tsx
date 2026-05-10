@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { AuthProvider, useAuth } from './auth/auth-provider';
 import { CloudAuthProvider, getClerkPublishableKey } from './auth/cloud/clerk-provider';
@@ -51,6 +52,7 @@ interface RouterProps {
 }
 
 function Router({ clerkKey }: RouterProps): ReactNode {
+  const { t } = useTranslation();
   const { mode, clearAuth } = useAuth();
   const path = window.location.pathname;
   const config = useMemo(
@@ -90,8 +92,8 @@ function Router({ clerkKey }: RouterProps): ReactNode {
     if (clerkKey === null) {
       return (
         <main data-testid="cloud-unavailable">
-          <h1>Cloud sign-in unavailable</h1>
-          <p>VITE_CLERK_PUBLISHABLE_KEY is not configured for this build.</p>
+          <h1>{t('cloudUnavailable.signInTitle')}</h1>
+          <p>{t('cloudUnavailable.body')}</p>
         </main>
       );
     }
@@ -101,8 +103,8 @@ function Router({ clerkKey }: RouterProps): ReactNode {
     if (clerkKey === null) {
       return (
         <main data-testid="cloud-unavailable">
-          <h1>Cloud pairing unavailable</h1>
-          <p>VITE_CLERK_PUBLISHABLE_KEY is not configured for this build.</p>
+          <h1>{t('cloudUnavailable.pairingTitle')}</h1>
+          <p>{t('cloudUnavailable.body')}</p>
         </main>
       );
     }
@@ -126,10 +128,10 @@ function Router({ clerkKey }: RouterProps): ReactNode {
       if (clerkKey === null) {
         return (
           <main data-testid="cloud-unavailable">
-            <h1>Cloud sign-in unavailable</h1>
-            <p>VITE_CLERK_PUBLISHABLE_KEY is not configured for this build.</p>
+            <h1>{t('cloudUnavailable.signInTitle')}</h1>
+            <p>{t('cloudUnavailable.body')}</p>
             <button type="button" onClick={() => void switchMode()}>
-              Pick a different mode
+              {t('cloudUnavailable.pickDifferentMode')}
             </button>
           </main>
         );
@@ -148,7 +150,7 @@ function Router({ clerkKey }: RouterProps): ReactNode {
           alignItems: 'center',
         }}
       >
-        <h1>Glaon</h1>
+        <h1>{t('app.name')}</h1>
         <button
           type="button"
           data-testid="switch-mode"
@@ -162,10 +164,10 @@ function Router({ clerkKey }: RouterProps): ReactNode {
             font: 'inherit',
           }}
         >
-          Switch mode
+          {t('shell.switchMode')}
         </button>
       </header>
-      <p>Signed in. The Phase 2 dashboard lands once #10–#12 wire the HA WebSocket.</p>
+      <p>{t('shell.signedInPlaceholder')}</p>
     </main>
   );
 }

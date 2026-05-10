@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AuthProvider, useAuth } from './src/auth/auth-provider';
@@ -55,6 +56,7 @@ function CloudSessionBridge(): ReactNode {
 }
 
 function Root(): ReactNode {
+  const { t } = useTranslation();
   const { mode, clearAuth } = useAuth();
   const clerkKey = getClerkPublishableKey();
   const baseConfig = useMemo<LocalAuthFlowConfig>(
@@ -111,16 +113,16 @@ function Root(): ReactNode {
       if (clerkKey === null) {
         return (
           <View style={styles.cloudUnavailable} testID="cloud-unavailable">
-            <Text style={styles.title}>Cloud sign-in unavailable</Text>
-            <Text style={styles.body}>
-              EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY is not configured for this build.
-            </Text>
+            <Text style={styles.title}>{t('cloudUnavailable.signInTitle')}</Text>
+            <Text style={styles.body}>{t('cloudUnavailable.body')}</Text>
             <Pressable
               testID="switch-mode"
               onPress={() => void switchMode()}
               style={styles.switchModeButton}
             >
-              <Text style={styles.switchModeButtonText}>Pick a different mode</Text>
+              <Text style={styles.switchModeButtonText}>
+                {t('cloudUnavailable.pickDifferentMode')}
+              </Text>
             </Pressable>
             <StatusBar style="auto" />
           </View>
@@ -152,16 +154,15 @@ interface SignedInShellProps {
 }
 
 function SignedInShell({ switchMode, clerkKey }: SignedInShellProps): ReactNode {
+  const { t } = useTranslation();
   const [view, setView] = useState<'home' | 'pair-wizard'>('home');
 
   if (view === 'pair-wizard') {
     if (clerkKey === null) {
       return (
         <View style={styles.cloudUnavailable}>
-          <Text style={styles.title}>Cloud pairing unavailable</Text>
-          <Text style={styles.body}>
-            EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY is not configured for this build.
-          </Text>
+          <Text style={styles.title}>{t('cloudUnavailable.pairingTitle')}</Text>
+          <Text style={styles.body}>{t('cloudUnavailable.body')}</Text>
           <Pressable
             testID="pair-wizard-cancel"
             onPress={() => {
@@ -169,7 +170,7 @@ function SignedInShell({ switchMode, clerkKey }: SignedInShellProps): ReactNode 
             }}
             style={styles.switchModeButton}
           >
-            <Text style={styles.switchModeButtonText}>Back</Text>
+            <Text style={styles.switchModeButtonText}>{t('cloudUnavailable.back')}</Text>
           </Pressable>
           <StatusBar style="auto" />
         </View>
@@ -193,10 +194,8 @@ function SignedInShell({ switchMode, clerkKey }: SignedInShellProps): ReactNode 
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Glaon</Text>
-      <Text style={styles.body}>
-        Signed in. The Phase 2 dashboard lands once #10–#12 wire the HA WebSocket.
-      </Text>
+      <Text style={styles.title}>{t('app.name')}</Text>
+      <Text style={styles.body}>{t('shell.signedInPlaceholder')}</Text>
       {clerkKey !== null ? (
         <Pressable
           testID="link-to-cloud"
@@ -205,7 +204,7 @@ function SignedInShell({ switchMode, clerkKey }: SignedInShellProps): ReactNode 
           }}
           style={styles.switchModeButton}
         >
-          <Text style={styles.switchModeButtonText}>Link to cloud</Text>
+          <Text style={styles.switchModeButtonText}>{t('shell.linkToCloud')}</Text>
         </Pressable>
       ) : null}
       <Pressable
@@ -213,7 +212,7 @@ function SignedInShell({ switchMode, clerkKey }: SignedInShellProps): ReactNode 
         onPress={() => void switchMode()}
         style={styles.switchModeButton}
       >
-        <Text style={styles.switchModeButtonText}>Switch mode</Text>
+        <Text style={styles.switchModeButtonText}>{t('shell.switchMode')}</Text>
       </Pressable>
       <StatusBar style="auto" />
     </View>
