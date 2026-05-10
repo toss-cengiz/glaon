@@ -12,6 +12,10 @@ export {
   AuthExchangeResponseSchema,
   AuthLogoutResponseSchema,
   AuthRefreshRequestSchema,
+  HaAccessBundleSchema,
+  HaPasswordGrantErrorCode,
+  HaPasswordGrantRequestSchema,
+  HaPasswordGrantResponseSchema,
   SessionClaimsSchema,
   type ApiErrorBody,
   type AuthExchangeRequest,
@@ -19,6 +23,9 @@ export {
   type AuthLogoutResponse,
   type AuthRefreshRequest,
   type AuthRefreshResponse,
+  type HaAccessBundle,
+  type HaPasswordGrantRequest,
+  type HaPasswordGrantResponse,
   type SessionClaims,
 } from './schemas';
 export {

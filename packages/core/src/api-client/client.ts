@@ -36,11 +36,15 @@ import {
   AuthExchangeResponseSchema,
   AuthLogoutResponseSchema,
   AuthRefreshRequestSchema,
+  HaPasswordGrantRequestSchema,
+  HaPasswordGrantResponseSchema,
   type AuthExchangeRequest,
   type AuthExchangeResponse,
   type AuthLogoutResponse,
   type AuthRefreshRequest,
   type AuthRefreshResponse,
+  type HaPasswordGrantRequest,
+  type HaPasswordGrantResponse,
 } from './schemas';
 
 export interface ApiClientOptions {
@@ -96,6 +100,30 @@ export class ApiClient {
 
   async logout(options: RequestOptions = {}): Promise<AuthLogoutResponse> {
     return this.send('POST', '/auth/logout', null, AuthLogoutResponseSchema, options);
+  }
+
+  /**
+   * Device-mode login proxy (#468 / ADR 0027). Posts the user's HA
+   * credentials to `apps/api`, which drives `/auth/login_flow` on their
+   * HA installation and returns the resulting access + refresh tokens
+   * plus a Glaon session JWT. Used by the Login screen's Device tab so
+   * the end user never sees HA's redirect UI.
+   *
+   * Errors are surfaced as `ApiError`. Notable bodies:
+   *  - `{ error: 'mfa-required' }` (502) — HA prompted a 2FA step;
+   *    the UI should show a "sign in via HA directly" inline message.
+   *  - `{ error: 'invalid-credentials' }` (401) — bad username/password.
+   *  - `{ error: 'unreachable' }` (502) — HA didn't respond.
+   */
+  async haPasswordGrant(
+    body: HaPasswordGrantRequest,
+    options: RequestOptions = {},
+  ): Promise<HaPasswordGrantResponse> {
+    const parsed = HaPasswordGrantRequestSchema.parse(body);
+    return this.send('POST', '/auth/ha/password-grant', parsed, HaPasswordGrantResponseSchema, {
+      ...options,
+      skipAuth: true,
+    });
   }
 
   /* -------- /layouts (#420) ------------------------------------------- */

@@ -1,4 +1,4 @@
-// /auth/* routes per #418. Two surfaces:
+// /auth/* routes per #418 + #468. Surfaces:
 //   POST /auth/exchange — body { haAccessToken, haBaseUrl } →
 //     validates the HA token, mints a session JWT, returns
 //     { sessionJwt, expiresAt }. Sets a Set-Cookie header for web
@@ -8,14 +8,21 @@
 //     /auth/exchange.
 //   POST /auth/logout — adds the current session JWT's jti to the
 //     revocation list. No-op for non-authenticated callers.
+//   POST /auth/ha/password-grant — body { haBaseUrl, username, password,
+//     clientId } → drives HA's /auth/login_flow on the caller's behalf,
+//     returns { haAccess, sessionJwt, expiresAt }. The Glaon Device-tab
+//     login uses this so the end user never sees HA's redirect UI
+//     (#468 / ADR 0027). The HA refresh token is NOT persisted server-
+//     side — it only flows back to the caller in the response body.
 
 import { Hono } from 'hono';
 
 import {
   AuthExchangeRequestSchema as ExchangeBody,
   AuthRefreshRequestSchema as RefreshBody,
+  HaPasswordGrantRequestSchema as PasswordGrantBody,
 } from '../schemas';
-import { introspectHaToken } from '../auth/ha-bridge';
+import { introspectHaToken, loginFlow, deriveUserId } from '../auth/ha-bridge';
 import { mintSessionJwt, verifySessionJwt } from '../auth/jwt';
 import type { RevocationStore } from '../auth/revocation';
 import { SESSION_COOKIE_NAME } from '../middleware/require-session';
@@ -51,6 +58,53 @@ export function createAuthRouter(deps: AuthRouterDeps): Hono {
     });
     setCookieIfWebOrigin(c, deps.webOrigins, jwt, claims.exp);
     return c.json({ sessionJwt: jwt, expiresAt: claims.exp * 1000 });
+  });
+
+  router.post('/ha/password-grant', async (c) => {
+    const body: unknown = await c.req.json().catch(() => null);
+    const parsed = PasswordGrantBody.safeParse(body);
+    if (!parsed.success) {
+      return c.json({ error: 'invalid', code: 'bad-body' }, 400);
+    }
+    const result = await loginFlow(
+      parsed.data.haBaseUrl,
+      {
+        username: parsed.data.username,
+        password: parsed.data.password,
+        clientId: parsed.data.clientId,
+      },
+      {
+        ...(deps.fetchImpl !== undefined ? { fetchImpl: deps.fetchImpl } : {}),
+      },
+    );
+    if (!result.ok) {
+      const status = ((): 400 | 401 | 502 => {
+        switch (result.reason) {
+          case 'invalid-url':
+            return 400;
+          case 'invalid-credentials':
+            return 401;
+          default:
+            return 502;
+        }
+      })();
+      return c.json({ error: result.reason }, status);
+    }
+    const { jwt, claims } = await mintSessionJwt(deps.secret, {
+      userId: deriveUserId(result.accessToken),
+      ttlSeconds: ttl,
+    });
+    setCookieIfWebOrigin(c, deps.webOrigins, jwt, claims.exp);
+    return c.json({
+      haAccess: {
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+        expiresIn: result.expiresIn,
+        tokenType: 'Bearer' as const,
+      },
+      sessionJwt: jwt,
+      expiresAt: claims.exp * 1000,
+    });
   });
 
   router.post('/refresh', async (c) => {
