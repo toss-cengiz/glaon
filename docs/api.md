@@ -40,20 +40,64 @@ Detaylar: [apps/api/README.md](../apps/api/README.md).
 
 ## Endpoint'ler
 
-| Method | Path             | Auth    | Açıklama                                |
-| ------ | ---------------- | ------- | --------------------------------------- |
-| GET    | `/healthz`       | yok     | Liveness + Mongo ping (200/503).        |
-| GET    | `/version`       | yok     | Build SHA + version + builtAt.          |
-| POST   | `/auth/exchange` | yok     | HA token → session JWT.                 |
-| POST   | `/auth/refresh`  | yok     | Session JWT'yi yeniden imzala.          |
-| POST   | `/auth/logout`   | session | Session jti'yi revocation list'e ekle.  |
-| GET    | `/layouts`       | session | Saved layouts list (`?homeId=` filtre). |
-| POST   | `/layouts`       | session | Yeni layout oluştur.                    |
-| GET    | `/layouts/:id`   | session | Layout detayı.                          |
-| PUT    | `/layouts/:id`   | session | Layout güncelle.                        |
-| DELETE | `/layouts/:id`   | session | Soft-delete (204).                      |
+| Method | Path                      | Auth    | Açıklama                                                      |
+| ------ | ------------------------- | ------- | ------------------------------------------------------------- |
+| GET    | `/healthz`                | yok     | Liveness + Mongo ping (200/503).                              |
+| GET    | `/version`                | yok     | Build SHA + version + builtAt.                                |
+| POST   | `/auth/exchange`          | yok     | HA token → session JWT.                                       |
+| POST   | `/auth/refresh`           | yok     | Session JWT'yi yeniden imzala.                                |
+| POST   | `/auth/logout`            | session | Session jti'yi revocation list'e ekle.                        |
+| POST   | `/auth/ha/password-grant` | yok     | HA `login_flow` proxy: username/password → tokens (ADR 0027). |
+| GET    | `/layouts`                | session | Saved layouts list (`?homeId=` filtre).                       |
+| POST   | `/layouts`                | session | Yeni layout oluştur.                                          |
+| GET    | `/layouts/:id`            | session | Layout detayı.                                                |
+| PUT    | `/layouts/:id`            | session | Layout güncelle.                                              |
+| DELETE | `/layouts/:id`            | session | Soft-delete (204).                                            |
 
 Authorization: session JWT ya `Authorization: Bearer <jwt>` (mobile) ya da `glaon_api_session` httpOnly+Secure cookie (web). Detaylar [ADR 0017](adr/0017-dual-mode-auth.md).
+
+### `POST /auth/ha/password-grant`
+
+Glaon'un Login screen'inin Device sekmesi tarafından kullanılır ([ADR 0027](adr/0027-ha-login-flow-proxy.md)). Kullanıcı HA OAuth redirect ekranını hiç görmez; credentials Glaon UI'da toplanıp `apps/api` üzerinden HA'nın `/auth/login_flow` API'sine proxy edilir.
+
+**Request body**
+
+```json
+{
+  "haBaseUrl": "http://homeassistant.local:8123",
+  "username": "olivia",
+  "password": "<password>",
+  "clientId": "https://app.glaon.com/"
+}
+```
+
+**Response 200**
+
+```json
+{
+  "haAccess": {
+    "accessToken": "<HA JWT>",
+    "refreshToken": "<HA refresh>",
+    "expiresIn": 1800,
+    "tokenType": "Bearer"
+  },
+  "sessionJwt": "<glaon session>",
+  "expiresAt": 1742755200000
+}
+```
+
+İstemci `haAccess.refreshToken`'ı `local` slot grubuna yazar (web httpOnly cookie / mobile SecureStore — [ADR 0006](adr/0006-token-storage.md)). HA refresh tokenı **`apps/api` veritabanında persist edilmez**.
+
+**Hata durumları**
+
+| Status | `error`               | Anlam                                                                                                                |
+| ------ | --------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 400    | `invalid` (bad-body)  | Zod doğrulaması başarısız (eksik alan, geçersiz URL).                                                                |
+| 400    | `invalid-url`         | `haBaseUrl` http/https değil ya da parse edilemedi.                                                                  |
+| 401    | `invalid-credentials` | HA `login_flow` `type: "abort"` döndü (kötü kullanıcı adı/parola).                                                   |
+| 502    | `mfa-required`        | HA çoklu adımlı bir form istedi (TOTP, notify-app); UI'da kullanıcı HA üzerinden direct login yapmaya yönlendirilir. |
+| 502    | `unreachable`         | HA'ya bağlanılamadı (DNS, network, timeout).                                                                         |
+| 502    | `flow-error`          | HA'dan beklenmeyen bir response geldi (corrupt JSON, eksik alan).                                                    |
 
 ## Production deploy
 
