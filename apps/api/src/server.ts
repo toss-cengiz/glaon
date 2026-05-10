@@ -14,6 +14,7 @@ import { createLogger, type Logger } from './observability/logger';
 import { Metrics } from './observability/metrics';
 import { createAuthRouter } from './routes/auth';
 import { createLayoutsRouter } from './routes/layouts';
+import { createMeRouter } from './routes/me';
 
 export interface ServerDeps {
   readonly db: Db;
@@ -45,6 +46,8 @@ export function createServer(deps: ServerDeps): Hono {
   );
 
   app.route('/layouts', createLayoutsRouter({ db: deps.db, secret, revocations }));
+
+  app.route('/me', createMeRouter({ db: deps.db, secret, revocations }));
 
   // Liveness probe with Mongo ping. Returns 200 when the driver
   // command succeeds, 503 otherwise so a load balancer can drop the

@@ -42,3 +42,9 @@ export {
   type LayoutPayload,
   type UpdateLayoutRequest,
 } from './layouts';
+export {
+  UserPreferencesSchema,
+  UserPreferencesUpdateSchema,
+  type UserPreferences,
+  type UserPreferencesUpdate,
+} from './me';

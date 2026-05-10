@@ -15,16 +15,23 @@
     "cloud": {
       "title": "Bulut — internetin olduğu her yerden",
       "description": "Glaon hesabınla giriş yap. Glaon relay üzerinden bağlanır.",
-      "unavailable": "Bu build'de bulut yapılandırılmamış."
+      "unavailable": "Bu derlemede bulut yapılandırılmamış."
     },
     "manual": {
       "label": "Ya da Home Assistant URL'ini manuel olarak gir",
       "placeholder": "http://homeassistant.local:8123",
-      "submit": "Bu URL'i kullan"
+      "submit": "Bu URL'i kullan",
+      "ariaLabel": "Manuel yerel URL"
     }
   },
   "shell": {
     "signedInPlaceholder": "Giriş yapıldı. Faz 2 panosu #10–#12 HA WebSocket bağlantısını kurduğunda geliyor.",
     "switchMode": "Modu değiştir"
+  },
+  "cloudUnavailable": {
+    "signInTitle": "Bulut girişi kullanılamıyor",
+    "pairingTitle": "Bulut eşleştirmesi kullanılamıyor",
+    "body": "Bu derleme için VITE_CLERK_PUBLISHABLE_KEY ayarlanmamış.",
+    "pickDifferentMode": "Başka bir mod seç"
   }
 }
