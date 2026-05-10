@@ -32,12 +32,13 @@ export function LanguageSwitcher({ className }: LanguageSwitcherProps): ReactNod
 
   return (
     <NativeSelect
+      key={active}
       data-testid="language-switcher"
       aria-label={t('languageSwitcher.ariaLabel')}
       label={t('languageSwitcher.label')}
       className={className}
       options={options}
-      value={active}
+      defaultValue={active}
       onChange={(event) => {
         const next = event.target.value;
         if (isSupportedLocale(next)) {
