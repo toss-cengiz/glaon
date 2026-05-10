@@ -26,10 +26,12 @@ describe('App', () => {
     expect(screen.getByTestId('mode-card-local')).toBeInTheDocument();
   });
 
-  it('renders the local login route when local mode is the stored preference', async () => {
+  it('renders the LoginPage with the Device tab selected when local mode is the stored preference', async () => {
     window.localStorage.setItem('glaon.mode-preference', JSON.stringify({ mode: 'local' }));
     render(<App />);
-    expect(await screen.findByTestId('login-route')).toBeInTheDocument();
-    expect(screen.getByTestId('login-start')).toBeInTheDocument();
+    // The unified LoginPage replaces the legacy LoginRoute (#470). Local
+    // preference now lands on the page with the Device tab pre-selected.
+    expect(await screen.findByTestId('login-device-form')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: /welcome back/i })).toBeInTheDocument();
   });
 });

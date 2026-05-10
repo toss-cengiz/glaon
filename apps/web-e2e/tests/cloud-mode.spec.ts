@@ -51,19 +51,21 @@ test.describe('cloud-mode @smoke', () => {
     await assertA11y(page);
   });
 
-  test('cloud card routes to the sign-in screen', async ({ page }) => {
+  test('cloud card routes to the LoginPage with the Cloud tab active', async ({ page }) => {
+    // Per #470 the legacy `<SignInRoute>` (cloud-sign-in-route) is gone;
+    // mode-select now lands on the unified LoginPage with the Cloud tab
+    // pre-selected when the preference is `cloud`.
     await page.goto('/');
     await expect(page.getByTestId('mode-card-cloud')).not.toBeDisabled();
     await page.getByTestId('mode-card-cloud').click();
-    await expect(page.getByTestId('cloud-sign-in-route')).toBeVisible();
-    await expect(page.getByTestId('stub-sign-in')).toBeVisible();
+    await expect(page.getByTestId('login-cloud-form')).toBeVisible();
   });
 
-  test('local card returns to the LoginRoute', async ({ page }) => {
+  test('local card returns to the LoginPage with the Device tab active', async ({ page }) => {
     await page.goto('/');
     await page.getByTestId('mode-card-local').click();
-    await expect(page.getByTestId('login-route')).toBeVisible();
-    await expect(page.getByTestId('login-start')).toBeVisible();
+    await expect(page.getByTestId('login-device-form')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: /welcome back/i })).toBeVisible();
     await assertA11y(page);
   });
 });
