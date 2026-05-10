@@ -67,6 +67,18 @@ Log akışı:
 ha su addons logs local_glaon -f
 ```
 
+## `apps/api` ile ilişki
+
+Add-on yalnızca `apps/web` static bundle'ını servis eder. **`apps/api` add-on içinde paketlenmez** — [ADR 0026](../docs/adr/0026-apps-api-delivery-hosted.md) `apps/api`'ı Glaon-managed hosted service olarak konumlandırdı. Mongo Atlas + container hosting Glaon ekibi tarafından işletilir; add-on kullanıcısı sadece HA Ingress üzerinden web'i açar, web ise cross-origin HTTPS ile `https://api.glaon.app` (deploy pipeline kararına göre) endpoint'ine bağlanır.
+
+Sonuç:
+
+- Add-on Dockerfile'ı **sadece** nginx + dist içerir; `node`, `mongo`, `apps/api` artefaktı yoktur.
+- Add-on güncellendiğinde Mongo şeması ya da apps/api endpoint contract'ı zorunluluk değil — ikisi bağımsız deploy döngülerine sahip.
+- Self-host (sidecar) modeli **şimdilik kapsam dışı**; Phase 5'te ayrı ADR ile yeniden değerlendirilir.
+
+Detaylar: [docs/api.md](../docs/api.md).
+
 ## Güvenlik kontrolleri
 
 - `ingress: true` — harici port açmaz; erişim sadece HA Ingress üzerinden.
