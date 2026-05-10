@@ -8,6 +8,7 @@ export {
   SUPPORTED_LOCALES,
   isSupportedLocale,
   negotiateLocale,
+  resolveFromCandidates,
   type LocaleNegotiationInput,
   type SupportedLocale,
 } from './locale-negotiator';

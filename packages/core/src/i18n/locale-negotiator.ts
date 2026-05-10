@@ -55,3 +55,23 @@ export function isSupportedLocale(value: unknown): value is SupportedLocale {
   }
   return false;
 }
+
+/**
+ * Pick the first Glaon-supported locale from a priority-ordered list
+ * of BCP 47 candidates. Returns the fallback when nothing matches.
+ *
+ * The mobile detector (i18n-I / #431) calls this with the OS locales
+ * list (`expo-localization`'s `getLocales()` / `useLocales()`); web
+ * continues to flow through the single-string `platformDetection`
+ * slot of `negotiateLocale`, which walks the same precedence chain
+ * one tier at a time.
+ */
+export function resolveFromCandidates(
+  candidates: readonly (string | null | undefined)[],
+): SupportedLocale {
+  for (const candidate of candidates) {
+    const matched = coerce(candidate);
+    if (matched !== null) return matched;
+  }
+  return FALLBACK_LOCALE;
+}
