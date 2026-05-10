@@ -10,6 +10,7 @@ import { AuthCallbackRoute } from './features/auth/local/auth-callback-route';
 import { LoginRoute } from './features/auth/local/login-route';
 import { SignInRoute } from './features/auth/cloud/sign-in-route';
 import { SignUpRoute } from './features/auth/cloud/sign-up-route';
+import { EmailVerificationPage } from './features/auth/email-verification/email-verification-page';
 import { PairWizardRoute } from './features/cloud-pairing/pair-wizard-route';
 import { ModeSelectRoute } from './features/mode-select/mode-select-route';
 import {
@@ -87,6 +88,17 @@ function Router({ clerkKey }: RouterProps): ReactNode {
         }}
       />
     );
+  }
+  if (path === '/verify-email') {
+    if (clerkKey === null) {
+      return (
+        <main data-testid="cloud-unavailable">
+          <h1>Email verification unavailable</h1>
+          <p>VITE_CLERK_PUBLISHABLE_KEY is not configured for this build.</p>
+        </main>
+      );
+    }
+    return <EmailVerificationPage />;
   }
   if (path === '/sign-in' || path === '/sign-up') {
     if (clerkKey === null) {

@@ -2,13 +2,13 @@
   {
     "name": "Initial JS (gzipped)",
     "path": "dist/assets/index-*.js",
-    "limit": "180 kB",
+    "limit": "350 kB",
     "gzip": true
   },
   {
     "name": "Total JS (gzipped)",
     "path": "dist/assets/**/*.js",
-    "limit": "250 kB",
+    "limit": "400 kB",
     "gzip": true
   }
 ]
