@@ -13,9 +13,10 @@ WORKDIR /workspace
 # with a `--build-arg API_PATH=apps/api` style invocation in the
 # eventual P2-H CI workflow. For now copy the whole repo (CI tags this
 # as a TODO) — the bundle output is what matters.
-COPY pnpm-lock.yaml package.json pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml package.json pnpm-workspace.yaml tsconfig.base.json ./
 COPY apps/api ./apps/api
 COPY packages/config ./packages/config
+COPY packages/core ./packages/core
 
 # hadolint ignore=DL3018
 RUN apk add --no-cache python3 make g++ \

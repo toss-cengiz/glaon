@@ -62,6 +62,7 @@ Development'a merge olacak her PR'ın aşağıdaki check'leri yeşil olmalı:
 Bunların dışında CI'da çalışan ama **henüz required olmayan** kontroller:
 
 - `analyze (javascript-typescript)` — [CodeQL SAST](./SECURITY.md#statik-analiz-sast). Bulgular Security sekmesinde görünür; bloklama kararı gürültü seviyesi ölçüldükten sonra alınır.
+- `typecheck · lint` / `unit tests` / `integration tests (Mongo)` / `docker build` / `audit (high+)` — `apps/api` CI workflow ([`.github/workflows/api-ci.yml`](../.github/workflows/api-ci.yml), #422). Path-filtered (sadece `apps/api/**` veya `packages/core/**` değişince koşar). `apps/api` üretim deploy'una yaklaşınca (ADR 0026 hosted modeli; deploy workflow #422 kapsamında ayrı PR'da gelir) bu beş check required listesine ekleniyor.
 
 Yeni bir required check eklemek istersen:
 
