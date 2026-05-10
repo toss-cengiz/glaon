@@ -143,6 +143,177 @@ describe('POST /auth/refresh', () => {
   });
 });
 
+describe('POST /auth/ha/password-grant', () => {
+  // The login_flow proxy makes three sequential calls to HA:
+  //   POST /auth/login_flow         — returns { flow_id, type: "form" }
+  //   POST /auth/login_flow/<id>    — returns either create_entry / form / abort
+  //   POST /auth/token              — returns access_token + refresh_token
+  // The helper builds a fetch mock that scripts each step in order.
+  function makeLoginFlowFetch(steps: {
+    initBody?: unknown;
+    submitBody?: unknown;
+    tokenBody?: unknown;
+    submitStatus?: number;
+    tokenStatus?: number;
+    initStatus?: number;
+  }): typeof fetch {
+    let call = 0;
+    return makeFetch((input) => {
+      call += 1;
+      const url: string = input;
+      if (call === 1 && url.endsWith('/auth/login_flow')) {
+        return new Response(JSON.stringify(steps.initBody ?? { flow_id: 'F-1', type: 'form' }), {
+          status: steps.initStatus ?? 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      if (call === 2 && url.includes('/auth/login_flow/')) {
+        return new Response(
+          JSON.stringify(steps.submitBody ?? { type: 'create_entry', result: 'AUTH-CODE' }),
+          {
+            status: steps.submitStatus ?? 200,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        );
+      }
+      if (call === 3 && url.endsWith('/auth/token')) {
+        return new Response(
+          JSON.stringify(
+            steps.tokenBody ?? {
+              access_token: 'ha-access-1',
+              refresh_token: 'ha-refresh-1',
+              expires_in: 1800,
+              token_type: 'Bearer',
+            },
+          ),
+          {
+            status: steps.tokenStatus ?? 200,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        );
+      }
+      return new Response('unexpected', { status: 500 });
+    });
+  }
+
+  const validBody = {
+    haBaseUrl: 'http://homeassistant.local:8123',
+    username: 'olivia',
+    password: 'correct-horse',
+    clientId: 'https://app.glaon.com/',
+  };
+
+  it('returns haAccess + sessionJwt on a successful flow', async () => {
+    const fetchImpl = makeLoginFlowFetch({});
+    const { router } = makeRouter({ fetchImpl });
+    const res = await router.request('/ha/password-grant', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(validBody),
+    });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      haAccess: { accessToken: string; refreshToken: string; expiresIn: number; tokenType: string };
+      sessionJwt: string;
+      expiresAt: number;
+    };
+    expect(body.haAccess.accessToken).toBe('ha-access-1');
+    expect(body.haAccess.refreshToken).toBe('ha-refresh-1');
+    expect(body.haAccess.expiresIn).toBe(1800);
+    expect(body.haAccess.tokenType).toBe('Bearer');
+    expect(typeof body.sessionJwt).toBe('string');
+    expect(body.expiresAt).toBeGreaterThan(Date.now());
+    const claims = await verifySessionJwt(SECRET, body.sessionJwt);
+    expect(claims).not.toBeNull();
+  });
+
+  it('returns 400 for an invalid request body', async () => {
+    const { router } = makeRouter();
+    const res = await router.request('/ha/password-grant', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...validBody, haBaseUrl: 'not-a-url' }),
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 401 when HA aborts the flow with invalid_auth', async () => {
+    const fetchImpl = makeLoginFlowFetch({
+      submitBody: { type: 'abort', reason: 'invalid_auth' },
+    });
+    const { router } = makeRouter({ fetchImpl });
+    const res = await router.request('/ha/password-grant', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(validBody),
+    });
+    expect(res.status).toBe(401);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBe('invalid-credentials');
+  });
+
+  it('returns 502 mfa-required when HA escalates to a follow-up form', async () => {
+    const fetchImpl = makeLoginFlowFetch({
+      submitBody: { type: 'form', step_id: 'mfa', flow_id: 'F-1' },
+    });
+    const { router } = makeRouter({ fetchImpl });
+    const res = await router.request('/ha/password-grant', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(validBody),
+    });
+    expect(res.status).toBe(502);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBe('mfa-required');
+  });
+
+  it('returns 502 unreachable when HA cannot be contacted', async () => {
+    const fetchImpl = makeFetch(() => Promise.reject(new TypeError('network')));
+    const { router } = makeRouter({ fetchImpl });
+    const res = await router.request('/ha/password-grant', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(validBody),
+    });
+    expect(res.status).toBe(502);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBe('unreachable');
+  });
+
+  it('returns 502 flow-error when the token endpoint responds with garbage', async () => {
+    const fetchImpl = makeLoginFlowFetch({
+      tokenBody: { not: 'a token response' },
+    });
+    const { router } = makeRouter({ fetchImpl });
+    const res = await router.request('/ha/password-grant', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(validBody),
+    });
+    expect(res.status).toBe(502);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBe('flow-error');
+  });
+
+  it('sets an httpOnly Secure cookie when Origin matches the allowlist', async () => {
+    const fetchImpl = makeLoginFlowFetch({});
+    const { router } = makeRouter({ fetchImpl, webOrigins: ['https://app.glaon.com'] });
+    const res = await router.request('/ha/password-grant', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Origin: 'https://app.glaon.com',
+      },
+      body: JSON.stringify(validBody),
+    });
+    expect(res.status).toBe(200);
+    const cookie = res.headers.get('Set-Cookie');
+    expect(cookie).toContain('HttpOnly');
+    expect(cookie).toContain('Secure');
+    expect(cookie).toContain('SameSite=Strict');
+  });
+});
+
 describe('POST /auth/logout', () => {
   it('adds the session jti to the revocation store', async () => {
     const { router, revocations } = makeRouter();

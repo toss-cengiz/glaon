@@ -7,4 +7,8 @@
 // outgoing bodies (the response is what `c.json` ships) so only the
 // request validators are surfaced here.
 
-export { AuthExchangeRequestSchema, AuthRefreshRequestSchema } from '@glaon/core/api-client';
+export {
+  AuthExchangeRequestSchema,
+  AuthRefreshRequestSchema,
+  HaPasswordGrantRequestSchema,
+} from '@glaon/core/api-client';
