@@ -124,20 +124,24 @@ function stripTrailingSlash(value: string): string {
 // `login_flow` is bound to `client_id` server-side and is single-use, so
 // there is no redirect interception risk that PKCE would mitigate.
 
-export interface HaCredentials {
+// Internal types — not exported. The route handler in
+// `apps/api/src/routes/auth.ts` consumes the helper through its
+// inferred return type, so widening to public exports would only add
+// surface area for `knip` to flag.
+interface HaCredentials {
   readonly username: string;
   readonly password: string;
   readonly clientId: string;
 }
 
-export interface HaLoginFlowSuccess {
+interface HaLoginFlowSuccess {
   readonly ok: true;
   readonly accessToken: string;
   readonly refreshToken: string;
   readonly expiresIn: number;
 }
 
-export interface HaLoginFlowFailure {
+interface HaLoginFlowFailure {
   readonly ok: false;
   readonly reason:
     | 'invalid-url'
@@ -148,7 +152,7 @@ export interface HaLoginFlowFailure {
   readonly status?: number;
 }
 
-export type HaLoginFlowResult = HaLoginFlowSuccess | HaLoginFlowFailure;
+type HaLoginFlowResult = HaLoginFlowSuccess | HaLoginFlowFailure;
 
 export async function loginFlow(
   haBaseUrl: string,
