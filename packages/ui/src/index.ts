@@ -4,6 +4,8 @@
 
 export * from './components/Alert';
 export * from './components/AppStoreBadge';
+export * from './components/AuthFooter';
+export * from './components/AuthLayout';
 export * from './components/Avatar';
 export * from './components/Badge';
 export * from './components/BadgeGroup';
@@ -18,11 +20,13 @@ export * from './components/DatePicker';
 export * from './components/DateRangePicker';
 export * from './components/Drawer';
 export * from './components/Dropdown';
+export * from './components/FormField';
 export * from './components/Input';
 export * from './components/List';
 export * from './components/Logo';
 export * from './components/Modal';
 export * from './components/Notification';
+export * from './components/PasswordInput';
 export * from './components/Popover';
 export * from './components/PressableButton';
 export * from './components/ProgressBar';
