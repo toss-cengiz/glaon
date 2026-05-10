@@ -9,9 +9,9 @@ import { WebTokenStore } from './auth/web-token-store';
 import { AuthCallbackRoute } from './features/auth/local/auth-callback-route';
 import { LoginRoute } from './features/auth/local/login-route';
 import { SignInRoute } from './features/auth/cloud/sign-in-route';
-import { SignUpRoute } from './features/auth/cloud/sign-up-route';
 import { EmailVerificationPage } from './features/auth/email-verification/email-verification-page';
 import { ForgotPasswordPage } from './features/auth/forgot-password/forgot-password-page';
+import { SignUpPage } from './features/auth/sign-up/sign-up-page';
 import { PairWizardRoute } from './features/cloud-pairing/pair-wizard-route';
 import { ModeSelectRoute } from './features/mode-select/mode-select-route';
 import {
@@ -121,7 +121,7 @@ function Router({ clerkKey }: RouterProps): ReactNode {
         </main>
       );
     }
-    return path === '/sign-in' ? <SignInRoute /> : <SignUpRoute />;
+    return path === '/sign-in' ? <SignInRoute /> : <SignUpPage />;
   }
   if (path === '/settings/link-to-cloud') {
     if (clerkKey === null) {
