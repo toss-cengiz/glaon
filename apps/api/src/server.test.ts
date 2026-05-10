@@ -87,4 +87,29 @@ describe('createServer wiring', () => {
     await app.request('/healthz');
     expect(command).toHaveBeenCalledTimes(2);
   });
+
+  it('echoes X-Request-Id on every response (observability middleware)', async () => {
+    const app = createServer(makeDeps());
+    const res = await app.request('/healthz');
+    const requestId = res.headers.get('X-Request-Id');
+    expect(requestId).toBeTruthy();
+    expect(requestId).toMatch(/^[A-Za-z0-9_.-]+$/);
+  });
+});
+
+describe('GET /metrics', () => {
+  it('returns the prometheus text format with mongo + request counters populated', async () => {
+    const app = createServer(makeDeps());
+    // Drive at least one request through the observability middleware so
+    // the request counter has a row.
+    await app.request('/version');
+    await app.request('/healthz');
+    const res = await app.request('/metrics');
+    expect(res.status).toBe(200);
+    expect(res.headers.get('Content-Type')).toContain('text/plain');
+    const body = await res.text();
+    expect(body).toContain('process_uptime_seconds');
+    expect(body).toContain('http_requests_total');
+    expect(body).toMatch(/mongo_ping_milliseconds [0-9]+/);
+  });
 });
