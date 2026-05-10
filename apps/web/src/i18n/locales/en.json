@@ -20,11 +20,18 @@
     "manual": {
       "label": "Or enter your Home Assistant URL manually",
       "placeholder": "http://homeassistant.local:8123",
-      "submit": "Use this URL"
+      "submit": "Use this URL",
+      "ariaLabel": "Manual local URL"
     }
   },
   "shell": {
     "signedInPlaceholder": "Signed in. The Phase 2 dashboard lands once #10–#12 wire the HA WebSocket.",
     "switchMode": "Switch mode"
+  },
+  "cloudUnavailable": {
+    "signInTitle": "Cloud sign-in unavailable",
+    "pairingTitle": "Cloud pairing unavailable",
+    "body": "VITE_CLERK_PUBLISHABLE_KEY is not configured for this build.",
+    "pickDifferentMode": "Pick a different mode"
   }
 }

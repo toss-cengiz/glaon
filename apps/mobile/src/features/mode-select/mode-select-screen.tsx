@@ -7,6 +7,8 @@
 //     `*.local` host (more common on Android)
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { probeLocal, type LocalProbeResult } from './local-probe';
@@ -35,6 +37,7 @@ export function ModeSelectScreen({
   initialPreference = null,
   onChoose,
 }: ModeSelectScreenProps): ReactNode {
+  const { t } = useTranslation();
   const [manualUrl, setManualUrl] = useState<string>('');
   const probeUrl = useMemo(() => {
     if (
@@ -69,19 +72,17 @@ export function ModeSelectScreen({
     onChoose(preference);
   };
 
-  const localMeta = describeLocal(probeState);
+  const localMeta = describeLocal(probeState, t);
 
   return (
     <View testID="mode-select-screen" style={styles.root}>
-      <Text style={styles.heading}>How is Glaon connecting to Home Assistant?</Text>
-      <Text style={styles.subheading}>
-        Pick the option that matches where you are. You can change this later from settings.
-      </Text>
+      <Text style={styles.heading}>{t('modeSelect.heading')}</Text>
+      <Text style={styles.subheading}>{t('modeSelect.subheading')}</Text>
 
       <ModeSelectorCard
         mode="local"
-        title="Local — same Wi-Fi as your home"
-        description="Sign in directly to Home Assistant. Fastest, no Glaon cloud account."
+        title={t('modeSelect.local.title')}
+        description={t('modeSelect.local.description')}
         meta={localMeta}
         onSelect={() => {
           choose('local', probeState.result?.reachable === true ? probeUrl : undefined);
@@ -90,17 +91,17 @@ export function ModeSelectScreen({
 
       <ModeSelectorCard
         mode="cloud"
-        title="Cloud — anywhere on the internet"
-        description="Sign in with your Glaon account. Connects through the Glaon relay."
+        title={t('modeSelect.cloud.title')}
+        description={t('modeSelect.cloud.description')}
         disabled={!cloudAvailable}
-        meta={cloudAvailable ? undefined : 'Cloud is not configured for this build.'}
+        meta={cloudAvailable ? undefined : t('modeSelect.cloud.unavailable')}
         onSelect={() => {
           choose('cloud');
         }}
       />
 
       <View testID="mode-select-manual-url" style={styles.manualSection}>
-        <Text style={styles.manualLabel}>Or enter your Home Assistant URL manually</Text>
+        <Text style={styles.manualLabel}>{t('modeSelect.manual.label')}</Text>
         <TextInput
           testID="mode-select-manual-input"
           value={manualUrl}
@@ -109,14 +110,14 @@ export function ModeSelectScreen({
           autoCorrect={false}
           inputMode="url"
           keyboardType="url"
-          placeholder="http://homeassistant.local:8123"
-          accessibilityLabel="Home Assistant URL"
+          placeholder={t('modeSelect.manual.placeholder')}
+          accessibilityLabel={t('modeSelect.manual.ariaUrl')}
           style={styles.manualInput}
         />
         <Pressable
           testID="mode-select-manual-submit"
           accessibilityRole="button"
-          accessibilityLabel="Use this URL"
+          accessibilityLabel={t('modeSelect.manual.submit')}
           accessibilityState={{ disabled: manualUrl.trim().length === 0 }}
           disabled={manualUrl.trim().length === 0}
           onPress={() => {
@@ -127,20 +128,24 @@ export function ModeSelectScreen({
             manualUrl.trim().length === 0 ? styles.manualButtonDisabled : null,
           ]}
         >
-          <Text style={styles.manualButtonText}>Use this URL</Text>
+          <Text style={styles.manualButtonText}>{t('modeSelect.manual.submit')}</Text>
         </Pressable>
       </View>
     </View>
   );
 }
 
-function describeLocal(state: {
-  status: 'pending' | 'done';
-  result: LocalProbeResult | null;
-}): string {
-  if (state.status === 'pending') return 'Looking for a Home Assistant on your network…';
-  if (state.result?.reachable === true) return `Local instance found at ${state.result.url}`;
-  return "Couldn't auto-detect Home Assistant; pick this option to enter the URL manually.";
+function describeLocal(
+  state: {
+    status: 'pending' | 'done';
+    result: LocalProbeResult | null;
+  },
+  t: TFunction,
+): string {
+  if (state.status === 'pending') return t('modeSelect.local.probing');
+  if (state.result?.reachable === true)
+    return t('modeSelect.local.found', { url: state.result.url });
+  return t('modeSelect.local.notFound');
 }
 
 const styles = StyleSheet.create({
