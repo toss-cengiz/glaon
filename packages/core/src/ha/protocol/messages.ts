@@ -109,6 +109,32 @@ export interface HaGetStatesFrame {
   readonly type: 'get_states';
 }
 
+/* ---------- frontend/get_translations (i18n-D / #426) ---------- */
+
+/**
+ * HA's localized strings RPC. Returns a flat dictionary of dotted keys
+ * (`component.switch.state.off` → `Off`/`Kapalı`) for the given
+ * `language` and `category`. Glaon merges the response into i18next
+ * under the `ha` namespace; we never re-translate HA-owned content.
+ *
+ * `category` follows HA's enum. We only ship the values Glaon actually
+ * consumes today — `state` (entity state labels) and `entity_component`
+ * (device class + service descriptions). HA's full list is broader;
+ * extending the union is a one-line change when a new category lands.
+ */
+export type HaTranslationCategory = 'state' | 'entity_component';
+
+export interface HaGetTranslationsFrame {
+  readonly id: number;
+  readonly type: 'frontend/get_translations';
+  readonly language: string;
+  readonly category: HaTranslationCategory;
+}
+
+export interface HaTranslationsResult {
+  readonly resources?: Readonly<Record<string, string>>;
+}
+
 /* ---------- Aggregates ---------- */
 
 export type HaInboundFrame =
@@ -126,4 +152,5 @@ export type HaOutboundFrame =
   | HaSubscribeEntitiesFrame
   | HaUnsubscribeEventsFrame
   | HaCallServiceFrame
-  | HaGetStatesFrame;
+  | HaGetStatesFrame
+  | HaGetTranslationsFrame;
