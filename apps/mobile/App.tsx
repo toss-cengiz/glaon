@@ -15,6 +15,7 @@ import {
   expoModePreferenceStore,
   type ModePreference,
 } from './src/features/mode-select/mode-preference';
+import { I18nProvider } from './src/i18n/I18nProvider';
 import { initObservability } from './src/observability';
 
 initObservability();
@@ -37,8 +38,14 @@ export default function App(): ReactNode {
     </AuthProvider>
   );
 
-  if (clerkKey === null) return inner;
-  return <CloudAuthProvider publishableKey={clerkKey}>{inner}</CloudAuthProvider>;
+  const tree =
+    clerkKey === null ? (
+      inner
+    ) : (
+      <CloudAuthProvider publishableKey={clerkKey}>{inner}</CloudAuthProvider>
+    );
+
+  return <I18nProvider>{tree}</I18nProvider>;
 }
 
 function CloudSessionBridge(): ReactNode {

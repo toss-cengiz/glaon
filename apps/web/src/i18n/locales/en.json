@@ -1,0 +1,30 @@
+{
+  "app": {
+    "name": "Glaon"
+  },
+  "modeSelect": {
+    "heading": "How is Glaon connecting to Home Assistant?",
+    "subheading": "Pick the option that matches where you are right now. You can change this later from the settings menu.",
+    "local": {
+      "title": "Local — same Wi-Fi as your home",
+      "description": "Sign in directly to Home Assistant. Fastest, no Glaon cloud account needed.",
+      "probing": "Looking for a Home Assistant on your network…",
+      "found": "Local instance found at {url}",
+      "notFound": "Couldn't auto-detect Home Assistant; pick this option to enter the URL manually."
+    },
+    "cloud": {
+      "title": "Cloud — anywhere on the internet",
+      "description": "Sign in with your Glaon account. Connects through the Glaon relay.",
+      "unavailable": "Cloud is not configured for this build."
+    },
+    "manual": {
+      "label": "Or enter your Home Assistant URL manually",
+      "placeholder": "http://homeassistant.local:8123",
+      "submit": "Use this URL"
+    }
+  },
+  "shell": {
+    "signedInPlaceholder": "Signed in. The Phase 2 dashboard lands once #10–#12 wire the HA WebSocket.",
+    "switchMode": "Switch mode"
+  }
+}

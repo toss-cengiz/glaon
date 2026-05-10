@@ -6,8 +6,13 @@
     "@glaon/core": "workspace:*",
     "@glaon/ui": "workspace:*",
     "@sentry/browser": "^10.49.0",
+    "i18next": "^23.16.8",
+    "i18next-browser-languagedetector": "^8.0.2",
+    "i18next-icu": "^2.3.0",
+    "intl-messageformat": "^10.7.13",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "react-i18next": "^15.3.0"
   },
   "devDependencies": {
     "@glaon/config": "workspace:*",
