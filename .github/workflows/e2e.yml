@@ -58,6 +58,12 @@ jobs:
           # to a deterministic stub when VITE_E2E_AUTH_STUB=true (#359).
           VITE_CLERK_PUBLISHABLE_KEY: pk_test_e2e_smoke
           VITE_E2E_AUTH_STUB: 'true'
+          # The CSP `connect-src` allows `https:` only — the plain-HTTP
+          # fallback hardcoded in App.tsx (homeassistant.local:8123)
+          # would block the /auth/token POST in the local-mode smoke.
+          # The host doesn't resolve in CI anyway; Playwright intercepts
+          # the request at the route level and fulfills it locally.
+          VITE_HA_BASE_URL: https://homeassistant.local:8123
 
       - name: Run Playwright smoke tests
         run: pnpm --filter @glaon/web-e2e e2e --project=chromium --grep @smoke
