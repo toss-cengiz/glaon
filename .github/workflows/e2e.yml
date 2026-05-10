@@ -64,6 +64,11 @@ jobs:
           # The host doesn't resolve in CI anyway; Playwright intercepts
           # the request at the route level and fulfills it locally.
           VITE_HA_BASE_URL: https://homeassistant.local:8123
+          # Same reasoning for the apps/api endpoint (#470 / ADR 0027) —
+          # the default `http://localhost:3000` is plain-HTTP and CSP
+          # would block the password-grant POST. Use an HTTPS placeholder
+          # that Playwright `page.route()` matches and fulfills locally.
+          VITE_API_BASE_URL: https://api.glaon.invalid
 
       - name: Run Playwright smoke tests
         run: pnpm --filter @glaon/web-e2e e2e --project=chromium --grep @smoke

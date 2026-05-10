@@ -7,10 +7,9 @@ import { useCloudSessionSync } from './auth/cloud/use-cloud-session';
 import { deriveClientIdFromOrigin } from './auth/local-auth-flow';
 import { WebTokenStore } from './auth/web-token-store';
 import { AuthCallbackRoute } from './features/auth/local/auth-callback-route';
-import { LoginRoute } from './features/auth/local/login-route';
-import { SignInRoute } from './features/auth/cloud/sign-in-route';
 import { EmailVerificationPage } from './features/auth/email-verification/email-verification-page';
 import { ForgotPasswordPage } from './features/auth/forgot-password/forgot-password-page';
+import { LoginPage } from './features/auth/login/login-page';
 import { SignUpPage } from './features/auth/sign-up/sign-up-page';
 import { PairWizardRoute } from './features/cloud-pairing/pair-wizard-route';
 import { ModeSelectRoute } from './features/mode-select/mode-select-route';
@@ -90,6 +89,33 @@ function Router({ clerkKey }: RouterProps): ReactNode {
       />
     );
   }
+  if (path === '/login' || path === '/sign-in') {
+    // `/sign-in` was the legacy Clerk-hosted path; both URLs now land
+    // on the unified LoginPage with the Cloud tab pre-selected for
+    // `/sign-in` so old bookmarks keep working.
+    const params = new URLSearchParams(window.location.search);
+    const queryTab = params.get('tab');
+    const defaultTab: 'device' | 'cloud' =
+      path === '/sign-in' || queryTab === 'cloud' ? 'cloud' : 'device';
+    return (
+      <LoginPage
+        defaultTab={defaultTab}
+        defaultHaBaseUrl={HA_BASE_URL}
+        cloudAvailable={clerkKey !== null}
+      />
+    );
+  }
+  if (path === '/sign-up') {
+    if (clerkKey === null) {
+      return (
+        <main data-testid="cloud-unavailable">
+          <h1>{t('cloudUnavailable.signInTitle')}</h1>
+          <p>{t('cloudUnavailable.body')}</p>
+        </main>
+      );
+    }
+    return <SignUpPage />;
+  }
   if (path === '/forgot-password') {
     if (clerkKey === null) {
       return (
@@ -111,17 +137,6 @@ function Router({ clerkKey }: RouterProps): ReactNode {
       );
     }
     return <EmailVerificationPage />;
-  }
-  if (path === '/sign-in' || path === '/sign-up') {
-    if (clerkKey === null) {
-      return (
-        <main data-testid="cloud-unavailable">
-          <h1>{t('cloudUnavailable.signInTitle')}</h1>
-          <p>{t('cloudUnavailable.body')}</p>
-        </main>
-      );
-    }
-    return path === '/sign-in' ? <SignInRoute /> : <SignUpPage />;
   }
   if (path === '/settings/link-to-cloud') {
     if (clerkKey === null) {
@@ -148,22 +163,19 @@ function Router({ clerkKey }: RouterProps): ReactNode {
     if (preference === null) {
       return <ModeSelectRoute cloudAvailable={clerkKey !== null} onChoose={choosePreference} />;
     }
-    if (preference.mode === 'cloud') {
-      if (clerkKey === null) {
-        return (
-          <main data-testid="cloud-unavailable">
-            <h1>{t('cloudUnavailable.signInTitle')}</h1>
-            <p>{t('cloudUnavailable.body')}</p>
-            <button type="button" onClick={() => void switchMode()}>
-              {t('cloudUnavailable.pickDifferentMode')}
-            </button>
-          </main>
-        );
-      }
-      return <SignInRoute />;
-    }
+    // Per #470 the dedicated `<SignInRoute>` for cloud preference is
+    // gone; LoginPage handles both modes via its tab toggle. The
+    // cloud-unavailable copy is rendered inline by LoginPage's Cloud
+    // tab when the publishable key is missing.
     const localBaseUrl = preference.lastLocalUrl ?? config.baseUrl;
-    return <LoginRoute config={{ ...config, baseUrl: localBaseUrl }} redirectUri={redirectUri} />;
+    const defaultTab: 'device' | 'cloud' = preference.mode === 'cloud' ? 'cloud' : 'device';
+    return (
+      <LoginPage
+        defaultTab={defaultTab}
+        defaultHaBaseUrl={localBaseUrl}
+        cloudAvailable={clerkKey !== null}
+      />
+    );
   }
   return (
     <main>
