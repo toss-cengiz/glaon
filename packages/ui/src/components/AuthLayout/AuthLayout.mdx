@@ -1,0 +1,71 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as AuthLayoutStories from './AuthLayout.stories';
+
+<Meta of={AuthLayoutStories} />
+
+# AuthLayout
+
+Page chrome for the four auth flows: Login (`split`), Sign up (`split`),
+Forgot password (`centered`), Email verification (`centered`). The
+component renders the brand logo, the form column (a constrained
+centered card), an optional hero image (split), an optional icon slot
+above the title (centered), and an optional footer.
+
+## When to use
+
+- The `/login`, `/sign-up`, `/forgot-password`, and `/verify-email`
+  routes — one shared layout, two variants.
+- Other unauth pages with similar chrome (e.g. SSO callback success).
+
+## When NOT to use
+
+- Authenticated pages — they use AppShell instead (Phase 2 follow-up).
+- Marketing landing pages — those have their own templates.
+- Modal dialogs — use [Modal](?path=/docs/web-primitives-modal--docs).
+
+## Anatomy
+
+<Canvas of={AuthLayoutStories.Split} />
+
+```tsx
+<AuthLayout variant="split" imageSlot={<HeroImage />} footerSlot={<span>© Glaon {year}</span>}>
+  <FormHeading title="Welcome back" subtitle="Welcome back!" />
+  <SignInForm />
+</AuthLayout>
+```
+
+`split` collapses to a single-column layout below the `lg` breakpoint
+so phones get the form full-width. `centered` is always single-column
+and works on every breakpoint.
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The `<header>` carries the brand logo; the form column is wrapped
+  in `<main>` so screen readers can land on the primary content.
+- `imageSlot` is rendered with `aria-hidden="true"` — the image is
+  decorative; meaningful copy lives inside `children`.
+- `iconSlot` (centered variant) is also decorative; the title text
+  must communicate the page intent.
+- `footerSlot` is rendered as `<footer>`; keep its content short
+  (copyright line, locale switcher, etc.).
+
+## Related components
+
+- [Logo](?path=/docs/web-primitives-logo--docs) — used in the header
+  by default; override via `logoSlot`.
+- [PasswordInput](?path=/docs/app-primitives-passwordinput--docs) — the
+  password row inside the form column.
+- [FormField](?path=/docs/app-primitives-formfield--docs) — label +
+  control + error wrapper for each field.
+- [AuthFooter](?path=/docs/app-primitives-authfooter--docs) — `Already
+have an account? Sign in` link strip; embed in `children` near the
+  bottom of the form column.
