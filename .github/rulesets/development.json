@@ -9,9 +9,15 @@
     }
   },
   "rules": [
-    { "type": "deletion" },
-    { "type": "non_fast_forward" },
-    { "type": "required_linear_history" },
+    {
+      "type": "deletion"
+    },
+    {
+      "type": "non_fast_forward"
+    },
+    {
+      "type": "required_linear_history"
+    },
     {
       "type": "pull_request",
       "parameters": {
@@ -27,11 +33,24 @@
       "parameters": {
         "strict_required_status_checks_policy": true,
         "required_status_checks": [
-          { "context": "type-check · lint · audit" },
-          { "context": "conventional-commits" },
-          { "context": "gitleaks" },
-          { "context": "review" },
-          { "context": "visual regression" }
+          {
+            "context": "conventional-commits"
+          },
+          {
+            "context": "gitleaks"
+          },
+          {
+            "context": "i18n-check"
+          },
+          {
+            "context": "review"
+          },
+          {
+            "context": "type-check \u00b7 lint \u00b7 audit"
+          },
+          {
+            "context": "visual regression"
+          }
         ]
       }
     }

@@ -36,6 +36,17 @@ export default tseslint.config(
   },
   js.configs.recommended,
   {
+    // Repository scripts (root `scripts/*.mjs`) are Node ESM modules. The
+    // TS-specific block below already exposes Node globals to .ts files;
+    // make the same guarantee for the few .mjs helpers we maintain.
+    files: ['scripts/**/*.{js,mjs,cjs}'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: { ...globals.node },
+    },
+  },
+  {
     files: ['**/*.{ts,tsx}'],
     extends: [...tseslint.configs.strictTypeChecked, ...tseslint.configs.stylisticTypeChecked],
     languageOptions: {
