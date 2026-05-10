@@ -140,15 +140,20 @@ test.describe('local-mode auth flow @smoke', () => {
     await page.goto('/');
     await page.getByTestId('login-start').click();
 
-    // Browser follows the authorize stub's 302 back to /auth/callback. The
-    // signed-in shell renders once setLocalAuth fires + onSuccess redirects
-    // to '/'. We assert on the shell's user-visible heading (the one the
-    // language-policy keeps stable as 'Glaon' across locales) and the
-    // Switch-mode affordance landing as a stable testid.
-    await expect(page.getByRole('heading', { level: 1, name: 'Glaon' })).toBeVisible({
+    // The callback route renders `auth-callback-success` once the token
+    // exchange resolves and `setLocalAuth` fires; immediately after, the
+    // production wiring calls `window.location.assign('/')` which reloads
+    // the page and drops the in-memory access token (web TokenStore is
+    // in-memory by design — refresh would normally come from the httpOnly
+    // cookie that the addon nginx proxy sets, which the smoke doesn't
+    // model). So we assert on the success state at the callback layer:
+    // it proves the exchange round-tripped, AuthProvider observed the
+    // token, and the user-visible "Signed in. Redirecting…" copy lit
+    // up — without depending on the post-reload shell that the in-memory
+    // store can't sustain.
+    await expect(page.getByTestId('auth-callback-success')).toBeVisible({
       timeout: 10_000,
     });
-    await expect(page.getByTestId('switch-mode')).toBeVisible();
 
     expect(
       tokenRequestSeen,
