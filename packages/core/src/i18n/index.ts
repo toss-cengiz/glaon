@@ -13,3 +13,10 @@ export {
   type SupportedLocale,
 } from './locale-negotiator';
 export type { I18nNamespaces, I18nResource, I18nResources, LocaleChoice } from './types';
+export {
+  clearHaTranslationsCache,
+  fetchHaTranslations,
+  invalidateHaTranslations,
+  type FetchHaTranslationsOptions,
+  type HaTranslationsCache,
+} from './ha-bridge';
