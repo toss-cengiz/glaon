@@ -35,5 +35,13 @@
     "body": "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY is not configured for this build.",
     "pickDifferentMode": "Pick a different mode",
     "back": "Back"
+  },
+  "languageSwitcher": {
+    "label": "Language",
+    "ariaLabel": "Choose interface language",
+    "options": {
+      "en": "English",
+      "tr": "Türkçe"
+    }
   }
 }

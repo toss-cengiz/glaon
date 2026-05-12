@@ -35,5 +35,13 @@
     "body": "Bu derleme için EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ayarlanmamış.",
     "pickDifferentMode": "Başka bir mod seç",
     "back": "Geri"
+  },
+  "languageSwitcher": {
+    "label": "Dil",
+    "ariaLabel": "Arayüz dilini seç",
+    "options": {
+      "en": "English",
+      "tr": "Türkçe"
+    }
   }
 }
