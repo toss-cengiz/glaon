@@ -33,5 +33,13 @@
     "pairingTitle": "Bulut eşleştirmesi kullanılamıyor",
     "body": "Bu derleme için VITE_CLERK_PUBLISHABLE_KEY ayarlanmamış.",
     "pickDifferentMode": "Başka bir mod seç"
+  },
+  "languageSwitcher": {
+    "label": "Dil",
+    "ariaLabel": "Arayüz dilini seç",
+    "options": {
+      "en": "English",
+      "tr": "Türkçe"
+    }
   }
 }
