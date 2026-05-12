@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { probeLocal, type LocalProbeResult } from './local-probe';
+import { LanguageSwitcher } from '../../i18n/LanguageSwitcher';
 import { ModeSelectorCard } from './mode-selector-card';
 import {
   expoModePreferenceStore,
@@ -131,6 +132,10 @@ export function ModeSelectScreen({
           <Text style={styles.manualButtonText}>{t('modeSelect.manual.submit')}</Text>
         </Pressable>
       </View>
+
+      <View style={styles.languageSwitcherSection}>
+        <LanguageSwitcher />
+      </View>
     </View>
   );
 }
@@ -172,4 +177,5 @@ const styles = StyleSheet.create({
   },
   manualButtonDisabled: { opacity: 0.5 },
   manualButtonText: { color: '#ffffff', fontSize: 16, fontWeight: '600' },
+  languageSwitcherSection: { marginTop: 24 },
 });
