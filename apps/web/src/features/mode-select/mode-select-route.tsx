@@ -11,6 +11,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
+import { LanguageSwitcher } from '../../i18n/LanguageSwitcher';
 import { probeLocal, type LocalProbeResult } from './local-probe';
 import { ModeSelectorCard } from './mode-selector-card';
 import {
@@ -147,6 +148,10 @@ export function ModeSelectRoute({
           {t('modeSelect.manual.submit')}
         </button>
       </section>
+
+      <div style={{ marginTop: '1.5rem', maxWidth: '240px' }}>
+        <LanguageSwitcher />
+      </div>
     </main>
   );
 }
