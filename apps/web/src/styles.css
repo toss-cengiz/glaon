@@ -1,0 +1,7 @@
+@import '@glaon/ui/styles';
+
+/* `globals.css` lives under `packages/ui/src/styles/`; Tailwind v4's
+   default content detection scans relative to that file and would not
+   reach `apps/web/src`. The explicit `@source` keeps web utility classes
+   in the JIT scan set. */
+@source "./**/*.{ts,tsx}";
