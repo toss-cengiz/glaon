@@ -22,7 +22,7 @@
       "project": ["src/**/*.{ts,tsx}"],
       "vite": false,
       "vitest": false,
-      "ignoreDependencies": ["@glaon/ui", "@glaon/config"]
+      "ignoreDependencies": ["@glaon/ui", "@glaon/config", "tailwindcss"]
     },
     "apps/cloud": {
       "entry": ["src/**/*.test.ts", "wrangler.toml"],
