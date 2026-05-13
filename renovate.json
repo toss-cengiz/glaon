@@ -78,6 +78,11 @@
     {
       "matchManagers": ["github-actions"],
       "groupName": "github actions"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["digest"],
+      "commitMessageTopic": "{{replace \"ghcr.io/home-assistant/\" \"\" depName}}"
     }
   ]
 }
