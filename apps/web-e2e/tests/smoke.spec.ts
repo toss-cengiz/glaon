@@ -26,4 +26,18 @@ test.describe('web app @smoke', () => {
     expect(csp).toContain("default-src 'self'");
     expect(csp).not.toContain('unsafe-eval');
   });
+
+  test('loads the Tailwind v4 + UUI CSS pipeline', async ({ page }) => {
+    // Regression guard for #498. Without the `@tailwindcss/vite` plugin
+    // and the `@glaon/ui/styles` import wired into apps/web, UUI's
+    // `theme.css` custom properties never reach the document and
+    // `globals.css`'s body rule (`font-family: var(--font-body)`)
+    // collapses to the browser default. Asserting the custom property
+    // is resolved is the cleanest signal that the pipeline ran.
+    await page.goto('/');
+    const fontBody = await page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue('--font-body').trim(),
+    );
+    expect(fontBody.length).toBeGreaterThan(0);
+  });
 });
