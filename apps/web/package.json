@@ -32,10 +32,10 @@
   },
   "private": true,
   "scripts": {
-    "build": "tsc -b && vite build",
-    "build:addon": "tsc -b && vite build --base=./ --mode development",
+    "build": "pnpm --filter @glaon/ui build:tokens && tsc -b && vite build",
+    "build:addon": "pnpm --filter @glaon/ui build:tokens && tsc -b && vite build --base=./ --mode development",
     "clean": "rm -rf dist .turbo coverage",
-    "dev": "vite",
+    "dev": "pnpm --filter @glaon/ui build:tokens && vite",
     "lint": "eslint .",
     "preview": "vite preview",
     "size": "size-limit",
