@@ -28,16 +28,30 @@ test.describe('web app @smoke', () => {
   });
 
   test('loads the Tailwind v4 + UUI CSS pipeline', async ({ page }) => {
-    // Regression guard for #498. Without the `@tailwindcss/vite` plugin
-    // and the `@glaon/ui/styles` import wired into apps/web, UUI's
-    // `theme.css` custom properties never reach the document and
-    // `globals.css`'s body rule (`font-family: var(--font-body)`)
-    // collapses to the browser default. Asserting the custom property
-    // is resolved is the cleanest signal that the pipeline ran.
+    // Two-part regression guard.
+    //
+    // Part 1 (#498): without the `@tailwindcss/vite` plugin and the
+    // `@glaon/ui/styles` import, UUI's `theme.css` custom properties
+    // never reach the document and `globals.css`'s body rule
+    // (`font-family: var(--font-body)`) collapses to the browser
+    // default. `--font-body` resolving to a non-empty stack proves the
+    // base pipeline ran.
+    //
+    // Part 2 (#502): `glaon-overrides.css` maps `--color-brand-N` onto
+    // `--brand-N` from the Style Dictionary output
+    // (`packages/ui/dist/tokens/web.css`). When that file is not
+    // imported from `globals.css`, `--brand-500` is unset and the kit
+    // Button / Logo accent render unfilled. Asserting `--brand-500`
+    // resolves to a hex value catches that wiring being removed.
     await page.goto('/');
-    const fontBody = await page.evaluate(() =>
-      getComputedStyle(document.documentElement).getPropertyValue('--font-body').trim(),
-    );
-    expect(fontBody.length).toBeGreaterThan(0);
+    const probes = await page.evaluate(() => {
+      const root = getComputedStyle(document.documentElement);
+      return {
+        fontBody: root.getPropertyValue('--font-body').trim(),
+        brand500: root.getPropertyValue('--brand-500').trim(),
+      };
+    });
+    expect(probes.fontBody.length).toBeGreaterThan(0);
+    expect(probes.brand500).toMatch(/^#[0-9a-f]{3,8}$/i);
   });
 });

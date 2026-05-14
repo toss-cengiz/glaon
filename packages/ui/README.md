@@ -98,7 +98,11 @@ function Root() {
 }
 ```
 
-Web tarafı ek olarak `dist/tokens/web.css`'yi root entry'sinde import eder (`<html data-theme="light|dark">` attribute'una bağlı CSS variables). RN tarafı yalnızca `useTheme()` üzerinden tokens'ı tüketir.
+Web tarafı `dist/tokens/web.css`'yi consumer'ın root CSS entry'sinden değil **`packages/ui/src/styles/globals.css`'in kendisinden** import eder. Bu sayede `@glaon/ui/styles` export'unu import eden her app (apps/web, Storybook, gelecekteki app'ler) Glaon F2 brand scale'ini otomatik alır — `glaon-overrides.css` UUI `--color-brand-*` semantik ailesini bu F2 `--brand-*` token'larına map'liyor; F2 olmadan kit Button / Logo aksent / Tabs brand state'leri boş render olur (regression hikayesi: #498 → #501 → #502).
+
+Generated `dist/tokens/web.css` dosyası repo'ya commit edilmez (`.gitignore`). Turbo `^build:tokens` dependency'si `dev` ve `build` task'larında tanımlı; `pnpm --filter @glaon/web {dev,build}` çağrıldığında Style Dictionary çıktısı otomatik üretilir. Storybook script'i (`pnpm build:tokens && storybook dev`) Turbo'dan bağımsız çalıştığı için kendi pre-step'ini koruyor.
+
+RN tarafı yalnızca `useTheme()` üzerinden tokens'ı tüketir.
 
 **Şu anda dark mode görsel fark etmez**: kaynak Variables collection'ı + Theme: Dark mode'ları Figma'da henüz yok (#140 takibi). API forward-compatible — Variables eklendiğinde F2 `[data-theme='dark']` CSS override + dark RN tokens emit edecek, mevcut consumer kodu değişmeden ve dark görünümler otomatik aktif olacak.
 
