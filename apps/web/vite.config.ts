@@ -65,6 +65,17 @@ export default defineConfig(({ command, mode }) => {
     resolve: {
       alias: {
         'react-native': 'react-native-web',
+        // The Untitled UI kit source pulled via `npx untitledui add` uses
+        // `@/` prefixed imports for cross-cutting utilities and components
+        // (e.g. `@/utils/cx`, `@/components/base/buttons/button`). The
+        // convention expects `@` to resolve to `packages/ui/src`.
+        // Storybook wires this in `packages/ui/.storybook/main.ts`; apps/web
+        // needs the same alias or the dev server throws hard import-analysis
+        // errors as soon as the graph walks into a kit file like `tooltip.tsx`.
+        // Production Rolldown builds happened to tolerate the missing alias,
+        // which is why CI stayed green — dev mode is the canonical reproducer.
+        // apps/web's own source uses relative imports, so there's no collision.
+        '@': fileURLToPath(new URL('../../packages/ui/src/', import.meta.url)),
         ...(e2eAuthStub
           ? {
               '@clerk/clerk-react': fileURLToPath(
