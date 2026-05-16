@@ -2,6 +2,7 @@
 // (Docker, EAS deploy, Add-on supervisor) handle restart on crash.
 
 import { serve } from '@hono/node-server';
+import { ZodError } from 'zod';
 
 import { loadConfig } from './config';
 import { connect } from './db';
@@ -62,6 +63,27 @@ async function main(): Promise<void> {
 
 if (process.env.GLAON_API_BOOT !== '0') {
   void main().catch((err: unknown) => {
+    // ZodError = misconfigured env. The default `String(err)` dumps
+    // stringified JSON that's actionable for log aggregators but
+    // hostile to a developer on a fresh checkout. Print a friendly
+    // banner to stderr first, then the structured log line for
+    // machines (#521).
+    if (err instanceof ZodError) {
+      const missing = err.issues.map((issue) => `  • ${issue.message}`).join('\n');
+      process.stderr.write(
+        '\n' +
+          '═══════════════════════════════════════════════════════════════════\n' +
+          '✖ apps/api boot failed — missing required configuration:\n\n' +
+          missing +
+          '\n\n' +
+          'On a fresh checkout, run:\n\n' +
+          '  pnpm dev:bootstrap     # creates apps/api/.env + generates SESSION_JWT_SECRET\n' +
+          '  pnpm dev:mongo:up      # starts the local Mongo container\n' +
+          '  pnpm dev               # re-run the dev orchestrator\n\n' +
+          'Production deployments inject these via the deploy pipeline.\n' +
+          '═══════════════════════════════════════════════════════════════════\n\n',
+      );
+    }
     process.stderr.write(
       `${JSON.stringify({
         level: 'error',
