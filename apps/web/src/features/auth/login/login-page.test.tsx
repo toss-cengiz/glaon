@@ -162,4 +162,29 @@ describe('LoginPage', () => {
       expect(navigate).toHaveBeenCalledWith('/');
     });
   });
+
+  it('surfaces the unreachable toast when the addon API is offline (#517)', async () => {
+    // `fetch` rejects with TypeError when the addon API is unreachable
+    // (DNS failure, CORS preflight refusal, server offline). The hook
+    // previously fell through to the generic `unknown` code; #517's
+    // fix maps TypeError → `unreachable` so the user sees actionable
+    // copy via the central Toast.
+    haPasswordGrantSpy.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+    renderPage();
+    const deviceFormEl = screen.getByTestId('login-device-form');
+    const deviceForm = within(deviceFormEl);
+    fireEvent.change(deviceForm.getByLabelText(/username/i), { target: { value: 'olivia' } });
+    const passwordInput = deviceFormEl.querySelector<HTMLInputElement>('input[type="password"]');
+    expect(passwordInput).not.toBeNull();
+    if (passwordInput !== null) {
+      fireEvent.change(passwordInput, { target: { value: 'pw' } });
+    }
+    fireEvent.click(deviceForm.getByRole('button', { name: /^sign in$/i }));
+
+    await waitFor(() => {
+      expect(haPasswordGrantSpy).toHaveBeenCalledTimes(1);
+    });
+    // Toast surfaces the unreachable copy from DEVICE_ERROR_COPY.
+    expect(await screen.findByText(/couldn.?t reach the glaon addon/i)).toBeInTheDocument();
+  });
 });
