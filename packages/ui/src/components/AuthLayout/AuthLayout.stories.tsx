@@ -26,20 +26,18 @@ type Story = StoryObj<typeof AuthLayout>;
 
 export const excludeFromArgs = authLayoutExcludeFromArgs;
 
+// Form fields only. The title + subtitle now live on AuthLayout
+// itself (via `title` / `subtitle` props) so stories declare them
+// once at the args level instead of repeating the header markup
+// inside every render fn.
 const placeholderForm = (
-  <>
-    <div>
-      <h1 className="text-display-sm font-semibold text-primary">Welcome back</h1>
-      <p className="mt-2 text-md text-tertiary">Welcome back! Please enter your details.</p>
+  <div className="flex flex-col gap-4">
+    <div className="rounded-lg bg-secondary px-3 py-3 text-sm text-tertiary">Email field</div>
+    <div className="rounded-lg bg-secondary px-3 py-3 text-sm text-tertiary">Password field</div>
+    <div className="rounded-lg bg-brand_solid px-3 py-3 text-center text-sm font-semibold text-white">
+      Sign in
     </div>
-    <div className="flex flex-col gap-4">
-      <div className="rounded-lg bg-secondary px-3 py-3 text-sm text-tertiary">Email field</div>
-      <div className="rounded-lg bg-secondary px-3 py-3 text-sm text-tertiary">Password field</div>
-      <div className="rounded-lg bg-brand_solid px-3 py-3 text-center text-sm font-semibold text-white">
-        Sign in
-      </div>
-    </div>
-  </>
+  </div>
 );
 
 const placeholderImage = (
@@ -53,63 +51,60 @@ const featuredIcon = (Icon: typeof Mail01) => (
 );
 
 export const Split: Story = {
-  args: { variant: 'split' },
+  args: {
+    variant: 'split',
+    title: 'Welcome back',
+    subtitle: 'Welcome back! Please enter your details.',
+  },
   render: (args) => (
-    <AuthLayout {...args} imageSlot={placeholderImage} footerSlot={<span>© Glaon 2026</span>}>
+    <AuthLayout {...args} imageSlot={placeholderImage}>
       {placeholderForm}
     </AuthLayout>
   ),
 };
 
 export const SplitWithoutImage: Story = {
-  args: { variant: 'split' },
+  args: {
+    variant: 'split',
+    title: 'Welcome back',
+    subtitle: 'Welcome back! Please enter your details.',
+  },
   render: (args) => (
-    <AuthLayout {...args} imageSlot={null} footerSlot={<span>© Glaon 2026</span>}>
+    <AuthLayout {...args} imageSlot={null}>
       {placeholderForm}
     </AuthLayout>
   ),
 };
 
+const centeredForm = (
+  <div className="flex w-full flex-col gap-4">
+    <div className="rounded-lg bg-secondary px-3 py-3 text-left text-sm text-tertiary">
+      Email field
+    </div>
+    <div className="rounded-lg bg-brand_solid px-3 py-3 text-center text-sm font-semibold text-white">
+      Reset password
+    </div>
+  </div>
+);
+
 export const Centered: Story = {
-  args: { variant: 'centered' },
-  render: (args) => (
-    <AuthLayout {...args} footerSlot={<span>© Glaon 2026</span>}>
-      <div>
-        <h1 className="text-display-sm font-semibold text-primary">Forgot password?</h1>
-        <p className="mt-2 text-md text-tertiary">
-          No worries, we&apos;ll send you reset instructions.
-        </p>
-      </div>
-      <div className="flex w-full flex-col gap-4">
-        <div className="rounded-lg bg-secondary px-3 py-3 text-left text-sm text-tertiary">
-          Email field
-        </div>
-        <div className="rounded-lg bg-brand_solid px-3 py-3 text-center text-sm font-semibold text-white">
-          Reset password
-        </div>
-      </div>
-    </AuthLayout>
-  ),
+  args: {
+    variant: 'centered',
+    title: 'Forgot password?',
+    subtitle: "No worries, we'll send you reset instructions.",
+  },
+  render: (args) => <AuthLayout {...args}>{centeredForm}</AuthLayout>,
 };
 
 export const CenteredWithIcon: Story = {
-  args: { variant: 'centered' },
+  args: {
+    variant: 'centered',
+    title: 'Forgot password?',
+    subtitle: "No worries, we'll send you reset instructions.",
+  },
   render: (args) => (
-    <AuthLayout {...args} iconSlot={featuredIcon(Key01)} footerSlot={<span>© Glaon 2026</span>}>
-      <div>
-        <h1 className="text-display-sm font-semibold text-primary">Forgot password?</h1>
-        <p className="mt-2 text-md text-tertiary">
-          No worries, we&apos;ll send you reset instructions.
-        </p>
-      </div>
-      <div className="flex w-full flex-col gap-4">
-        <div className="rounded-lg bg-secondary px-3 py-3 text-left text-sm text-tertiary">
-          Email field
-        </div>
-        <div className="rounded-lg bg-brand_solid px-3 py-3 text-center text-sm font-semibold text-white">
-          Reset password
-        </div>
-      </div>
+    <AuthLayout {...args} iconSlot={featuredIcon(Key01)}>
+      {centeredForm}
     </AuthLayout>
   ),
 };

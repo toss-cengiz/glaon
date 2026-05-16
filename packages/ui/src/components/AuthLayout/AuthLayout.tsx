@@ -25,9 +25,23 @@ export interface AuthLayoutProps {
    */
   variant?: AuthLayoutVariant;
   /**
-   * Optional override for the brand logo at the top-left. Defaults to
-   * the standard `<Logo />` primitive at `md` size; pass `null` to
-   * suppress the logo (e.g. when AuthLayout sits inside another shell).
+   * Page title rendered as `<h1>` above the form. When set, AuthLayout
+   * also renders the standard `flex flex-col gap-3` header wrapper —
+   * pages no longer hand-roll the heading + subtitle stack. Pass
+   * `null` (or omit) for screens that want full control of the header
+   * area (e.g. centered variant with a custom icon block).
+   */
+  title?: ReactNode;
+  /**
+   * Secondary text rendered under `title`. Ignored when `title` is
+   * unset.
+   */
+  subtitle?: ReactNode;
+  /**
+   * Override for the brand logo at the top-left. Defaults to
+   * `<Logo size={133} />` — the pixel size measured from Figma node
+   * `1267:132204`. Pass `null` to suppress the logo (e.g. when
+   * AuthLayout sits inside another shell).
    */
   logoSlot?: ReactNode;
   /**
@@ -43,28 +57,63 @@ export interface AuthLayoutProps {
    */
   iconSlot?: ReactNode;
   /**
-   * Optional footer rendered at the bottom of the form column.
-   * Typically `© Glaon {year}` on the auth flows.
+   * Footer rendered at the bottom of the form column. Defaults to
+   * `© Glaon {currentYear}`; pass `null` to suppress, or override with
+   * a custom node for legal / build-info chrome.
    */
   footerSlot?: ReactNode;
-  /** Form contents — title, fields, CTAs. */
+  /** Form contents — fields, CTAs, social buttons, footer links. */
   children: ReactNode;
 }
 
 export function AuthLayout({
   variant = 'split',
+  title,
+  subtitle,
   logoSlot,
   imageSlot,
   iconSlot,
   footerSlot,
   children,
 }: AuthLayoutProps) {
-  const logo = logoSlot === undefined ? <Logo size="md" /> : logoSlot;
+  // Default logo / footer slots — pages can still override per slot,
+  // but the common case (LoginPage, SignUpPage, …) gets them for free.
+  // `logoSlot === undefined` distinguishes "not set" from "set to
+  // null" (the latter suppresses the slot).
+  const logo = logoSlot === undefined ? <Logo size={133} /> : logoSlot;
+  const footer =
+    footerSlot === undefined ? (
+      <span>© Glaon {new Date().getFullYear().toString()}</span>
+    ) : (
+      footerSlot
+    );
+
+  // Shared title + subtitle stack. Pages that pass a `title` prop
+  // skip hand-rolling the `<header>` — keeps Figma-spec typography
+  // (`text-display-xs font-semibold` + `text-md text-tertiary`,
+  // gap-3) on one source line. Named `titleBlock` rather than
+  // `header` because the centered variant already uses the `<header>`
+  // element as the logo container at the top of the page.
+  //
+  // `title === ''` is also treated as "no title" so the Storybook
+  // controls panel (which defaults string controls to "") doesn't
+  // render an empty `<h1>` and trip the axe `empty-heading` rule
+  // in story-tests CI. Same coverage for `subtitle`.
+  const hasTitle = title !== undefined && title !== null && title !== '';
+  const hasSubtitle = subtitle !== undefined && subtitle !== null && subtitle !== '';
+  const titleBlock = hasTitle ? (
+    <header className="flex flex-col gap-3">
+      <h1 className="text-display-xs font-semibold text-primary">{title}</h1>
+      {hasSubtitle && <p className="text-md text-tertiary">{subtitle}</p>}
+    </header>
+  ) : null;
 
   if (variant === 'centered') {
     return (
       <div className="flex min-h-screen flex-col bg-primary">
-        <header className="flex items-start px-6 py-6 sm:px-10 sm:py-8">{logo}</header>
+        {logo !== null && (
+          <header className="flex items-start px-6 py-6 sm:px-10 sm:py-8">{logo}</header>
+        )}
         <main className="flex flex-1 items-center justify-center px-6 pb-12">
           <div className="flex w-full max-w-[400px] flex-col items-center gap-6 text-center">
             {iconSlot !== undefined && iconSlot !== null && (
@@ -72,11 +121,12 @@ export function AuthLayout({
                 {iconSlot}
               </div>
             )}
+            {titleBlock}
             {children}
           </div>
         </main>
-        {footerSlot !== undefined && footerSlot !== null && (
-          <footer className="px-6 py-6 text-sm text-tertiary sm:px-10">{footerSlot}</footer>
+        {footer !== null && (
+          <footer className="px-6 py-6 text-sm text-tertiary sm:px-10">{footer}</footer>
         )}
       </div>
     );
@@ -106,13 +156,16 @@ export function AuthLayout({
   return (
     <div className="flex min-h-screen flex-col bg-primary lg:h-screen lg:min-h-0 lg:flex-row lg:items-stretch lg:overflow-hidden">
       <section className="relative flex flex-1 flex-col items-center justify-center px-6 py-24 sm:px-10 lg:min-w-[480px] lg:overflow-y-auto lg:py-8">
-        <div className="absolute left-6 top-6 sm:left-8 sm:top-8">{logo}</div>
+        {logo !== null && <div className="absolute left-6 top-6 sm:left-8 sm:top-8">{logo}</div>}
 
-        <div className="flex w-full max-w-[360px] flex-col gap-8">{children}</div>
+        <div className="flex w-full max-w-[360px] flex-col gap-8">
+          {titleBlock}
+          {children}
+        </div>
 
-        {footerSlot !== undefined && footerSlot !== null && (
+        {footer !== null && (
           <footer className="absolute bottom-6 left-6 text-sm text-tertiary sm:bottom-8 sm:left-8">
-            {footerSlot}
+            {footer}
           </footer>
         )}
       </section>
