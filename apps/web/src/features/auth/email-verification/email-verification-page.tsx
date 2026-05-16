@@ -92,13 +92,9 @@ export function EmailVerificationPage({ email, navigate }: EmailVerificationPage
       <AuthLayout
         variant="centered"
         iconSlot={<FeaturedIcon path={CHECK_ICON_PATH} />}
-        footerSlot={<span>© Glaon {new Date().getFullYear().toString()}</span>}
-      >
-        <div>
-          <h1 className="text-display-sm font-semibold text-primary">Email verified</h1>
-          <p className="mt-2 text-md text-tertiary">Welcome to Glaon — taking you in now.</p>
-        </div>
-      </AuthLayout>
+        title="Email verified"
+        subtitle="Welcome to Glaon — taking you in now."
+      />
     );
   }
 
@@ -111,13 +107,9 @@ export function EmailVerificationPage({ email, navigate }: EmailVerificationPage
     <AuthLayout
       variant="centered"
       iconSlot={<FeaturedIcon path={MAIL_ICON_PATH} />}
-      footerSlot={<span>© Glaon {new Date().getFullYear().toString()}</span>}
+      title="Check your email"
+      subtitle={subtitle}
     >
-      <div>
-        <h1 className="text-display-sm font-semibold text-primary">Check your email</h1>
-        <p className="mt-2 text-md text-tertiary">{subtitle}</p>
-      </div>
-
       <form
         data-testid="verify-email-form"
         onSubmit={(event) => {

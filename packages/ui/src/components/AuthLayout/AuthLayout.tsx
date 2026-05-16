@@ -62,8 +62,13 @@ export interface AuthLayoutProps {
    * a custom node for legal / build-info chrome.
    */
   footerSlot?: ReactNode;
-  /** Form contents — fields, CTAs, social buttons, footer links. */
-  children: ReactNode;
+  /**
+   * Form contents — fields, CTAs, social buttons, footer links.
+   * Optional so success / acknowledgment screens (e.g.
+   * `<AuthLayout title="Email verified" subtitle="…" />`) can render
+   * without a form body.
+   */
+  children?: ReactNode;
 }
 
 export function AuthLayout({
