@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import loginHeroUrl from './assets/auth/login-hero.svg';
+import loginHeroUrl from './assets/auth/login-hero.jpg';
 import { AuthProvider, useAuth } from './auth/auth-provider';
 import { CloudAuthProvider, getClerkPublishableKey } from './auth/cloud/clerk-provider';
 import { useCloudSessionSync } from './auth/cloud/use-cloud-session';
@@ -24,11 +24,13 @@ import {
 const HA_BASE_URL: string = import.meta.env.VITE_HA_BASE_URL ?? 'http://homeassistant.local:8123';
 const LOGOUT_ENDPOINT = '/auth/logout';
 
-// Brand-aligned hero rendered in the LoginPage split layout's right
-// column (#501). SVG (not bitmap) to stay within the apps/web bundle
-// budget being tightened in #500 — final designer asset will replace
-// this file in-place when ready.
-const LOGIN_HERO_IMAGE = <img src={loginHeroUrl} alt="" className="h-full w-full object-cover" />;
+// Lifestyle hero shipped from Figma node 1267:132204 (#514, closes
+// #513). JPEG at quality ~80 — 290KB — stays within the apps/web
+// bundle budget #500 is tightening. The image is purely decorative
+// (the AuthLayout marks its own `<aside>` aria-hidden), so alt="".
+const LOGIN_HERO_IMAGE = (
+  <img src={loginHeroUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+);
 
 export function App(): ReactNode {
   const tokenStore = useMemo(() => new WebTokenStore({ logoutEndpoint: LOGOUT_ENDPOINT }), []);
