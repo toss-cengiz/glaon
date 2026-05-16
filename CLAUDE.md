@@ -125,6 +125,38 @@ Operational requirements:
 
 A PR that violates this rule and gets caught after merge is reverted, not patched forward. The "shipped now, fix later" PR (#508) and its three follow-ups (#510, #511, …) is the cautionary tale this section was written to prevent repeating.
 
+## API Error Toast Rule (MANDATORY)
+
+API failures (network down, auth invalid, server 5xx, backend-validation rejections) are global, page-level signals — not field-level validation. They MUST be reported through the central `<ToastProvider>` using `useToast().show({ intent: 'danger', title, description })`. Hand-rolled inline error blocks under forms (`<p className="text-error">Sign-in failed</p>`) are forbidden for API failures.
+
+This rule exists because inline "Something went wrong" copy is the single largest UX dead-end in Glaon today: the user can't tell whether their input was wrong, the network is down, or the server is failing — and the same hand-rolled pattern leaks into every new form. Centralizing through Toast forces a copy mapping (error code → human-readable description), surfaces the failure consistently across screens, and is screen-reader-correct out of the box (`role="status"`, `aria-live="polite"`).
+
+What goes through Toast:
+
+- Fetch/SDK rejection (network error, CORS, DNS).
+- HTTP 4xx other than 422 field-validation (401/403 auth, 404 not-found, 429 rate-limit).
+- HTTP 5xx server errors.
+- Backend-side flow errors that don't map to a single field ("Pairing code expired", "Account locked").
+
+What stays inline (allowed):
+
+- Per-field validation the user can resolve locally (`<Input error="Email is required">`).
+- HTTP 422 field-validation responses, mapped back to the specific `<FormField error>` prop.
+
+Forbidden patterns:
+
+- `<p role="alert" className="text-error">{error.message}</p>` rendered under the submit button.
+- Catching a fetch rejection and rendering its raw `.message` inline.
+- Generic "Something went wrong" copy anywhere — every error has a code; the code maps to specific copy in a per-feature dictionary (see `apps/web/src/features/auth/login/login-page.tsx` for the reference shape).
+
+Operational requirements:
+
+- `ToastProvider` mounts once near the app root (`apps/web/src/main.tsx` or `apps/web/src/App.tsx`). Every feature consumes `useToast()` rather than rendering its own Toast component or inventing a parallel queue.
+- Every error code that reaches the UI has a copy entry (`title` + optional `description`). If a new error code lands, the same PR adds the copy — generic fallbacks are reserved for `code === 'unknown'`.
+- E2E tests assert the Toast via `page.getByRole('status')` (or `findByRole('alert')` in RTL for the danger intent), not inline `data-testid="...-error"` selectors. PRs that rely on inline error testids are sent back.
+
+This rule was added after the LoginPage device-tab error UX shipped as a hand-rolled inline block. The Toast Rule is the door closing on that pattern — no auth, no settings, no integration screen ships an inline API error block from now on.
+
 ## UUI Source Rule (MANDATORY)
 
 - Every base primitive in `@glaon/ui` (web side) **must wrap an Untitled UI source pulled via `npx untitledui add`**. Hand-rolling a primitive's structural HTML/CSS or rolling your own variant matrix from scratch is forbidden — Glaon's contribution is the wrap layer (token override, `<ThemeProvider>` integration, prop API consistency, Figma `parameters.design` mapping), not the kit's source itself.

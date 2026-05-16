@@ -37,6 +37,7 @@ import {
   PasswordInput,
   SocialButton,
   Tabs,
+  useToast,
 } from '@glaon/ui';
 
 import { useAuth } from '../../../auth/auth-provider';
@@ -133,6 +134,46 @@ interface DeviceTabProps {
   readonly navigate?: ((url: string) => void) | undefined;
 }
 
+// Per the API Error Toast Rule (CLAUDE.md), every error code that
+// reaches the UI maps to specific copy here — generic fallback is
+// reserved for `unknown` only. Mirrors `DeviceSignInErrorCode` from
+// `use-device-sign-in.ts`. The fallback constant stays separate so the
+// `?? UNKNOWN` lookup is type-safe under `noUncheckedIndexedAccess`.
+interface ToastCopy {
+  readonly title: string;
+  readonly description?: string;
+}
+
+const DEVICE_UNKNOWN_COPY: ToastCopy = {
+  title: 'Sign-in failed',
+  description: 'Something went wrong. Try again, or check the browser console for details.',
+};
+
+const DEVICE_ERROR_COPY: Record<string, ToastCopy> = {
+  'invalid-url': {
+    title: 'Invalid Home Assistant URL',
+    description: 'Enter the full URL of your install (e.g. http://homeassistant.local:8123).',
+  },
+  'invalid-credentials': {
+    title: 'Wrong username or password',
+    description: 'Double-check your Home Assistant credentials and try again.',
+  },
+  'mfa-required': {
+    title: 'Multi-factor authentication required',
+    description:
+      'Two-factor sign-in via Glaon is not supported yet. Sign in directly through Home Assistant for now.',
+  },
+  unreachable: {
+    title: 'Couldn’t reach the Glaon addon',
+    description: 'Make sure the Glaon addon is running and reachable, then try again.',
+  },
+  'flow-error': {
+    title: 'Home Assistant rejected the sign-in',
+    description: 'Home Assistant returned an unexpected response. Try again in a moment.',
+  },
+  unknown: DEVICE_UNKNOWN_COPY,
+};
+
 function DeviceTab({ defaultHaBaseUrl, navigate }: DeviceTabProps): ReactNode {
   const [haBaseUrl, setHaBaseUrl] = useState<string>(defaultHaBaseUrl);
   const [username, setUsername] = useState<string>('');
@@ -142,6 +183,7 @@ function DeviceTab({ defaultHaBaseUrl, navigate }: DeviceTabProps): ReactNode {
   // refresh window today. Wire-through is tracked as a follow-up.
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const { state, submit } = useDeviceSignIn();
+  const toast = useToast();
 
   useEffect(() => {
     if (state.status === 'success') {
@@ -152,7 +194,11 @@ function DeviceTab({ defaultHaBaseUrl, navigate }: DeviceTabProps): ReactNode {
         });
       go('/');
     }
-  }, [navigate, state]);
+    if (state.status === 'error') {
+      const copy = DEVICE_ERROR_COPY[state.error.code] ?? DEVICE_UNKNOWN_COPY;
+      toast.show({ intent: 'danger', ...copy });
+    }
+  }, [navigate, state, toast]);
 
   const onSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -166,7 +212,6 @@ function DeviceTab({ defaultHaBaseUrl, navigate }: DeviceTabProps): ReactNode {
   };
 
   const isSubmitting = state.status === 'submitting';
-  const error = state.status === 'error' ? state.error : null;
 
   return (
     <form
@@ -212,12 +257,6 @@ function DeviceTab({ defaultHaBaseUrl, navigate }: DeviceTabProps): ReactNode {
         size="sm"
       />
 
-      {error !== null && (
-        <p role="alert" data-testid="login-device-error" className="text-sm text-error">
-          {error.message}
-        </p>
-      )}
-
       <Button type="submit" size="lg" isLoading={isSubmitting}>
         Sign in
       </Button>
@@ -229,6 +268,34 @@ interface CloudTabProps {
   readonly navigate?: ((url: string) => void) | undefined;
 }
 
+// Mirrors `CloudSignInErrorCode` from `use-cloud-sign-in.ts`. Clerk
+// error codes use snake_case; copy stays user-facing English. Same
+// type-safe fallback pattern as the device copy table above.
+const CLOUD_UNKNOWN_COPY: ToastCopy = {
+  title: 'Sign-in failed',
+  description: 'Something went wrong with Glaon Cloud. Try again in a moment.',
+};
+
+const CLOUD_ERROR_COPY: Record<string, ToastCopy> = {
+  form_param_format_invalid: {
+    title: 'Check your email address',
+    description: 'That doesn’t look like a valid email — try again.',
+  },
+  form_password_incorrect: {
+    title: 'Wrong password',
+    description: 'Double-check your password and try again, or use Forgot password.',
+  },
+  form_identifier_not_found: {
+    title: 'No account with that email',
+    description: 'Make sure you signed up with this address, or create a new account.',
+  },
+  session_exists: {
+    title: 'Already signed in',
+    description: 'A Glaon Cloud session is already active. Refresh to continue.',
+  },
+  unknown: CLOUD_UNKNOWN_COPY,
+};
+
 function CloudTab({ navigate }: CloudTabProps): ReactNode {
   const [identifier, setIdentifier] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -238,6 +305,7 @@ function CloudTab({ navigate }: CloudTabProps): ReactNode {
   const [cloudRememberMe, setCloudRememberMe] = useState<boolean>(false);
   const { state, submit, signInWithSocial, isLoaded } = useCloudSignIn();
   const { mode } = useAuth();
+  const toast = useToast();
 
   useEffect(() => {
     if (state.status === 'success' || (state.status === 'idle' && mode?.kind === 'cloud')) {
@@ -248,7 +316,11 @@ function CloudTab({ navigate }: CloudTabProps): ReactNode {
         });
       go('/');
     }
-  }, [mode, navigate, state]);
+    if (state.status === 'error') {
+      const copy = CLOUD_ERROR_COPY[state.error.code] ?? CLOUD_UNKNOWN_COPY;
+      toast.show({ intent: 'danger', ...copy });
+    }
+  }, [mode, navigate, state, toast]);
 
   const onSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -257,7 +329,6 @@ function CloudTab({ navigate }: CloudTabProps): ReactNode {
   };
 
   const isSubmitting = state.status === 'submitting';
-  const error = state.status === 'error' ? state.error : null;
 
   return (
     <form
@@ -299,12 +370,6 @@ function CloudTab({ navigate }: CloudTabProps): ReactNode {
           Forgot password
         </a>
       </div>
-
-      {error !== null && (
-        <p role="alert" data-testid="login-cloud-error" className="text-sm text-error">
-          {error.message}
-        </p>
-      )}
 
       <Button type="submit" size="lg" isLoading={isSubmitting} isDisabled={!isLoaded}>
         Sign in

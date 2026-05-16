@@ -9,8 +9,8 @@
 //     submits cleanly.
 //   - Tab toggle → both tabs share the same page so a click flips the
 //     active panel without a navigation.
-//   - Device 401 → mocked `invalid-credentials` reply renders an
-//     inline error region.
+//   - Device 401 → mocked `invalid-credentials` reply surfaces the
+//     failure via the central Toast (#516).
 //
 // The legacy `local-mode.spec.ts` (HA OAuth redirect flow) is now a
 // no-op stub kept only for the auth-callback error scenario, which
@@ -96,7 +96,11 @@ test.describe('auth-login @smoke', () => {
     expect(body.password).toBe('correct-horse');
   });
 
-  test('Device tab surfaces the inline error on invalid credentials', async ({ page }) => {
+  test('Device tab surfaces invalid-credentials via the central Toast', async ({ page }) => {
+    // #516 — API errors flow through `useToast()` (intent: 'danger'),
+    // not a hand-rolled inline error block under the form. The toast
+    // primitive renders with `role="status"` per a11y notes in
+    // `Toast.tsx`.
     await page.context().route(PASSWORD_GRANT_PATH, async (route) => {
       await route.fulfill({
         status: 401,
@@ -111,9 +115,7 @@ test.describe('auth-login @smoke', () => {
     await page.locator('[data-testid="login-device-form"] input[type="password"]').fill('wrong');
     await page.getByRole('button', { name: /^sign in$/i }).click();
 
-    await expect(page.getByTestId('login-device-error')).toBeVisible();
-    await expect(page.getByTestId('login-device-error')).toContainText(
-      /wrong username or password/i,
-    );
+    const toast = page.getByRole('status').filter({ hasText: /wrong username or password/i });
+    await expect(toast).toBeVisible();
   });
 });

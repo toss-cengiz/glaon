@@ -7,6 +7,7 @@
 //   - Clerk's `useSignIn` is replaced through the global vi.mock so
 //     the Cloud tab reads a deterministic `signIn.create`.
 
+import { ToastProvider } from '@glaon/ui';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ReactNode } from 'react';
@@ -17,18 +18,28 @@ import { LoginPage } from './login-page';
 
 const HA_DEFAULT_URL = 'http://homeassistant.local:8123';
 
+// Mirrors the apps/web App.tsx provider chain. LoginPage's tabs call
+// `useToast()` for API-error reporting (#516), so the ToastProvider
+// must be in the tree for tests to render without throwing.
+function withProviders(ui: ReactNode, tokenStore: WebTokenStore): ReactNode {
+  return (
+    <AuthProvider tokenStore={tokenStore}>
+      <ToastProvider>{ui}</ToastProvider>
+    </AuthProvider>
+  );
+}
+
 function renderPage(props: { cloudAvailable?: boolean; navigate?: (url: string) => void } = {}) {
   const tokenStore = new WebTokenStore({ logoutEndpoint: '/auth/logout' });
   const navigate = props.navigate ?? vi.fn();
-  const ui: ReactNode = (
-    <AuthProvider tokenStore={tokenStore}>
-      <LoginPage
-        defaultHaBaseUrl={HA_DEFAULT_URL}
-        cloudAvailable={props.cloudAvailable ?? true}
-        imageSlot={null}
-        navigate={navigate}
-      />
-    </AuthProvider>
+  const ui = withProviders(
+    <LoginPage
+      defaultHaBaseUrl={HA_DEFAULT_URL}
+      cloudAvailable={props.cloudAvailable ?? true}
+      imageSlot={null}
+      navigate={navigate}
+    />,
+    tokenStore,
   );
   return { tokenStore, navigate, ...render(ui) };
 }
@@ -71,13 +82,14 @@ describe('LoginPage', () => {
   it('renders Figma reference surface — tabs, checkbox, and hero (#501)', () => {
     const tokenStore = new WebTokenStore({ logoutEndpoint: '/auth/logout' });
     render(
-      <AuthProvider tokenStore={tokenStore}>
+      withProviders(
         <LoginPage
           defaultHaBaseUrl={HA_DEFAULT_URL}
           cloudAvailable
           imageSlot={<div data-testid="hero-slot" />}
-        />
-      </AuthProvider>,
+        />,
+        tokenStore,
+      ),
     );
     // Tabs render with button-brand pill triggers (role=tab).
     expect(screen.getByRole('tab', { name: /device/i })).toBeInTheDocument();
@@ -91,14 +103,15 @@ describe('LoginPage', () => {
   it('renders the Cloud tab when ?tab=cloud equivalent is passed via prop', () => {
     const tokenStore = new WebTokenStore({ logoutEndpoint: '/auth/logout' });
     render(
-      <AuthProvider tokenStore={tokenStore}>
+      withProviders(
         <LoginPage
           defaultTab="cloud"
           defaultHaBaseUrl={HA_DEFAULT_URL}
           cloudAvailable
           imageSlot={null}
-        />
-      </AuthProvider>,
+        />,
+        tokenStore,
+      ),
     );
     expect(screen.getByTestId('login-cloud-form')).toBeInTheDocument();
   });
