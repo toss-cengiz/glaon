@@ -4,9 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
+    <!--
+      script-src includes Clerk's frontend domains so the SDK can fetch its
+      runtime bundle on demand. `*.clerk.accounts.dev` covers Clerk dev
+      instances (publishable key prefix `pk_test_…`); `*.clerk.com` covers
+      production instances and Clerk-hosted CDN. No `unsafe-eval` or
+      `unsafe-inline` on script-src — Clerk's SDK ships ES-module
+      compatible bundles. Tracked in #506.
+    -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; connect-src 'self' ws: wss: https:; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline'; script-src 'self'; frame-ancestors 'none';"
+      content="default-src 'self'; connect-src 'self' ws: wss: https:; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline'; script-src 'self' https://*.clerk.accounts.dev https://*.clerk.com; frame-ancestors 'none';"
     />
     <title>Glaon</title>
   </head>

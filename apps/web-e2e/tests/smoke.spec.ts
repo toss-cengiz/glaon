@@ -25,6 +25,14 @@ test.describe('web app @smoke', () => {
     expect(csp).toBeTruthy();
     expect(csp).toContain("default-src 'self'");
     expect(csp).not.toContain('unsafe-eval');
+    // #506: Clerk frontend domains must be in script-src so the Cloud
+    // sign-in path can load the SDK bundle. A revert that drops them
+    // breaks Cloud auth silently in production — guard it here.
+    expect(csp).toContain('https://*.clerk.accounts.dev');
+    expect(csp).toContain('https://*.clerk.com');
+    // script-src itself must not regress to permissive primitives.
+    expect(csp).not.toMatch(/script-src[^;]*'unsafe-inline'/);
+    expect(csp).not.toMatch(/script-src[^;]*'unsafe-eval'/);
   });
 
   test('loads the Tailwind v4 + UUI CSS pipeline', async ({ page }) => {
