@@ -26,11 +26,11 @@ import {
 const HA_BASE_URL: string = import.meta.env.VITE_HA_BASE_URL ?? 'http://homeassistant.local:8123';
 const LOGOUT_ENDPOINT = '/auth/logout';
 
-// Lifestyle hero shipped from Figma node 1267:132204 (#514, closes
-// #513). JPEG at quality ~80 — 290KB — stays within the apps/web
-// bundle budget #500 is tightening. The image is purely decorative
-// (the AuthLayout marks its own `<aside>` aria-hidden), so alt="".
-const LOGIN_HERO_IMAGE = (
+// Lifestyle hero shipped from Figma node 1267:132204 / 14530:2343
+// (#514 + #527). Same JPEG (~290KB) drives both the LoginPage right
+// column and the SignUpPage right column; AuthLayout treats it as
+// purely decorative (aria-hidden aside), so alt="".
+const AUTH_HERO_IMAGE = (
   <img src={loginHeroUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
 );
 
@@ -120,7 +120,7 @@ function Router({ clerkKey }: RouterProps): ReactNode {
         defaultTab={defaultTab}
         defaultHaBaseUrl={HA_BASE_URL}
         cloudAvailable={clerkKey !== null}
-        imageSlot={LOGIN_HERO_IMAGE}
+        imageSlot={AUTH_HERO_IMAGE}
       />
     );
   }
@@ -133,7 +133,7 @@ function Router({ clerkKey }: RouterProps): ReactNode {
         </main>
       );
     }
-    return <SignUpPage />;
+    return <SignUpPage imageSlot={AUTH_HERO_IMAGE} />;
   }
   if (path === '/forgot-password') {
     if (clerkKey === null) {
@@ -193,7 +193,7 @@ function Router({ clerkKey }: RouterProps): ReactNode {
         defaultTab={defaultTab}
         defaultHaBaseUrl={localBaseUrl}
         cloudAvailable={clerkKey !== null}
-        imageSlot={LOGIN_HERO_IMAGE}
+        imageSlot={AUTH_HERO_IMAGE}
       />
     );
   }

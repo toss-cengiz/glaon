@@ -3,6 +3,7 @@
 // `/verify-email?after=signup`) is exercised end-to-end without
 // touching Clerk's network.
 
+import { ToastProvider } from '@glaon/ui';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -26,9 +27,13 @@ vi.mock('@clerk/clerk-react', () => ({
 
 function renderPage(navigate?: (url: string) => void) {
   const tokenStore = new WebTokenStore({ logoutEndpoint: '/auth/logout' });
+  // ToastProvider mirrors apps/web App.tsx; SignUpPage calls
+  // `useToast()` for general API errors (#527).
   const ui = (
     <AuthProvider tokenStore={tokenStore}>
-      <SignUpPage imageSlot={null} {...(navigate !== undefined ? { navigate } : {})} />
+      <ToastProvider>
+        <SignUpPage imageSlot={null} {...(navigate !== undefined ? { navigate } : {})} />
+      </ToastProvider>
     </AuthProvider>
   );
   return render(ui);
