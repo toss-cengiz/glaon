@@ -47,6 +47,20 @@ else
   echo "· SESSION_JWT_SECRET already set — leaving it alone"
 fi
 
+# Backfill the CORS / Set-Cookie allow-list if the value is empty
+# (#525). Earlier `.env` files created before the dev default landed
+# leave `WEB_ORIGINS=` blank, which makes every cross-origin call
+# from apps/web (Vite dev server on :5173) fail the preflight.
+DEV_WEB_ORIGINS="http://localhost:5173"
+if grep -qE '^WEB_ORIGINS=\s*$' "$API_ENV"; then
+  TMP_FILE="$(mktemp)"
+  awk -v val="$DEV_WEB_ORIGINS" '/^WEB_ORIGINS=\s*$/ { print "WEB_ORIGINS=" val; next } { print }' "$API_ENV" > "$TMP_FILE"
+  mv "$TMP_FILE" "$API_ENV"
+  echo "✓ set apps/api WEB_ORIGINS to $DEV_WEB_ORIGINS (dev default)"
+else
+  echo "· WEB_ORIGINS already set — leaving it alone"
+fi
+
 echo ""
 echo "Next steps:"
 echo "  1. pnpm dev:mongo:up   # start the MongoDB container (apps/api dependency)"

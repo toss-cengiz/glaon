@@ -3,6 +3,7 @@
 // a stub Mongo + config without spinning up a real driver.
 
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import type { Db } from 'mongodb';
 
 import { decodeSecret } from './auth/jwt';
@@ -33,6 +34,30 @@ export function createServer(deps: ServerDeps): Hono {
   const metrics = deps.metrics ?? new Metrics();
 
   app.use('*', observabilityMiddleware({ logger, metrics }));
+
+  // CORS allow-list (#525). `config.webOrigins` drives both the
+  // preflight `Access-Control-Allow-Origin` response and the
+  // Set-Cookie logic in routes/auth.ts — both consume the same env-
+  // configured allow-list, so a developer can't accidentally enable
+  // one path without the other. `credentials: true` is required so
+  // the session-cookie flow keeps working for cookie-mode web
+  // clients; the allow-list (not `*`) makes that safe.
+  //
+  // Empty `webOrigins` means no cross-origin client is allowed; the
+  // preflight response carries no `Access-Control-Allow-Origin` and
+  // the browser drops the call. Production deploys MUST set the env
+  // var; dev defaults live in `apps/api/.env.example`.
+  app.use(
+    '*',
+    cors({
+      origin: (incoming) => (deps.config.webOrigins.includes(incoming) ? incoming : null),
+      credentials: true,
+      allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      allowHeaders: ['Content-Type', 'Authorization'],
+      exposeHeaders: ['X-Request-Id'],
+      maxAge: 600,
+    }),
+  );
 
   app.route(
     '/auth',

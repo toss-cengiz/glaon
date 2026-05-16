@@ -97,6 +97,50 @@ describe('createServer wiring', () => {
   });
 });
 
+describe('CORS allow-list (#525)', () => {
+  function makeAppWithOrigins(webOrigins: string[]) {
+    const deps = makeDeps();
+    return createServer({ ...deps, config: { ...deps.config, webOrigins } });
+  }
+
+  it('allows the preflight when the Origin is in webOrigins', async () => {
+    const app = makeAppWithOrigins(['http://localhost:5173']);
+    const res = await app.request('/auth/ha/password-grant', {
+      method: 'OPTIONS',
+      headers: {
+        Origin: 'http://localhost:5173',
+        'Access-Control-Request-Method': 'POST',
+        'Access-Control-Request-Headers': 'content-type',
+      },
+    });
+    expect([200, 204]).toContain(res.status);
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:5173');
+    expect(res.headers.get('Access-Control-Allow-Credentials')).toBe('true');
+    expect(res.headers.get('Access-Control-Allow-Methods') ?? '').toContain('POST');
+  });
+
+  it('does not echo the Origin back when it is not allow-listed', async () => {
+    const app = makeAppWithOrigins(['https://app.glaon.com']);
+    const res = await app.request('/auth/ha/password-grant', {
+      method: 'OPTIONS',
+      headers: {
+        Origin: 'http://evil.example',
+        'Access-Control-Request-Method': 'POST',
+      },
+    });
+    // The browser refuses the preflight if Allow-Origin is absent /
+    // wrong, regardless of the response status — assert the absence.
+    expect(res.headers.get('Access-Control-Allow-Origin')).not.toBe('http://evil.example');
+  });
+
+  it('skips CORS headers entirely when the request has no Origin (same-origin)', async () => {
+    const app = makeAppWithOrigins(['http://localhost:5173']);
+    const res = await app.request('/healthz');
+    // Hono's cors middleware leaves same-origin responses alone.
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBeNull();
+  });
+});
+
 describe('GET /metrics', () => {
   it('returns the prometheus text format with mongo + request counters populated', async () => {
     const app = createServer(makeDeps());
