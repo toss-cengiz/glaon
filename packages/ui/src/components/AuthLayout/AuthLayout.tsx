@@ -94,15 +94,19 @@ export function AuthLayout({
   // gap-3) on one source line. Named `titleBlock` rather than
   // `header` because the centered variant already uses the `<header>`
   // element as the logo container at the top of the page.
-  const titleBlock =
-    title !== undefined && title !== null ? (
-      <header className="flex flex-col gap-3">
-        <h1 className="text-display-xs font-semibold text-primary">{title}</h1>
-        {subtitle !== undefined && subtitle !== null && (
-          <p className="text-md text-tertiary">{subtitle}</p>
-        )}
-      </header>
-    ) : null;
+  //
+  // `title === ''` is also treated as "no title" so the Storybook
+  // controls panel (which defaults string controls to "") doesn't
+  // render an empty `<h1>` and trip the axe `empty-heading` rule
+  // in story-tests CI. Same coverage for `subtitle`.
+  const hasTitle = title !== undefined && title !== null && title !== '';
+  const hasSubtitle = subtitle !== undefined && subtitle !== null && subtitle !== '';
+  const titleBlock = hasTitle ? (
+    <header className="flex flex-col gap-3">
+      <h1 className="text-display-xs font-semibold text-primary">{title}</h1>
+      {hasSubtitle && <p className="text-md text-tertiary">{subtitle}</p>}
+    </header>
+  ) : null;
 
   if (variant === 'centered') {
     return (
