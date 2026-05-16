@@ -3,15 +3,8 @@
 /* `globals.css` lives under `packages/ui/src/styles/`; Tailwind v4's
    default content detection scans relative to that file and would not
    reach `apps/web/src`. The explicit `@source` keeps web utility classes
-   in the JIT scan set. */
+   in the JIT scan set. The kit's own component utility classes are
+   pulled in by `@glaon/ui/styles` itself via `@source` declarations on
+   `../components/**` and `../icons/**` — see `packages/ui/src/styles/globals.css`
+   (#509). */
 @source "./**/*.{ts,tsx}";
-
-/* Tailwind v4 does not follow `@import` across workspace package
-   boundaries when discovering content. Kit components in
-   `packages/ui/src/components/**` reference utility classes
-   (`bg-brand-solid`, `bg-brand-primary_alt`, `text-brand-secondary`, …)
-   that must be emitted into apps/web's CSS bundle for primitives to
-   render correctly. Without this scan path, the kit's submit button
-   renders as an empty outlined box and the `<Tabs.List type="button-brand">`
-   triggers look unstyled (#501). */
-@source "../../../packages/ui/src/**/*.{ts,tsx}";
