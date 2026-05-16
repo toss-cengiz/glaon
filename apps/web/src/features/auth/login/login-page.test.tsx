@@ -68,6 +68,26 @@ describe('LoginPage', () => {
     expect(screen.getByTestId('login-device-form')).toBeInTheDocument();
   });
 
+  it('renders Figma reference surface — tabs, checkbox, and hero (#501)', () => {
+    const tokenStore = new WebTokenStore({ logoutEndpoint: '/auth/logout' });
+    render(
+      <AuthProvider tokenStore={tokenStore}>
+        <LoginPage
+          defaultHaBaseUrl={HA_DEFAULT_URL}
+          cloudAvailable
+          imageSlot={<div data-testid="hero-slot" />}
+        />
+      </AuthProvider>,
+    );
+    // Tabs render with button-brand pill triggers (role=tab).
+    expect(screen.getByRole('tab', { name: /device/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /cloud/i })).toBeInTheDocument();
+    // "Remember for 30 days" is present on the active (Device) tab.
+    expect(screen.getByRole('checkbox', { name: /remember for 30 days/i })).toBeInTheDocument();
+    // imageSlot reaches the DOM via AuthLayout (split variant).
+    expect(screen.getByTestId('hero-slot')).toBeInTheDocument();
+  });
+
   it('renders the Cloud tab when ?tab=cloud equivalent is passed via prop', () => {
     const tokenStore = new WebTokenStore({ logoutEndpoint: '/auth/logout' });
     render(

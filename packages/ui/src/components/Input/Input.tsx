@@ -103,6 +103,16 @@ export interface InputProps {
   value?: string;
   defaultValue?: string;
   name?: string;
+  /**
+   * Standard HTML `autocomplete` token forwarded to the underlying
+   * `<input>` so password managers and browser autofill resolve
+   * fields correctly (e.g. `'username'`, `'email'`, `'current-password'`).
+   * The kit `Input` accepts arbitrary input attributes via pass-through
+   * on the `default` variant; non-default variants that need a fixed
+   * autocomplete token (e.g. `payment` → `cc-number`) set it via
+   * `inputOverrides` internally.
+   */
+  autoComplete?: string;
   onChange?: (value: string) => void;
   onBlur?: FocusEventHandler;
   onFocus?: FocusEventHandler;
