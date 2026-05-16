@@ -2,9 +2,16 @@
 // Replaces the legacy `<SignUpRoute>` (Clerk hosted view) with the
 // split-screen Figma design and wires the SDK via `useCloudSignUp`.
 //
-// On success the form navigates to `/verify-email?after=signup`
-// (handled by #473 / F). Until F merges, the route renders a
-// placeholder; this PR's scope ends at the redirect.
+// On success the form navigates to `/verify-email?after=signup`.
+//
+// Figma reference: Design-System / Sign up / node 14530:2343
+// (Desktop + Mobile). #527 brings the page in line with the
+// Design-System Fidelity Rule and the API Error Toast Rule —
+// `<Input>` primitive instead of raw `<input>`, no marketing
+// checkbox (the Figma frame doesn't show one), and general API
+// failures route through `useToast()` instead of an inline block.
+// Field-level Clerk errors stay inline on the `<Input>` itself
+// (Toast Rule explicitly allows per-field validation copy).
 
 import { useEffect, useState, type ReactNode, type SyntheticEvent } from 'react';
 
@@ -12,11 +19,10 @@ import {
   AuthFooter,
   AuthLayout,
   Button,
-  Checkbox,
-  FormField,
+  Input,
   PasswordInput,
   SocialButton,
-  useFormFieldDescriptors,
+  useToast,
 } from '@glaon/ui';
 
 import { useCloudSignUp } from './use-cloud-sign-up';
@@ -28,15 +34,49 @@ interface SignUpPageProps {
   navigate?: ((url: string) => void) | undefined;
 }
 
+interface ToastCopy {
+  readonly title: string;
+  readonly description?: string;
+}
+
+// Per the API Error Toast Rule (CLAUDE.md), every error code that
+// reaches the UI maps to specific copy here — generic fallback is
+// reserved for `unknown` only. Mirrors `CloudSignUpErrorCode` from
+// `use-cloud-sign-up.ts`. Field-level errors (`fieldKey !== undefined`)
+// never hit this table because they render inline on `<Input>`.
+const SIGNUP_UNKNOWN_COPY: ToastCopy = {
+  title: 'Sign-up failed',
+  description: 'Something went wrong with Glaon Cloud. Try again in a moment.',
+};
+
+const SIGNUP_ERROR_COPY: Record<string, ToastCopy> = {
+  form_param_format_invalid: {
+    title: 'Check your details',
+    description: 'One of the fields you entered isn’t in the right format. Try again.',
+  },
+  form_password_pwned: {
+    title: 'That password isn’t safe',
+    description:
+      'This password appears in known data breaches. Pick a different one to keep your account secure.',
+  },
+  form_password_length_too_short: {
+    title: 'Password too short',
+    description: 'Use at least 8 characters for your account password.',
+  },
+  form_identifier_exists: {
+    title: 'You already have an account',
+    description: 'That email is already in use. Sign in instead, or use a different address.',
+  },
+  unknown: SIGNUP_UNKNOWN_COPY,
+};
+
 export function SignUpPage({ imageSlot, navigate }: SignUpPageProps): ReactNode {
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [marketingOptIn, setMarketingOptIn] = useState<boolean>(false);
   const { state, submit, signUpWithSocial, isLoaded } = useCloudSignUp();
-  const nameField = useFormFieldDescriptors('signup-name');
-  const emailField = useFormFieldDescriptors('signup-email');
+  const toast = useToast();
 
   useEffect(() => {
     if (state.status === 'awaiting_verification') {
@@ -47,7 +87,13 @@ export function SignUpPage({ imageSlot, navigate }: SignUpPageProps): ReactNode 
         });
       go('/verify-email?after=signup');
     }
-  }, [navigate, state]);
+    // Non-field (general) errors flow through Toast; field errors
+    // render inline on the matching <Input>/<PasswordInput>.
+    if (state.status === 'error' && state.error.fieldKey === undefined) {
+      const copy = SIGNUP_ERROR_COPY[state.error.code] ?? SIGNUP_UNKNOWN_COPY;
+      toast.show({ intent: 'danger', ...copy });
+    }
+  }, [navigate, state, toast]);
 
   const onSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -59,7 +105,6 @@ export function SignUpPage({ imageSlot, navigate }: SignUpPageProps): ReactNode 
   const fieldError = (
     field: 'name' | 'email' | 'password' | 'confirmPassword',
   ): string | undefined => (error?.fieldKey === field ? error.message : undefined);
-  const generalError = error !== null && error.fieldKey === undefined ? error.message : undefined;
 
   return (
     <AuthLayout
@@ -67,62 +112,42 @@ export function SignUpPage({ imageSlot, navigate }: SignUpPageProps): ReactNode 
       imageSlot={imageSlot}
       footerSlot={<span>© Glaon {new Date().getFullYear().toString()}</span>}
     >
-      <header className="flex flex-col gap-2">
-        <h1 className="text-display-sm font-semibold text-primary">Sign up</h1>
+      <header className="flex flex-col gap-3">
+        <h1 className="text-display-xs font-semibold text-primary">Sign up</h1>
         <p className="text-md text-tertiary">Start your 30-day free trial.</p>
       </header>
 
       <form
         data-testid="signup-form"
         onSubmit={onSubmit}
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-5"
         noValidate
       >
-        <FormField
+        <Input
           label="Name"
-          htmlFor="signup-name"
-          {...(fieldError('name') !== undefined ? { error: fieldError('name') } : {})}
+          name="name"
+          type="text"
+          autoComplete="name"
           isRequired
-        >
-          <input
-            id="signup-name"
-            name="name"
-            type="text"
-            autoComplete="name"
-            required
-            value={name}
-            onChange={(e) => {
-              setName(e.currentTarget.value);
-            }}
-            aria-invalid={fieldError('name') !== undefined}
-            aria-describedby={nameField.describedBy(fieldError('name') !== undefined, false)}
-            className="w-full rounded-lg bg-primary px-3 py-2 text-md text-primary shadow-xs ring-1 ring-primary ring-inset focus:outline-hidden focus:ring-2 focus:ring-brand"
-            placeholder="Enter your name"
-          />
-        </FormField>
+          value={name}
+          onChange={setName}
+          placeholder="Enter your name"
+          isInvalid={fieldError('name') !== undefined}
+          {...(fieldError('name') !== undefined ? { hint: fieldError('name') } : {})}
+        />
 
-        <FormField
+        <Input
           label="Email"
-          htmlFor="signup-email"
-          {...(fieldError('email') !== undefined ? { error: fieldError('email') } : {})}
+          name="email"
+          type="email"
+          autoComplete="email"
           isRequired
-        >
-          <input
-            id="signup-email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => {
-              setEmail(e.currentTarget.value);
-            }}
-            aria-invalid={fieldError('email') !== undefined}
-            aria-describedby={emailField.describedBy(fieldError('email') !== undefined, false)}
-            className="w-full rounded-lg bg-primary px-3 py-2 text-md text-primary shadow-xs ring-1 ring-primary ring-inset focus:outline-hidden focus:ring-2 focus:ring-brand"
-            placeholder="Enter your email"
-          />
-        </FormField>
+          value={email}
+          onChange={setEmail}
+          placeholder="Enter your email"
+          isInvalid={fieldError('email') !== undefined}
+          {...(fieldError('email') !== undefined ? { hint: fieldError('email') } : {})}
+        />
 
         <PasswordInput
           label="Password"
@@ -145,18 +170,6 @@ export function SignUpPage({ imageSlot, navigate }: SignUpPageProps): ReactNode 
           onChange={setConfirmPassword}
           isRequired
         />
-
-        <Checkbox
-          isSelected={marketingOptIn}
-          onChange={setMarketingOptIn}
-          label="Send me product updates and announcements (optional)."
-        />
-
-        {generalError !== undefined && (
-          <p role="alert" data-testid="signup-error" className="text-sm text-error">
-            {generalError}
-          </p>
-        )}
 
         <Button type="submit" size="lg" isLoading={isSubmitting} isDisabled={!isLoaded}>
           Get started
