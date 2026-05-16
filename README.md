@@ -36,16 +36,32 @@ docs/       — Mimari, güvenlik, yol haritası (Türkçe)
 
 Tek komutla reproducible ortam için [Dev Container](docs/devcontainer.md) kullanabilirsin — VS Code'da "Reopen in Container" yeterli.
 
-Lokal kurulum:
+### İlk kurulum (sıfırdan)
 
 ```bash
 # Node 22 LTS gerekir; .nvmrc dosyasındaki sürümü kullan.
 corepack enable
 pnpm install
 
-# Tüm uygulamaları paralel başlat
-pnpm dev
+# apps/api .env'ini hazırla ve SESSION_JWT_SECRET üret (idempotent).
+pnpm dev:bootstrap
 
+# apps/api'nin bağımlısı olan MongoDB konteynerini başlat.
+pnpm dev:mongo:up
+
+# (Opsiyonel) Lokal Home Assistant dev fixture — Phase 2 OAuth/WS/
+# servis çağrılarını lokalde çalıştırmak için.
+pnpm ha:up
+
+# Tüm uygulamaları paralel başlat.
+pnpm dev
+```
+
+`pnpm dev:bootstrap` yalnızca eksik olanı oluşturur; ikinci çağrı no-op'tur. `SESSION_JWT_SECRET` boşsa `openssl rand -hex 32` ile üretilir.
+
+### Günlük kullanım
+
+```bash
 # Sadece web
 pnpm --filter @glaon/web dev
 
@@ -56,10 +72,11 @@ pnpm --filter @glaon/mobile dev
 pnpm type-check
 pnpm lint
 
-# Lokal Home Assistant dev fixture (Phase 2 OAuth/WS/service çağrılarını
-# karşı çalıştırmak için; ayrıntı: docs/home-assistant-dev.md)
-pnpm ha:up
+# MongoDB'yi durdur (disk alanı için temizlik)
+pnpm dev:mongo:down
 ```
+
+apps/api başlangıçta `MONGODB_URI is required` veya `SESSION_JWT_SECRET must be at least 32 bytes` gibi bir hata yazdırırsa, sıfırdan kurulum adımlarındaki `pnpm dev:bootstrap` adımı atlanmış demektir — onu çalıştırıp `pnpm dev`'i yeniden başlat.
 
 ## Dokümantasyon
 
