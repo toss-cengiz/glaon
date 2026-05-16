@@ -112,6 +112,21 @@ function errorFromCause(cause: unknown): DeviceSignInErrorState {
       return { code, message: messageForCode(code) };
     }
   }
+  // Network failures (addon API offline, DNS error, CORS preflight
+  // refused) bubble up here as a `TypeError` (`fetch` rejection) or a
+  // generic `Error` with a "failed to fetch" / "network request
+  // failed" message. Map them to the `unreachable` code so the user
+  // sees actionable copy via the central Toast (#516, #517) instead
+  // of the generic `unknown` blanket the original report showed.
+  if (cause instanceof TypeError) {
+    return { code: 'unreachable', message: messageForCode('unreachable') };
+  }
+  if (
+    cause instanceof Error &&
+    /failed to fetch|networkerror|network request failed/i.test(cause.message)
+  ) {
+    return { code: 'unreachable', message: messageForCode('unreachable') };
+  }
   return { code: 'unknown', message: messageForCode('unknown') };
 }
 
