@@ -17,6 +17,13 @@
 // step for 2FA users. We surface the dedicated `mfa-required` message
 // so the user knows to fall back to HA's own UI for now (Phase 2.5
 // will add MFA support — see issue body for the follow-up).
+//
+// Figma reference: Design-System / Log in / node 1267:132397
+// (Desktop/Mobile × Cloud/Device variants). Fidelity gaps tracked
+// in #501 — three raw `<input>` call sites swapped to `<Input>`,
+// "Remember for 30 days" Checkbox added on both tabs, explicit
+// `<Logo size="lg">` so the brand-mark accent reads at the layout's
+// `lg:max-w-[720px]` form column.
 
 import { useEffect, useState, type ReactNode, type SyntheticEvent } from 'react';
 
@@ -24,11 +31,12 @@ import {
   AuthFooter,
   AuthLayout,
   Button,
-  FormField,
+  Checkbox,
+  Input,
+  Logo,
   PasswordInput,
   SocialButton,
   Tabs,
-  useFormFieldDescriptors,
 } from '@glaon/ui';
 
 import { useAuth } from '../../../auth/auth-provider';
@@ -82,6 +90,7 @@ export function LoginPage({
   return (
     <AuthLayout
       variant="split"
+      logoSlot={<Logo size="lg" />}
       imageSlot={imageSlot}
       footerSlot={<span>© Glaon {new Date().getFullYear().toString()}</span>}
     >
@@ -96,7 +105,7 @@ export function LoginPage({
           setActiveTab(key as LoginTab);
         }}
       >
-        <Tabs.List aria-label="Sign-in mode">
+        <Tabs.List aria-label="Sign-in mode" type="button-brand" fullWidth>
           <Tabs.Trigger id="device" label="Device" />
           <Tabs.Trigger id="cloud" label="Cloud" />
         </Tabs.List>
@@ -128,8 +137,11 @@ function DeviceTab({ defaultHaBaseUrl, navigate }: DeviceTabProps): ReactNode {
   const [haBaseUrl, setHaBaseUrl] = useState<string>(defaultHaBaseUrl);
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  // `rememberMe` is captured for Figma parity (#501) but does not yet
+  // flow to the backend — the HA password-grant proxy uses a fixed
+  // refresh window today. Wire-through is tracked as a follow-up.
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
   const { state, submit } = useDeviceSignIn();
-  const haUrlField = useFormFieldDescriptors('login-ha-url');
 
   useEffect(() => {
     if (state.status === 'success') {
@@ -144,6 +156,7 @@ function DeviceTab({ defaultHaBaseUrl, navigate }: DeviceTabProps): ReactNode {
 
   const onSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
+    void rememberMe; // UI-only this PR; see comment above.
     void submit({
       haBaseUrl,
       username,
@@ -162,42 +175,27 @@ function DeviceTab({ defaultHaBaseUrl, navigate }: DeviceTabProps): ReactNode {
       className="flex flex-col gap-4 pt-4"
       noValidate
     >
-      <FormField
+      <Input
         label="Home Assistant URL"
-        htmlFor="login-ha-url"
         hint="Enter the URL of your Home Assistant install."
+        name="haBaseUrl"
+        type="url"
         isRequired
-      >
-        <input
-          id="login-ha-url"
-          name="haBaseUrl"
-          type="url"
-          required
-          value={haBaseUrl}
-          onChange={(e) => {
-            setHaBaseUrl(e.currentTarget.value);
-          }}
-          aria-describedby={haUrlField.describedBy(false, true)}
-          className="w-full rounded-lg bg-primary px-3 py-2 text-md text-primary shadow-xs ring-1 ring-primary ring-inset focus:outline-hidden focus:ring-2 focus:ring-brand"
-          placeholder="http://homeassistant.local:8123"
-        />
-      </FormField>
+        value={haBaseUrl}
+        onChange={setHaBaseUrl}
+        placeholder="http://homeassistant.local:8123"
+      />
 
-      <FormField label="Username" htmlFor="login-device-username" isRequired>
-        <input
-          id="login-device-username"
-          name="username"
-          type="text"
-          autoComplete="username"
-          required
-          value={username}
-          onChange={(e) => {
-            setUsername(e.currentTarget.value);
-          }}
-          className="w-full rounded-lg bg-primary px-3 py-2 text-md text-primary shadow-xs ring-1 ring-primary ring-inset focus:outline-hidden focus:ring-2 focus:ring-brand"
-          placeholder="Username"
-        />
-      </FormField>
+      <Input
+        label="Username"
+        name="username"
+        type="text"
+        autoComplete="username"
+        isRequired
+        value={username}
+        onChange={setUsername}
+        placeholder="Username"
+      />
 
       <PasswordInput
         label="Password"
@@ -205,6 +203,13 @@ function DeviceTab({ defaultHaBaseUrl, navigate }: DeviceTabProps): ReactNode {
         value={password}
         onChange={setPassword}
         isRequired
+      />
+
+      <Checkbox
+        label="Remember for 30 days"
+        isSelected={rememberMe}
+        onChange={setRememberMe}
+        size="sm"
       />
 
       {error !== null && (
@@ -227,6 +232,10 @@ interface CloudTabProps {
 function CloudTab({ navigate }: CloudTabProps): ReactNode {
   const [identifier, setIdentifier] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  // `rememberMe` is captured for Figma parity (#501) but does not yet
+  // flow to Clerk — `signIn.create` doesn't surface a session-lifetime
+  // knob in the headless API today.
+  const [cloudRememberMe, setCloudRememberMe] = useState<boolean>(false);
   const { state, submit, signInWithSocial, isLoaded } = useCloudSignIn();
   const { mode } = useAuth();
 
@@ -243,6 +252,7 @@ function CloudTab({ navigate }: CloudTabProps): ReactNode {
 
   const onSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
+    void cloudRememberMe; // UI-only this PR; see comment above.
     void submit({ identifier, password });
   };
 
@@ -256,21 +266,16 @@ function CloudTab({ navigate }: CloudTabProps): ReactNode {
       className="flex flex-col gap-4 pt-4"
       noValidate
     >
-      <FormField label="Email" htmlFor="login-cloud-email" isRequired>
-        <input
-          id="login-cloud-email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          required
-          value={identifier}
-          onChange={(e) => {
-            setIdentifier(e.currentTarget.value);
-          }}
-          className="w-full rounded-lg bg-primary px-3 py-2 text-md text-primary shadow-xs ring-1 ring-primary ring-inset focus:outline-hidden focus:ring-2 focus:ring-brand"
-          placeholder="Enter your email"
-        />
-      </FormField>
+      <Input
+        label="Email"
+        name="email"
+        type="email"
+        autoComplete="email"
+        isRequired
+        value={identifier}
+        onChange={setIdentifier}
+        placeholder="Enter your email"
+      />
 
       <PasswordInput
         label="Password"
@@ -280,7 +285,13 @@ function CloudTab({ navigate }: CloudTabProps): ReactNode {
         isRequired
       />
 
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-between">
+        <Checkbox
+          label="Remember for 30 days"
+          isSelected={cloudRememberMe}
+          onChange={setCloudRememberMe}
+          size="sm"
+        />
         <a
           href="/forgot-password"
           className="text-sm font-semibold text-brand_secondary hover:text-brand"

@@ -30,9 +30,14 @@ test.describe('auth-login @smoke', () => {
   });
 
   test('renders the LoginPage with Device tab default + clean a11y', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/login');
     await expect(page.getByTestId('login-device-form')).toBeVisible();
     await expect(page.getByRole('heading', { level: 1, name: /welcome back/i })).toBeVisible();
+    // #501 Figma parity: hero image in split right column at lg+,
+    // "Remember for 30 days" checkbox is rendered on the active tab.
+    await expect(page.locator('aside img[alt=""]')).toBeVisible();
+    await expect(page.getByRole('checkbox', { name: /remember for 30 days/i })).toBeVisible();
     await assertA11y(page);
   });
 

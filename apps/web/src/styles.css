@@ -5,3 +5,13 @@
    reach `apps/web/src`. The explicit `@source` keeps web utility classes
    in the JIT scan set. */
 @source "./**/*.{ts,tsx}";
+
+/* Tailwind v4 does not follow `@import` across workspace package
+   boundaries when discovering content. Kit components in
+   `packages/ui/src/components/**` reference utility classes
+   (`bg-brand-solid`, `bg-brand-primary_alt`, `text-brand-secondary`, …)
+   that must be emitted into apps/web's CSS bundle for primitives to
+   render correctly. Without this scan path, the kit's submit button
+   renders as an empty outlined box and the `<Tabs.List type="button-brand">`
+   triggers look unstyled (#501). */
+@source "../../../packages/ui/src/**/*.{ts,tsx}";
