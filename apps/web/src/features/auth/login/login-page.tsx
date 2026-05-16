@@ -33,7 +33,6 @@ import {
   Button,
   Checkbox,
   Input,
-  Logo,
   PasswordInput,
   SocialButton,
   Tabs,
@@ -91,15 +90,10 @@ export function LoginPage({
   return (
     <AuthLayout
       variant="split"
-      logoSlot={<Logo size={133} />}
       imageSlot={imageSlot}
-      footerSlot={<span>© Glaon {new Date().getFullYear().toString()}</span>}
+      title="Welcome back"
+      subtitle="Welcome back! Please enter your details."
     >
-      <header className="flex flex-col gap-3">
-        <h1 className="text-display-xs font-semibold text-primary">Welcome back</h1>
-        <p className="text-md text-tertiary">Welcome back! Please enter your details.</p>
-      </header>
-
       <Tabs
         selectedKey={activeTab}
         onSelectionChange={(key) => {

@@ -19,6 +19,20 @@ export const authLayoutControls = {
       'Layout variant. `split` is the Login + Sign-up frame (left-side card + right-side hero image, collapses to a single column under `lg`). `centered` is the Forgot password + Email verification frame (single card with optional icon slot above the title).',
     category: 'Style',
   } satisfies ControlSpec<(typeof variantOptions)[number]>,
+  title: {
+    type: 'text',
+    default: '',
+    description:
+      'Page title rendered as `<h1 className="text-display-xs font-semibold">` inside a shared `flex flex-col gap-3` header. Leave empty to skip the header (e.g. when the screen renders its own custom heading via `children`).',
+    category: 'Content',
+  } satisfies ControlSpec<string>,
+  subtitle: {
+    type: 'text',
+    default: '',
+    description:
+      'Supporting text rendered under `title` as `<p className="text-md text-tertiary">`. Ignored when `title` is empty.',
+    category: 'Content',
+  } satisfies ControlSpec<string>,
 } as const;
 
 export const authLayoutExcludeFromArgs = defineExcludeFromArgs([

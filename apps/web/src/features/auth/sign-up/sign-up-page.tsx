@@ -110,13 +110,9 @@ export function SignUpPage({ imageSlot, navigate }: SignUpPageProps): ReactNode 
     <AuthLayout
       variant="split"
       imageSlot={imageSlot}
-      footerSlot={<span>© Glaon {new Date().getFullYear().toString()}</span>}
+      title="Sign up"
+      subtitle="Start your 30-day free trial."
     >
-      <header className="flex flex-col gap-3">
-        <h1 className="text-display-xs font-semibold text-primary">Sign up</h1>
-        <p className="text-md text-tertiary">Start your 30-day free trial.</p>
-      </header>
-
       <form
         data-testid="signup-form"
         onSubmit={onSubmit}
