@@ -82,24 +82,40 @@ export function AuthLayout({
     );
   }
 
-  // split
+  // split — mirrors Figma node 1267:132204 (Design-System / Log in /
+  // Desktop × Cloud) pixel-for-pixel at `lg` and up:
+  //   - Form column: `min-w-[480px]`, vertically centered, with
+  //     absolutely positioned logo (top-8 left-8 → 32/32px) and
+  //     footer (bottom-8 left-8 → 32/32px). The form content itself
+  //     sits in a `max-w-[360px]` column.
+  //   - Hero column: full-bleed image with only the left corners
+  //     rounded at 80px (`rounded-tl-[80px] rounded-bl-[80px]`),
+  //     no padding wrapper. A subtle bottom-darkening gradient
+  //     overlay reproduces the Figma frame's `to-black/10 at 79%`
+  //     treatment.
+  // Below `lg`, the hero column collapses (the form takes full width)
+  // so the mobile auth screens stay legible.
   const showImage = imageSlot !== undefined && imageSlot !== null;
   return (
-    <div className="flex min-h-screen flex-col bg-primary lg:flex-row">
-      <section className="flex flex-1 flex-col px-6 py-6 sm:px-10 sm:py-8 lg:max-w-[720px]">
-        <header>{logo}</header>
-        <div className="flex flex-1 items-center justify-center">
-          <div className="flex w-full max-w-[360px] flex-col gap-6">{children}</div>
-        </div>
+    <div className="flex min-h-screen flex-col bg-primary lg:flex-row lg:items-stretch">
+      <section className="relative flex flex-1 flex-col items-center justify-center px-6 py-24 sm:px-10 lg:min-w-[480px] lg:py-8">
+        <div className="absolute left-6 top-6 sm:left-8 sm:top-8">{logo}</div>
+
+        <div className="flex w-full max-w-[360px] flex-col gap-8">{children}</div>
+
         {footerSlot !== undefined && footerSlot !== null && (
-          <footer className="text-sm text-tertiary">{footerSlot}</footer>
+          <footer className="absolute bottom-6 left-6 text-sm text-tertiary sm:bottom-8 sm:left-8">
+            {footerSlot}
+          </footer>
         )}
       </section>
       {showImage && (
-        <aside className="hidden flex-1 lg:block" aria-hidden="true">
-          <div className="h-full p-4">
-            <div className="h-full w-full overflow-hidden rounded-3xl">{imageSlot}</div>
-          </div>
+        <aside
+          className="relative hidden flex-1 overflow-hidden rounded-tl-[80px] rounded-bl-[80px] lg:block lg:min-w-[640px]"
+          aria-hidden="true"
+        >
+          {imageSlot}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/10" />
         </aside>
       )}
     </div>

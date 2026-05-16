@@ -90,12 +90,12 @@ export function LoginPage({
   return (
     <AuthLayout
       variant="split"
-      logoSlot={<Logo size="lg" />}
+      logoSlot={<Logo size={133} />}
       imageSlot={imageSlot}
       footerSlot={<span>© Glaon {new Date().getFullYear().toString()}</span>}
     >
-      <header className="flex flex-col gap-2">
-        <h1 className="text-display-sm font-semibold text-primary">Welcome back</h1>
+      <header className="flex flex-col gap-3">
+        <h1 className="text-display-xs font-semibold text-primary">Welcome back</h1>
         <p className="text-md text-tertiary">Welcome back! Please enter your details.</p>
       </header>
 
@@ -105,7 +105,7 @@ export function LoginPage({
           setActiveTab(key as LoginTab);
         }}
       >
-        <Tabs.List aria-label="Sign-in mode" type="button-brand" fullWidth>
+        <Tabs.List aria-label="Sign-in mode" type="button-border" fullWidth>
           <Tabs.Trigger id="device" label="Device" />
           <Tabs.Trigger id="cloud" label="Cloud" />
         </Tabs.List>
