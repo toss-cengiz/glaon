@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { ToastProvider } from '@glaon/ui';
+
 import loginHeroUrl from './assets/auth/login-hero.jpg';
 import { AuthProvider, useAuth } from './auth/auth-provider';
 import { CloudAuthProvider, getClerkPublishableKey } from './auth/cloud/clerk-provider';
@@ -40,10 +42,17 @@ export function App(): ReactNode {
   // Clerk SDK throws on import-time when given an empty key, so local-mode
   // builds without VITE_CLERK_PUBLISHABLE_KEY skip the provider entirely
   // (mode-detect #353 will narrow the scope further once it lands).
+  //
+  // ToastProvider lives at the app root so every feature can call
+  // `useToast()` for API-error notifications — see the API Error Toast
+  // Rule in CLAUDE.md. The provider portals into <body>, so its
+  // position in the tree only matters for context resolution.
   const inner = (
     <AuthProvider tokenStore={tokenStore}>
-      {clerkKey !== null ? <CloudSessionBridge /> : null}
-      <Router clerkKey={clerkKey} />
+      <ToastProvider>
+        {clerkKey !== null ? <CloudSessionBridge /> : null}
+        <Router clerkKey={clerkKey} />
+      </ToastProvider>
     </AuthProvider>
   );
 
