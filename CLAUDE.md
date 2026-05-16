@@ -107,6 +107,24 @@ Secure custom frontend for Home Assistant. Web + wall tablet + mobile from a sin
 - Figma component descriptions carry the Storybook component ID in the form `storybook-id: <kebab-case>`. This is the contract that Chromatic's Figma plugin (#53) relies on; don't change the format without coordinating that integration.
 - Setup and workflow details: [docs/figma.md](docs/figma.md). Design System bootstrap spec: [docs/design-system-bootstrap.md](docs/design-system-bootstrap.md).
 
+## Design-System Fidelity Rule (MANDATORY, NO EXCEPTIONS)
+
+If a Figma frame exists for a screen, component, or primitive, the implementation **must match it pixel-for-pixel** before the PR can merge. "Close enough", "let's polish later", and "the structure is there, we'll tune spacing in a follow-up" are explicit anti-patterns. Either the code matches the frame, or the Figma frame is amended in the same PR cycle. There is no third option.
+
+This rule exists because every cycle of "ship it now, refine later" has produced a chain of follow-up issues that the team would not have agreed to upfront. The rule shifts the cost back into the original PR where it belongs.
+
+Operational requirements:
+
+- **Link the Figma node ID(s)** the PR implements directly in the PR body. A PR that touches UI without a Figma node reference is not reviewable and is sent back.
+- **Side-by-side verification** is part of the test plan: open the Figma frame at the documented breakpoint(s) (`Desktop` = 1440, `Mobile` = 375 unless the frame says otherwise) and confirm the rendered output matches. Reviewers do this same check; they do not approve based on screenshots alone.
+- **Every divergence blocks merge** — color, spacing, padding, radius, shadow, font size/weight/family, line-height, layout structure, breakpoint behaviour, asset choice, hover/focus state, animation timing. If the frame says `padding: 32px`, the code reads `32px` (or the token that resolves to it); not "approximately 30".
+- **No placeholder shipping** when the Figma frame shows a final asset. If a designer asset has not been delivered (lifestyle photo, custom illustration, motion file), the PR **pauses** until it ships, or the Figma frame is updated to show the agreed-upon placeholder. Shipping a stand-in "for now" while the frame shows the final version is forbidden.
+- **Layout structure is part of the fidelity check.** Logo at `top-32 left-32` absolute is not equivalent to logo inside a flex header. Right-column full-bleed image with `rounded-tl-[80px] rounded-bl-[80px]` is not equivalent to right-column padded image with `rounded-3xl` on all four corners. Structural shortcuts that "look similar" fail this rule.
+- **Tokenize on the way in, not later.** When the Figma frame uses a token (Brand/600, Neutral/300, Display xs/Semibold, Shadows/shadow-xs), the code uses the same token. Hard-coded hex from the Figma inspector is acceptable only inside `packages/assets/*.svg` files that need to preview outside the app.
+- **Chromatic is the post-merge gate.** The PR's Storybook story (or, for app screens, the Playwright `@smoke`) renders the frame in CI; any Chromatic diff vs the agreed baseline that wasn't intentional triggers rollback rather than tuning.
+
+A PR that violates this rule and gets caught after merge is reverted, not patched forward. The "shipped now, fix later" PR (#508) and its three follow-ups (#510, #511, …) is the cautionary tale this section was written to prevent repeating.
+
 ## UUI Source Rule (MANDATORY)
 
 - Every base primitive in `@glaon/ui` (web side) **must wrap an Untitled UI source pulled via `npx untitledui add`**. Hand-rolling a primitive's structural HTML/CSS or rolling your own variant matrix from scratch is forbidden — Glaon's contribution is the wrap layer (token override, `<ThemeProvider>` integration, prop API consistency, Figma `parameters.design` mapping), not the kit's source itself.
