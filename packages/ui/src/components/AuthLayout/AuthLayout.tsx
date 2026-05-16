@@ -84,6 +84,13 @@ export function AuthLayout({
 
   // split — mirrors Figma node 1267:132204 (Design-System / Log in /
   // Desktop × Cloud) pixel-for-pixel at `lg` and up:
+  //   - Page: `lg:h-screen lg:overflow-hidden` — Figma's frame is
+  //     exactly 100vh with no document scroll. The form column gets
+  //     `lg:overflow-y-auto` as a safety valve so a very short
+  //     desktop window scrolls inside the column rather than pushing
+  //     the document past 100vh (#514). Below `lg` we keep
+  //     `min-h-screen` and allow normal vertical document scroll for
+  //     mobile legibility.
   //   - Form column: `min-w-[480px]`, vertically centered, with
   //     absolutely positioned logo (top-8 left-8 → 32/32px) and
   //     footer (bottom-8 left-8 → 32/32px). The form content itself
@@ -97,8 +104,8 @@ export function AuthLayout({
   // so the mobile auth screens stay legible.
   const showImage = imageSlot !== undefined && imageSlot !== null;
   return (
-    <div className="flex min-h-screen flex-col bg-primary lg:flex-row lg:items-stretch">
-      <section className="relative flex flex-1 flex-col items-center justify-center px-6 py-24 sm:px-10 lg:min-w-[480px] lg:py-8">
+    <div className="flex min-h-screen flex-col bg-primary lg:h-screen lg:min-h-0 lg:flex-row lg:items-stretch lg:overflow-hidden">
+      <section className="relative flex flex-1 flex-col items-center justify-center px-6 py-24 sm:px-10 lg:min-w-[480px] lg:overflow-y-auto lg:py-8">
         <div className="absolute left-6 top-6 sm:left-8 sm:top-8">{logo}</div>
 
         <div className="flex w-full max-w-[360px] flex-col gap-8">{children}</div>
@@ -111,7 +118,7 @@ export function AuthLayout({
       </section>
       {showImage && (
         <aside
-          className="relative hidden flex-1 overflow-hidden rounded-tl-[80px] rounded-bl-[80px] lg:block lg:min-w-[640px]"
+          className="relative hidden flex-1 overflow-hidden rounded-tl-[80px] rounded-bl-[80px] lg:block lg:h-full lg:min-w-[640px]"
           aria-hidden="true"
         >
           {imageSlot}
