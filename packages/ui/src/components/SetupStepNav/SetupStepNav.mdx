@@ -1,0 +1,66 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as SetupStepNavStories from './SetupStepNav.stories';
+
+<Meta of={SetupStepNavStories} />
+
+# SetupStepNav
+
+Vertical step navigator that ships inside [SetupLayout](?path=/docs/app-primitives-setuplayout--docs). Extracted into its own primitive so the three visual states (active / completed / upcoming) are exercised independently in Storybook + Chromatic. Pixel-matched to Figma node [`1277:791`](https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=1277-791) at 1440px.
+
+## When to use
+
+- Inside SetupLayout — the only consumer in epic #533.
+- Other vertical wizards that need the same icon + title + description
+  rail (post-launch onboarding flows, settings wizards).
+
+## Visual states
+
+- **active** — title in `text-secondary` (#404040), icon as supplied.
+  The single row that matches `activeStepId`.
+- **completed** — title in `text-tertiary` (#525252), icon replaced by
+  a Check glyph so the user can scan past finished steps.
+- **upcoming** — title in `text-tertiary` (#525252), icon as supplied.
+
+Color tokens are chosen so every state passes WCAG AA (≥ 4.5:1) on the
+`--glaon-light-grey` sidebar background that SetupLayout draws. Figma
+uses `opacity-50` on inactive rows; that drops effective contrast below
+threshold, so this primitive uses a token-based downshift instead.
+
+## Anatomy
+
+<Canvas of={SetupStepNavStories.Default} />
+
+```tsx
+<SetupStepNav
+  steps={wizardSteps}
+  activeStepId="wifi"
+  // optional — every step before activeStepId is completed by default
+  completedStepIds={['home-overview', 'layout']}
+  // optional — interactive click-to-jump variant; v1 wizard omits it
+  onSelect={(id) => router.jumpTo(id)}
+/>
+```
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Accessibility
+
+- The outer wrapper is `<nav aria-label="Wizard progress">` so screen
+  readers announce the section.
+- The active row's text block carries `aria-current="step"`.
+- Icons inside the featured-icon containers are `aria-hidden="true"`;
+  the visible step title is the accessible name.
+- When `onSelect` is provided each row renders as a `<button>` with a
+  visible focus ring; keyboard users get the standard tab order.
+
+## Related components
+
+- [SetupLayout](?path=/docs/app-primitives-setuplayout--docs) — embeds
+  this navigator in the sidebar by default.

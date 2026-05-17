@@ -19,6 +19,8 @@ export const setupLayoutControls = {
 
 export const setupLayoutExcludeFromArgs = defineExcludeFromArgs([
   'steps',
+  'completedStepIds',
+  'onSelectStep',
   'logoSlot',
   'footerSlot',
   'children',
