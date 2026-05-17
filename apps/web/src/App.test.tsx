@@ -8,6 +8,13 @@ describe('App', () => {
     window.name = '';
     window.history.replaceState({}, '', '/');
     window.localStorage.clear();
+    // Mark the device as already configured so SetupGate (#539) falls
+    // through to the existing Router. Each test that wants to exercise
+    // the wizard explicitly drops this key.
+    window.localStorage.setItem(
+      'glaon.device-config',
+      JSON.stringify({ schemaVersion: 1, completedAt: '2026-05-17T00:00:00.000Z' }),
+    );
     vi.stubGlobal(
       'fetch',
       vi.fn(() => Promise.reject(new TypeError('network'))),
