@@ -9,6 +9,7 @@ import { CloudAuthProvider, getClerkPublishableKey } from './auth/cloud/clerk-pr
 import { useCloudSessionSync } from './auth/cloud/use-cloud-session';
 import { deriveClientIdFromOrigin } from './auth/local-auth-flow';
 import { WebTokenStore } from './auth/web-token-store';
+import { ConfigProvider, WebConfigStore } from './config';
 import { AuthCallbackRoute } from './features/auth/local/auth-callback-route';
 import { EmailVerificationPage } from './features/auth/email-verification/email-verification-page';
 import { ForgotPasswordPage } from './features/auth/forgot-password/forgot-password-page';
@@ -36,6 +37,11 @@ const AUTH_HERO_IMAGE = (
 
 export function App(): ReactNode {
   const tokenStore = useMemo(() => new WebTokenStore({ logoutEndpoint: LOGOUT_ENDPOINT }), []);
+  const configStore = useMemo(() => new WebConfigStore(), []);
+  // Synchronous hydration so SetupGate (#539) decides between wizard and
+  // Router on the first render without a flash. peekSync reads localStorage
+  // directly; ConfigProvider's mutators handle every subsequent write.
+  const initialConfig = useMemo(() => configStore.peekSync(), [configStore]);
   const clerkKey = getClerkPublishableKey();
 
   // CloudAuthProvider only mounts when a publishable key is configured. The
@@ -47,13 +53,19 @@ export function App(): ReactNode {
   // `useToast()` for API-error notifications — see the API Error Toast
   // Rule in CLAUDE.md. The provider portals into <body>, so its
   // position in the tree only matters for context resolution.
+  //
+  // ConfigProvider sits outermost: SetupGate (#539) reads it before
+  // AuthProvider hydration runs, and a future factory-reset call needs to
+  // wipe both ConfigStore + TokenStore together.
   const inner = (
-    <AuthProvider tokenStore={tokenStore}>
-      <ToastProvider>
-        {clerkKey !== null ? <CloudSessionBridge /> : null}
-        <Router clerkKey={clerkKey} />
-      </ToastProvider>
-    </AuthProvider>
+    <ConfigProvider configStore={configStore} initialConfig={initialConfig}>
+      <AuthProvider tokenStore={tokenStore}>
+        <ToastProvider>
+          {clerkKey !== null ? <CloudSessionBridge /> : null}
+          <Router clerkKey={clerkKey} />
+        </ToastProvider>
+      </AuthProvider>
+    </ConfigProvider>
   );
 
   if (clerkKey === null) return inner;
