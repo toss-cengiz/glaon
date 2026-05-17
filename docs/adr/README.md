@@ -73,6 +73,8 @@ Deprecated durumu, kararı yapılacak işin dışına çıkarttığımızda kull
 | 0024 | [Lokal keşif: HA hostname'ine bağ kal](0024-local-discovery-rely-on-ha-hostname.md)     | Accepted           | 2026-05-08 |
 | 0025 | [apps/api stack pick — Hono + native MongoDB + Zod](0025-apps-api-stack.md)             | Accepted           | 2026-05-09 |
 | 0026 | [apps/api delivery: Glaon-managed hosted](0026-apps-api-delivery-hosted.md)             | Accepted           | 2026-05-10 |
+| 0027 | [HA `login_flow` password-grant proxy (cloud-side)](0027-ha-login-flow-proxy.md)        | Accepted           | 2026-05-10 |
+| 0028 | [Cihaz konfigürasyon state'i (first-run setup wizard)](0028-device-config-state.md)     | Accepted           | 2026-05-17 |
 
 ## Konvansiyonlar
 
