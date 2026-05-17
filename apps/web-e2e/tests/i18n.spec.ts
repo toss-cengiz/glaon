@@ -16,7 +16,7 @@
 //      whole point of the apps/api-preference write-through that
 //      lands later.
 
-import { expect, test } from '@playwright/test';
+import { expect, test } from './support/test';
 
 test.describe('i18n persistence @smoke', () => {
   test('localStorage-persisted locale drives the active language on load', async ({ page }) => {
@@ -41,7 +41,12 @@ test.describe('i18n persistence @smoke', () => {
     page,
   }) => {
     await page.addInitScript(() => {
+      // Clear everything except the device-config blob seeded by the
+      // shared fixture (support/test.ts) — SetupGate would short-circuit
+      // to the wizard otherwise (#539).
+      const _deviceConfig = window.localStorage.getItem('glaon.device-config');
       window.localStorage.clear();
+      if (_deviceConfig !== null) window.localStorage.setItem('glaon.device-config', _deviceConfig);
     });
     await page.goto('/');
 

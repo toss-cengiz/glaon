@@ -10,6 +10,7 @@ import { useCloudSessionSync } from './auth/cloud/use-cloud-session';
 import { deriveClientIdFromOrigin } from './auth/local-auth-flow';
 import { WebTokenStore } from './auth/web-token-store';
 import { ConfigProvider, WebConfigStore } from './config';
+import { SetupGate } from './setup/setup-gate';
 import { AuthCallbackRoute } from './features/auth/local/auth-callback-route';
 import { EmailVerificationPage } from './features/auth/email-verification/email-verification-page';
 import { ForgotPasswordPage } from './features/auth/forgot-password/forgot-password-page';
@@ -62,7 +63,9 @@ export function App(): ReactNode {
       <AuthProvider tokenStore={tokenStore}>
         <ToastProvider>
           {clerkKey !== null ? <CloudSessionBridge /> : null}
-          <Router clerkKey={clerkKey} />
+          <SetupGate>
+            <Router clerkKey={clerkKey} />
+          </SetupGate>
         </ToastProvider>
       </AuthProvider>
     </ConfigProvider>

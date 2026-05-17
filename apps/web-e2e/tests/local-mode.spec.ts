@@ -15,7 +15,7 @@
 // not carried over because the user-visible button it drives
 // (`login-start`) no longer exists in the unified LoginPage.
 
-import { expect, test } from '@playwright/test';
+import { expect, test } from './support/test';
 
 test.describe('auth-callback @smoke', () => {
   test('callback with mismatched state surfaces a user-visible error', async ({ page }) => {
