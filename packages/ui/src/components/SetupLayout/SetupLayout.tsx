@@ -11,48 +11,50 @@
 // reads, no router knowledge. SetupRoute (#539) owns the state machine
 // and feeds the active step's component into `children`.
 //
-// The inline step navigator below is intentionally minimal: it renders
-// only the two states the existing Figma frame draws (active = full
-// opacity text; upcoming = 50% opacity text). #538 extracts this into a
-// dedicated `SetupStepNav` primitive that adds the `completed` state
-// once D2–D5 land.
+// The step rail is rendered by the dedicated `SetupStepNav` primitive
+// (#538). SetupLayout supplies the surrounding chrome and passes through
+// the `steps` / `activeStepId` / `completedStepIds` / `onSelectStep`
+// props.
 
 import type { ReactNode } from 'react';
 
 import { Logo } from '../Logo';
+import { SetupStepNav, type SetupStepNavStep } from '../SetupStepNav';
 
-export interface SetupLayoutStep {
-  /** Stable identifier; matched against `activeStepId` to mark this row active. */
-  id: string;
-  /**
-   * Icon node rendered inside the 40×40 featured-icon container. Typically a
-   * UUI 20×20 outline icon — the container handles bg, border, and shadow.
-   */
-  icon: ReactNode;
-  /** Bold title — Inter Semi Bold, text-sm, neutral-700 (text-secondary). */
-  title: string;
-  /** Optional descriptive line under the title — Inter Regular, text-sm, neutral-600 (text-tertiary). */
-  description?: string;
-}
+/**
+ * Step shape consumed by SetupLayout. Re-exported as the SetupStepNav
+ * primitive's `SetupStepNavStep` so callers that only depend on
+ * SetupLayout do not need a second import.
+ */
+export type SetupLayoutStep = SetupStepNavStep;
 
 export interface SetupLayoutProps {
   /** Ordered list of wizard steps rendered in the left rail. */
   steps: readonly SetupLayoutStep[];
-  /**
-   * Id of the active step. The matching row renders at full opacity; every
-   * other row renders at 50% opacity (matches Figma `opacity-50` on the
-   * text block, icon stays full opacity).
-   */
+  /** Id of the active step. Forwarded to SetupStepNav. */
   activeStepId: string;
   /**
-   * Override for the brand logo at the top-left of the sidebar. Defaults to
-   * `<Logo size={133} />` (matches Figma's 133×60 wordmark). Pass `null` to
-   * suppress.
+   * Optional override for which steps are considered completed. Forwarded
+   * to SetupStepNav. When omitted, SetupStepNav defaults to "every step
+   * before `activeStepId` in `steps` order". The v1 first-run wizard
+   * accepts the default; callers that allow skipping pass an explicit list.
+   */
+  completedStepIds?: readonly string[];
+  /**
+   * Optional click handler. Forwarded to SetupStepNav. When provided the
+   * rail rows become click-to-jump buttons. The v1 first-run wizard does
+   * not pass this (the order is locked).
+   */
+  onSelectStep?: (id: string) => void;
+  /**
+   * Override for the brand logo at the top-left of the sidebar. Defaults
+   * to `<Logo size={133} />` (matches Figma's 133×60 wordmark). Pass
+   * `null` to suppress.
    */
   logoSlot?: ReactNode;
   /**
    * Override for the sidebar footer. Defaults to `© Glaon {year}` on the
-   * left and `help@glaon.com` on the right (with the UUI mail icon). Pass
+   * left and `help@glaon.com` on the right (with a Glaon mail icon). Pass
    * `null` to suppress.
    */
   footerSlot?: ReactNode;
@@ -68,6 +70,8 @@ export interface SetupLayoutProps {
 export function SetupLayout({
   steps,
   activeStepId,
+  completedStepIds,
+  onSelectStep,
   logoSlot,
   footerSlot,
   children,
@@ -87,7 +91,12 @@ export function SetupLayout({
       >
         <div className="flex flex-col gap-16 px-8 pt-8">
           {logo !== null && <div className="h-[60px] w-[133px]">{logo}</div>}
-          <SetupStepNav steps={steps} activeStepId={activeStepId} />
+          <SetupStepNav
+            steps={steps}
+            activeStepId={activeStepId}
+            {...(completedStepIds === undefined ? {} : { completedStepIds })}
+            {...(onSelectStep === undefined ? {} : { onSelect: onSelectStep })}
+          />
         </div>
         {footer !== null && (
           <div className="flex h-24 items-end justify-between p-8 text-sm text-tertiary">
@@ -97,72 +106,6 @@ export function SetupLayout({
       </aside>
       <main className="flex flex-1 flex-col lg:min-w-[480px] lg:overflow-y-auto">{children}</main>
     </div>
-  );
-}
-
-interface SetupStepNavProps {
-  readonly steps: readonly SetupLayoutStep[];
-  readonly activeStepId: string;
-}
-
-/**
- * Minimal inline navigator that ships with the layout for #537. #538
- * replaces this with a dedicated `SetupStepNav` primitive that exposes
- * its own props / stories / completed state. Until then this is the
- * single source of truth for the rail markup.
- */
-function SetupStepNav({ steps, activeStepId }: SetupStepNavProps) {
-  return (
-    <nav aria-label="Wizard progress" className="w-[320px]">
-      <ol className="flex flex-col">
-        {steps.map((step, index) => {
-          const isActive = step.id === activeStepId;
-          const isLast = index === steps.length - 1;
-          return (
-            <li key={step.id} className="flex items-start gap-3">
-              {/* Left rail: icon + connector */}
-              <div className="flex flex-col items-center self-stretch gap-1 pb-1">
-                <div className="z-[1] flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-secondary shadow-xs-skeuomorphic ring-1 ring-primary ring-inset">
-                  <span aria-hidden="true" className="block size-5">
-                    {step.icon}
-                  </span>
-                </div>
-                {!isLast && <div className="w-px flex-1 bg-[var(--color-neutral-300)]" />}
-              </div>
-              {/* Right column: text block.
-               *
-               * Figma draws inactive rows with `opacity-50` on the text
-               * block (#404040 @ 50% → effective #94979a, ~2.5:1 against
-               * the sidebar bg). That fails WCAG AA color-contrast.
-               * `text-quaternary` (#737373) is the closest match by tone
-               * but still falls short at 4.06:1 for normal 14px text.
-               * Glaon instead downshifts the title only: active title
-               * stays `text-secondary` (#404040, ~8.8:1); inactive title
-               * uses `text-tertiary` (#525252, ~6.3:1) which keeps the
-               * visual hierarchy via the colour-step + still-bold
-               * weight while passing axe-core. Descriptions in both
-               * states use `text-tertiary` since the contrast budget
-               * makes a deeper distinction impractical without a brand
-               * accent. Revisit with design at the SetupStepNav
-               * extraction (#538) once D2–D5 land. */}
-              <div
-                className="flex flex-1 flex-col pb-8"
-                aria-current={isActive ? 'step' : undefined}
-              >
-                <p
-                  className={`text-sm font-semibold leading-5 ${isActive ? 'text-secondary' : 'text-tertiary'}`}
-                >
-                  {step.title}
-                </p>
-                {step.description !== undefined && step.description !== '' && (
-                  <p className="text-sm font-normal leading-5 text-tertiary">{step.description}</p>
-                )}
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-    </nav>
   );
 }
 
