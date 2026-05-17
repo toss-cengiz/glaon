@@ -26,7 +26,12 @@ test.describe('cloud-mode @smoke', () => {
   test.beforeEach(async ({ page }) => {
     // Fresh first-visit state — no mode preference.
     await page.addInitScript(() => {
+      // Clear everything except the device-config blob seeded by the
+      // shared fixture (support/test.ts) — SetupGate would short-circuit
+      // to the wizard otherwise (#539).
+      const _deviceConfig = window.localStorage.getItem('glaon.device-config');
       window.localStorage.clear();
+      if (_deviceConfig !== null) window.localStorage.setItem('glaon.device-config', _deviceConfig);
     });
     // Block any accidental egress: the test should never hit a real
     // origin. Allow only same-origin requests; anything else fails the

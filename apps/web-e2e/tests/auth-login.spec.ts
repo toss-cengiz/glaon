@@ -25,7 +25,12 @@ const PASSWORD_GRANT_PATH = '**/auth/ha/password-grant';
 test.describe('auth-login @smoke', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
+      // Clear everything except the device-config blob seeded by the
+      // shared fixture (support/test.ts) — SetupGate would short-circuit
+      // to the wizard otherwise (#539).
+      const _deviceConfig = window.localStorage.getItem('glaon.device-config');
       window.localStorage.clear();
+      if (_deviceConfig !== null) window.localStorage.setItem('glaon.device-config', _deviceConfig);
     });
   });
 
