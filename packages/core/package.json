@@ -14,6 +14,7 @@
     ".": "./src/index.ts",
     "./api-client": "./src/api-client/index.ts",
     "./auth": "./src/auth/index.ts",
+    "./config": "./src/config/index.ts",
     "./ha": "./src/ha/index.ts",
     "./i18n": "./src/i18n/index.ts",
     "./observability": "./src/observability/index.ts",
