@@ -8,7 +8,7 @@
 // the wizard reads via `useAuth().getToken()` and forwards to the
 // cloud client.
 
-import { expect, test } from '@playwright/test';
+import { expect, test } from './support/test';
 
 import { assertA11y } from './support/a11y';
 

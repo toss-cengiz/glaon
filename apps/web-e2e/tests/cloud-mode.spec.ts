@@ -18,7 +18,7 @@
 // CLAUDE.md forbids real network calls; everything goes through
 // `page.route()` or `page.addInitScript()`.
 
-import { expect, test } from '@playwright/test';
+import { expect, test } from './support/test';
 
 import { assertA11y } from './support/a11y';
 

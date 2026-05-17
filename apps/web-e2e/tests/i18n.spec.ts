@@ -16,7 +16,7 @@
 //      whole point of the apps/api-preference write-through that
 //      lands later.
 
-import { expect, test } from '@playwright/test';
+import { expect, test } from './support/test';
 
 test.describe('i18n persistence @smoke', () => {
   test('localStorage-persisted locale drives the active language on load', async ({ page }) => {

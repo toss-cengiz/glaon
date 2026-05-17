@@ -16,7 +16,7 @@
 // no-op stub kept only for the auth-callback error scenario, which
 // still applies to the cloud OAuth callback path.
 
-import { expect, test } from '@playwright/test';
+import { expect, test } from './support/test';
 
 import { assertA11y } from './support/a11y';
 
