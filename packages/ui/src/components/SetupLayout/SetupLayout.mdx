@@ -1,0 +1,77 @@
+import { Meta, Canvas, Stories, Controls } from '@storybook/addon-docs/blocks';
+
+import * as SetupLayoutStories from './SetupLayout.stories';
+
+<Meta of={SetupLayoutStories} />
+
+# SetupLayout
+
+Page chrome for the first-run device setup wizard (epic #533, [ADR 0028](?path=/docs/design-decisions-adr-0028-device-config-state--docs)). Sibling primitive to [AuthLayout](?path=/docs/app-primitives-authlayout--docs) — left-rail step navigator, brand logo, fixed footer, right-column content area. Pixel-matched to Figma node [`1277:791`](https://www.figma.com/design/cDLzPUkcsDJtvwqZLWRwrd/Design-System?node-id=1277-791) at 1440px.
+
+## When to use
+
+- The single `/setup` route while the device is unconfigured (SetupGate
+  short-circuits to this layout before mounting the rest of the Router).
+- Other multi-step provisioning flows that need the same chrome
+  (long-term, e.g. a future "Pair another device" wizard).
+
+## When NOT to use
+
+- Single-screen auth flows — use [AuthLayout](?path=/docs/app-primitives-authlayout--docs).
+- Authenticated pages — they use AppShell instead (Phase 2 follow-up).
+- Modal-style wizards inside an existing page — use a [Modal](?path=/docs/web-primitives-modal--docs) with
+  internal step state; SetupLayout is full-viewport chrome.
+
+## Anatomy
+
+<Canvas of={SetupLayoutStories.HomeOverviewActive} />
+
+```tsx
+<SetupLayout steps={wizardSteps} activeStepId="home-overview">
+  <HomeOverviewStep onNext={(partial) => configStore.setPartial(partial)} />
+</SetupLayout>
+```
+
+The layout draws the left rail (logo + step navigator + footer) and an
+empty right column. Step components render their own title, form, and
+CTAs inside `children` — the layout does NOT impose right-column
+padding (per-step gutters vary in the Figma frames).
+
+## Variants
+
+<Stories includePrimary={false} />
+
+## Props
+
+<Controls />
+
+## Step rail behaviour
+
+- The active row matches `activeStepId` and renders at full opacity.
+- Every other row renders at `opacity-50` on the text block (icon stays
+  full opacity). This is the only visual differentiation drawn in the
+  current Figma frame.
+- The dedicated `SetupStepNav` primitive (#538) adds a `completed`
+  state with a checkmark once D2–D5 designs land.
+
+## Accessibility
+
+- The sidebar is wrapped in `<aside aria-label="Setup wizard navigation">`
+  so screen readers can skip it.
+- The step list is `<nav aria-label="Wizard progress"><ol>…</ol></nav>`;
+  the active item carries `aria-current="step"`.
+- The right column is `<main>` so the primary content gets the landmark.
+- Icons inside the featured-icon containers are `aria-hidden="true"` —
+  the visible step title is the accessible name.
+- The default footer's email link is a real anchor (`mailto:`) and
+  picks up the standard focus ring.
+
+## Related components
+
+- [Logo](?path=/docs/web-primitives-logo--docs) — used in the sidebar
+  header by default; override via `logoSlot`.
+- [AuthLayout](?path=/docs/app-primitives-authlayout--docs) — sibling
+  primitive for the auth flows.
+- [Input](?path=/docs/app-primitives-input--docs), [PasswordInput](?path=/docs/app-primitives-passwordinput--docs),
+  [Button](?path=/docs/app-primitives-button--docs) — what step
+  components compose inside `children`.
